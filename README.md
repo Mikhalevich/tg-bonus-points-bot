@@ -1,2 +1,2 @@
-# tg-loyalty-bot
-tg bot for making orders and assembling bonus points
+# tg-bonus-points-bot
+tg bot for receiving/spent bonus points
