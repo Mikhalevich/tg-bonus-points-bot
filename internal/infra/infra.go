@@ -10,9 +10,11 @@ import (
 	"github.com/jinzhu/configor"
 	"github.com/uptrace/opentelemetry-go-extra/otelsql"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/messagesender"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/tgbot"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/config"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/order"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 )
 
@@ -55,11 +57,16 @@ func StartBot(
 	}
 	defer cleanup()
 
+	var (
+		sender         = messagesender.New(b)
+		orderProcessor = order.New(sender)
+	)
+
 	if err := tgbot.Start(
 		ctx,
 		b,
 		logger,
-		tgbot.Routes(),
+		tgbot.Routes(orderProcessor),
 	); err != nil {
 		return fmt.Errorf("start bot: %w", err)
 	}
