@@ -14,9 +14,9 @@ type OrderProcessor interface {
 
 func Routes(o OrderProcessor) RouteRegisterFunc {
 	return func(r router.Register) {
-		r.AddExactTextRoute("/start", makeStartHandler(r))
+		r.AddTextCommand("/start", makeStartHandler(r))
 
-		r.AddExactTextRoute("/order", o.MakeOrder)
+		r.AddMenuCommand("/order", "make order", o.MakeOrder)
 
 		r.AddDefaultTextHandler(makeDefaultHandler(r))
 	}
