@@ -52,6 +52,7 @@ func makeMakeOrderHandler(r router.Register) msginfo.Handler {
 		); err != nil {
 			return fmt.Errorf("send message: %w", err)
 		}
+
 		return nil
 	}
 }
