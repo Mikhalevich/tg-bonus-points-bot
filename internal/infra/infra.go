@@ -10,10 +10,10 @@ import (
 	"github.com/jinzhu/configor"
 	"github.com/uptrace/opentelemetry-go-extra/otelsql"
 
-	"github.com/Mikhalevich/tg-loyalty-bot/internal/adapter/repository/postgres"
-	"github.com/Mikhalevich/tg-loyalty-bot/internal/app/tgbot"
-	"github.com/Mikhalevich/tg-loyalty-bot/internal/config"
-	"github.com/Mikhalevich/tg-loyalty-bot/internal/infra/logger"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/tgbot"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/config"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 )
 
 func LoadConfig(cfg any) error {

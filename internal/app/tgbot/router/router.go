@@ -7,9 +7,9 @@ import (
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 
-	"github.com/Mikhalevich/tg-loyalty-bot/internal/domain/port/msginfo"
-	"github.com/Mikhalevich/tg-loyalty-bot/internal/infra/logger"
-	"github.com/Mikhalevich/tg-loyalty-bot/internal/infra/tracing"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/tracing"
 )
 
 type Middleware func(next msginfo.Handler) msginfo.Handler

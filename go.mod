@@ -1,4 +1,4 @@
-module github.com/Mikhalevich/tg-loyalty-bot
+module github.com/Mikhalevich/tg-bonus-points-bot
 
 go 1.23.4
 

@@ -5,8 +5,8 @@ import (
 
 	"github.com/go-telegram/bot"
 
-	"github.com/Mikhalevich/tg-loyalty-bot/internal/app/tgbot/router"
-	"github.com/Mikhalevich/tg-loyalty-bot/internal/infra/logger"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/tgbot/router"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 )
 
 type RouteRegisterFunc func(register router.Register)

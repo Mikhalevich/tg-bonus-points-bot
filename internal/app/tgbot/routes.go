@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Mikhalevich/tg-loyalty-bot/internal/app/tgbot/router"
-	"github.com/Mikhalevich/tg-loyalty-bot/internal/domain/port/msginfo"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/tgbot/router"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 )
 
 type OrderMaker interface {
