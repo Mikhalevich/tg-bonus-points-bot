@@ -27,7 +27,7 @@ func makeStartHandler(r router.Register) msginfo.Handler {
 		if err := r.SendMessage(
 			ctx,
 			info.ChatID.Int64(),
-			"Type /makeorder for requesting order",
+			"Type /order for requesting an order",
 		); err != nil {
 			return fmt.Errorf("send message: %w", err)
 		}
