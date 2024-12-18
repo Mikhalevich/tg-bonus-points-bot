@@ -7,10 +7,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/Mikhalevich/tg-loyalty-bot/internal/config"
-	"github.com/Mikhalevich/tg-loyalty-bot/internal/infra"
-	"github.com/Mikhalevich/tg-loyalty-bot/internal/infra/logger"
-	"github.com/Mikhalevich/tg-loyalty-bot/internal/infra/tracing"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/config"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/tracing"
 )
 
 func main() {

@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/uptrace/opentelemetry-go-extra/otellogrus"
 
-	"github.com/Mikhalevich/tg-loyalty-bot/internal/infra/logger/internal/logrusimpl"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger/internal/logrusimpl"
 )
 
 type Logrus struct {

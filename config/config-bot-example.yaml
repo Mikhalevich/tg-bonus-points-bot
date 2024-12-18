@@ -1,8 +1,8 @@
 log_level: "info"
 tracing:
   endpoint: "jaeger:4318"
-  service_name: "schedule-bot"
+  service_name: "bonus-points-bot"
 bot:
-  token: "loyalty-bot-token"
+  token: "bonus-points-bot-token"
 postgres:
   connection: "host=postgres port=5432 user=bot password=bot dbname=bot sslmode=disable"
