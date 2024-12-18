@@ -15,7 +15,8 @@ import (
 type Middleware func(next msginfo.Handler) msginfo.Handler
 
 type Register interface {
-	AddExactTextRoute(pattern string, handler msginfo.Handler)
+	AddMenuCommand(command string, description string, handler msginfo.Handler)
+	AddTextCommand(command string, handler msginfo.Handler)
 	AddDefaultTextHandler(handler msginfo.Handler)
 	AddDefaultCallbackQueryHander(h msginfo.Handler)
 	AddMiddleware(middleware Middleware)
@@ -27,6 +28,7 @@ type Router struct {
 	bot         *bot.Bot
 	logger      logger.Logger
 	middlewares []Middleware
+	commands    []models.BotCommand
 }
 
 func New(b *bot.Bot, logger logger.Logger) *Router {
@@ -34,6 +36,20 @@ func New(b *bot.Bot, logger logger.Logger) *Router {
 		bot:    b,
 		logger: logger,
 	}
+}
+
+func (r *Router) SetMyCommands(ctx context.Context) error {
+	if len(r.commands) == 0 {
+		return nil
+	}
+
+	if _, err := r.bot.SetMyCommands(ctx, &bot.SetMyCommandsParams{
+		Commands: r.commands,
+	}); err != nil {
+		return fmt.Errorf("set my commads: %w", err)
+	}
+
+	return nil
 }
 
 func (r *Router) SendMessage(ctx context.Context, chatID int64, msg string) error {
@@ -57,12 +73,27 @@ func (r *Router) MiddlewareGroup(fn func(r Register)) {
 	fn(group)
 }
 
-func (r *Router) AddExactTextRoute(pattern string, handler msginfo.Handler) {
+func (r *Router) AddMenuCommand(command string, description string, handler msginfo.Handler) {
+	r.addCommand(command, description, handler)
+}
+
+func (r *Router) AddTextCommand(command string, handler msginfo.Handler) {
+	r.addCommand(command, "", handler)
+}
+
+func (r *Router) addCommand(command string, description string, handler msginfo.Handler) {
+	if description != "" {
+		r.commands = append(r.commands, models.BotCommand{
+			Command:     command,
+			Description: description,
+		})
+	}
+
 	r.bot.RegisterHandler(
 		bot.HandlerTypeMessageText,
-		pattern,
+		command,
 		bot.MatchTypeExact,
-		r.wrapHandler(pattern, handler),
+		r.wrapHandler(command, handler),
 	)
 }
 

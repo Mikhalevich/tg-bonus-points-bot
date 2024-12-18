@@ -2,6 +2,7 @@ package tgbot
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-telegram/bot"
 
@@ -20,6 +21,10 @@ func Start(
 	r := router.New(b, logger)
 
 	routesRegisterFn(r)
+
+	if err := r.SetMyCommands(ctx); err != nil {
+		return fmt.Errorf("set my commands: %w", err)
+	}
 
 	b.Start(ctx)
 
