@@ -11,6 +11,7 @@ import (
 	"github.com/uptrace/opentelemetry-go-extra/otelsql"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/messagesender"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/qrcodegenerator"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/tgbot"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/config"
@@ -59,7 +60,8 @@ func StartBot(
 
 	var (
 		sender         = messagesender.New(b)
-		orderProcessor = order.New(sender)
+		qrGenerator    = qrcodegenerator.New()
+		orderProcessor = order.New(sender, qrGenerator)
 	)
 
 	if err := tgbot.Start(

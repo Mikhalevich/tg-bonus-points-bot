@@ -1,7 +1,9 @@
 package messagesender
 
 import (
+	"bytes"
 	"context"
+	"fmt"
 
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
@@ -88,4 +90,21 @@ func (m *messageSender) ReplyTextMarkdown(
 
 func (m *messageSender) EscapeMarkdown(s string) string {
 	return bot.EscapeMarkdown(s)
+}
+
+func (m *messageSender) SendPNG(
+	ctx context.Context,
+	chatID msginfo.ChatID,
+	png []byte,
+) error {
+	if _, err := m.bot.SendPhoto(ctx, &bot.SendPhotoParams{
+		ChatID: chatID.Int64(),
+		Photo: &models.InputFileUpload{
+			Data: bytes.NewReader(png),
+		},
+	}); err != nil {
+		return fmt.Errorf("send photo: %w", err)
+	}
+
+	return nil
 }

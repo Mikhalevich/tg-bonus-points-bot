@@ -6,10 +6,15 @@ import (
 
 type Order struct {
 	sender port.MessageSender
+	qrCode port.QRCodeGenerator
 }
 
-func New(sender port.MessageSender) *Order {
+func New(
+	sender port.MessageSender,
+	qrCode port.QRCodeGenerator,
+) *Order {
 	return &Order{
 		sender: sender,
+		qrCode: qrCode,
 	}
 }
