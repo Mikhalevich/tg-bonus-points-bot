@@ -3,16 +3,26 @@ package order
 import (
 	"context"
 	"fmt"
+	"time"
 
-	"github.com/google/uuid"
-
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
 func (o *Order) MakeOrder(ctx context.Context, info msginfo.Info) error {
-	orderID := uuid.NewString()
+	id, err := o.repository.CreateOrder(ctx, port.CreateOrderInput{
+		ChatID:              info.ChatID,
+		Status:              order.StatusCreated,
+		StatusOperationTime: time.Now(),
+		VerificationCode:    "123",
+	})
 
-	png, err := o.qrCode.GeneratePNG(orderID)
+	if err != nil {
+		return fmt.Errorf("repository create order: %w", err)
+	}
+
+	png, err := o.qrCode.GeneratePNG(id.String())
 	if err != nil {
 		return fmt.Errorf("qrcode generate png: %w", err)
 	}

@@ -5,16 +5,19 @@ import (
 )
 
 type Order struct {
-	sender port.MessageSender
-	qrCode port.QRCodeGenerator
+	sender     port.MessageSender
+	qrCode     port.QRCodeGenerator
+	repository port.OrderRepository
 }
 
 func New(
 	sender port.MessageSender,
 	qrCode port.QRCodeGenerator,
+	repository port.OrderRepository,
 ) *Order {
 	return &Order{
-		sender: sender,
-		qrCode: qrCode,
+		sender:     sender,
+		qrCode:     qrCode,
+		repository: repository,
 	}
 }
