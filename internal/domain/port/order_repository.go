@@ -17,4 +17,14 @@ type CreateOrderInput struct {
 
 type OrderRepository interface {
 	CreateOrder(ctx context.Context, coi CreateOrderInput) (order.ID, error)
+	GetOrderByChatIDAndStatus(ctx context.Context, id msginfo.ChatID, statuses ...order.Status) (*order.Order, error)
+	UpdateOrderStatus(
+		ctx context.Context,
+		id order.ID,
+		operationTime time.Time,
+		newStatus order.Status,
+		prevStatuses ...order.Status,
+	) error
+	IsNotFoundError(err error) bool
+	IsNotUpdatedError(err error) bool
 }

@@ -43,5 +43,6 @@ func (o *Order) MakeOrder(ctx context.Context, info msginfo.Info) error {
 }
 
 func generateVerificationCode() string {
+	//nolint:gosec
 	return fmt.Sprintf("%03d", rand.Intn(1000))
 }

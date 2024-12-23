@@ -1,7 +1,11 @@
 package order
 
 import (
+	"fmt"
 	"strconv"
+	"time"
+
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 )
 
 type ID int
@@ -24,6 +28,16 @@ func (s Status) String() string {
 	return string(s)
 }
 
+func StatusFromString(s string) (Status, error) {
+	status := Status(s)
+	switch status {
+	case StatusCreated, StatusInProgress, StatusReady, StatusCompleted, StatusCanceled:
+		return status, nil
+	default:
+		return Status("invalid"), fmt.Errorf("invalid status: %s", s)
+	}
+}
+
 const (
 	StatusCreated    Status = "created"
 	StatusInProgress Status = "in_progress"
@@ -31,3 +45,16 @@ const (
 	StatusCompleted  Status = "completed"
 	StatusCanceled   Status = "canceled"
 )
+
+type Order struct {
+	ID               ID
+	ChatID           msginfo.ChatID
+	Status           Status
+	VerificationCode string
+	Timeline         []StatusTime
+}
+
+type StatusTime struct {
+	Status Status
+	Time   time.Time
+}
