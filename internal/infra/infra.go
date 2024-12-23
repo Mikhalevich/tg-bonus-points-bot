@@ -52,7 +52,7 @@ func StartBot(
 		return fmt.Errorf("creating bot: %w", err)
 	}
 
-	_, cleanup, err := MakePostgres(postgresCfg)
+	pg, cleanup, err := MakePostgres(postgresCfg)
 	if err != nil {
 		return fmt.Errorf("make postgres: %w", err)
 	}
@@ -61,7 +61,7 @@ func StartBot(
 	var (
 		sender         = messagesender.New(b)
 		qrGenerator    = qrcodegenerator.New()
-		orderProcessor = order.New(sender, qrGenerator)
+		orderProcessor = order.New(sender, qrGenerator, pg)
 	)
 
 	if err := tgbot.Start(
