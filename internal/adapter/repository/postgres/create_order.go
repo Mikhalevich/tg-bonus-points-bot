@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/jmoiron/sqlx"
+
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
-	"github.com/jmoiron/sqlx"
 )
 
 func (p *Postgres) CreateOrder(ctx context.Context, coi port.CreateOrderInput) (order.ID, error) {

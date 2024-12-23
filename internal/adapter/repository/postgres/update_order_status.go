@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 	"github.com/jmoiron/sqlx"
+
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
 func (p *Postgres) UpdateOrderStatus(
