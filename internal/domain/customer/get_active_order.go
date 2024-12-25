@@ -1,4 +1,4 @@
-package order
+package customer
 
 import (
 	"context"
@@ -10,8 +10,8 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (o *Order) GetActiveOrder(ctx context.Context, info msginfo.Info) error {
-	activeOrder, err := o.repository.GetOrderByChatIDAndStatus(
+func (c *Customer) GetActiveOrder(ctx context.Context, info msginfo.Info) error {
+	activeOrder, err := c.repository.GetOrderByChatIDAndStatus(
 		ctx,
 		info.ChatID,
 		order.StatusCreated,
@@ -20,15 +20,15 @@ func (o *Order) GetActiveOrder(ctx context.Context, info msginfo.Info) error {
 	)
 
 	if err != nil {
-		if o.repository.IsNotFoundError(err) {
-			o.sender.ReplyText(ctx, info.ChatID, info.MessageID, "no active orders")
+		if c.repository.IsNotFoundError(err) {
+			c.sender.ReplyText(ctx, info.ChatID, info.MessageID, "no active orders")
 			return nil
 		}
 
 		return fmt.Errorf("get order by chat_id: %w", err)
 	}
 
-	o.sender.ReplyTextMarkdown(ctx, info.ChatID, info.MessageID, formatOrder(activeOrder, o.sender.EscapeMarkdown))
+	c.sender.ReplyTextMarkdown(ctx, info.ChatID, info.MessageID, formatOrder(activeOrder, c.sender.EscapeMarkdown))
 
 	return nil
 }

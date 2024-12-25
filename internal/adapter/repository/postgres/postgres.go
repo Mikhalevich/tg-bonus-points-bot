@@ -8,7 +8,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 )
 
-var _ port.OrderRepository = (*Postgres)(nil)
+var _ port.CustomerRepository = (*Postgres)(nil)
 
 type Driver interface {
 	Name() string

@@ -1,4 +1,4 @@
-package order
+package customer
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (o *Order) MakeOrder(ctx context.Context, info msginfo.Info) error {
+func (c *Customer) MakeOrder(ctx context.Context, info msginfo.Info) error {
 	input := port.CreateOrderInput{
 		ChatID:              info.ChatID,
 		Status:              order.StatusCreated,
@@ -19,11 +19,11 @@ func (o *Order) MakeOrder(ctx context.Context, info msginfo.Info) error {
 		VerificationCode:    generateVerificationCode(),
 	}
 
-	id, err := o.repository.CreateOrder(ctx, input)
+	id, err := c.repository.CreateOrder(ctx, input)
 
 	if err != nil {
-		if o.repository.IsAlreadyExistsError(err) {
-			o.sender.ReplyText(ctx, info.ChatID, info.MessageID,
+		if c.repository.IsAlreadyExistsError(err) {
+			c.sender.ReplyText(ctx, info.ChatID, info.MessageID,
 				"You have active order already")
 			return nil
 		}
@@ -31,7 +31,7 @@ func (o *Order) MakeOrder(ctx context.Context, info msginfo.Info) error {
 		return fmt.Errorf("repository create order: %w", err)
 	}
 
-	png, err := o.qrCode.GeneratePNG(id.String())
+	png, err := c.qrCode.GeneratePNG(id.String())
 	if err != nil {
 		return fmt.Errorf("qrcode generate png: %w", err)
 	}
@@ -46,9 +46,9 @@ func (o *Order) MakeOrder(ctx context.Context, info msginfo.Info) error {
 				Time:   input.StatusOperationTime,
 			},
 		},
-	}, o.sender.EscapeMarkdown)
+	}, c.sender.EscapeMarkdown)
 
-	if err := o.sender.SendPNGMarkdown(ctx, info.ChatID, orderInfo, png); err != nil {
+	if err := c.sender.SendPNGMarkdown(ctx, info.ChatID, orderInfo, png); err != nil {
 		return fmt.Errorf("send png: %w", err)
 	}
 

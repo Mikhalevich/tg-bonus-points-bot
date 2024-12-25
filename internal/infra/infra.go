@@ -15,7 +15,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/driver"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/tgbot"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/config"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/order"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 )
 
@@ -59,16 +59,16 @@ func StartBot(
 	defer cleanup()
 
 	var (
-		sender         = messagesender.New(b)
-		qrGenerator    = qrcodegenerator.New()
-		orderProcessor = order.New(sender, qrGenerator, pg)
+		sender            = messagesender.New(b)
+		qrGenerator       = qrcodegenerator.New()
+		customerProcessor = customer.New(sender, qrGenerator, pg)
 	)
 
 	if err := tgbot.Start(
 		ctx,
 		b,
 		logger,
-		tgbot.Routes(orderProcessor),
+		tgbot.Routes(customerProcessor),
 	); err != nil {
 		return fmt.Errorf("start bot: %w", err)
 	}

@@ -15,7 +15,7 @@ type CreateOrderInput struct {
 	VerificationCode    string
 }
 
-type OrderRepository interface {
+type CustomerRepository interface {
 	CreateOrder(ctx context.Context, coi CreateOrderInput) (order.ID, error)
 	GetOrderByChatIDAndStatus(ctx context.Context, id msginfo.ChatID, statuses ...order.Status) (*order.Order, error)
 	UpdateOrderStatus(
