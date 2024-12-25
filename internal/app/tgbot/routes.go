@@ -11,6 +11,7 @@ import (
 type OrderProcessor interface {
 	MakeOrder(ctx context.Context, msgInfo msginfo.Info) error
 	TestCompleteOrder(ctx context.Context, msgInfo msginfo.Info) error
+	GetActiveOrder(ctx context.Context, msgInfo msginfo.Info) error
 }
 
 func Routes(o OrderProcessor) RouteRegisterFunc {
@@ -18,6 +19,7 @@ func Routes(o OrderProcessor) RouteRegisterFunc {
 		r.AddTextCommand("/start", makeStartHandler(r))
 
 		r.AddMenuCommand("/order", "make order", o.MakeOrder)
+		r.AddMenuCommand("/get_active_order", "retrieve active order", o.GetActiveOrder)
 		r.AddMenuCommand("/test_complete_order", "complete order for testing only", o.TestCompleteOrder)
 
 		r.AddDefaultTextHandler(makeDefaultHandler(r))

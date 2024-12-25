@@ -12,16 +12,14 @@ import (
 )
 
 func (o *Order) MakeOrder(ctx context.Context, info msginfo.Info) error {
-	verifivcationCode := generateVerificationCode()
+	input := port.CreateOrderInput{
+		ChatID:              info.ChatID,
+		Status:              order.StatusCreated,
+		StatusOperationTime: time.Now(),
+		VerificationCode:    generateVerificationCode(),
+	}
 
-	id, err := o.repository.CreateOrder(
-		ctx,
-		port.CreateOrderInput{
-			ChatID:              info.ChatID,
-			Status:              order.StatusCreated,
-			StatusOperationTime: time.Now(),
-			VerificationCode:    verifivcationCode,
-		})
+	id, err := o.repository.CreateOrder(ctx, input)
 
 	if err != nil {
 		if o.repository.IsAlreadyExistsError(err) {
@@ -33,15 +31,24 @@ func (o *Order) MakeOrder(ctx context.Context, info msginfo.Info) error {
 		return fmt.Errorf("repository create order: %w", err)
 	}
 
-	o.sender.ReplyTextMarkdown(ctx, info.ChatID, info.MessageID,
-		fmt.Sprintf("order id: *%s*\n verification code: *%s*", id.String(), verifivcationCode))
-
 	png, err := o.qrCode.GeneratePNG(id.String())
 	if err != nil {
 		return fmt.Errorf("qrcode generate png: %w", err)
 	}
 
-	if err := o.sender.SendPNG(ctx, info.ChatID, png); err != nil {
+	orderInfo := formatOrder(&order.Order{
+		ID:               id,
+		Status:           input.Status,
+		VerificationCode: input.VerificationCode,
+		Timeline: []order.StatusTime{
+			{
+				Status: input.Status,
+				Time:   input.StatusOperationTime,
+			},
+		},
+	}, o.sender.EscapeMarkdown)
+
+	if err := o.sender.SendPNGMarkdown(ctx, info.ChatID, orderInfo, png); err != nil {
 		return fmt.Errorf("send png: %w", err)
 	}
 
