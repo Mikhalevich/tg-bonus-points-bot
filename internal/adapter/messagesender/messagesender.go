@@ -92,9 +92,10 @@ func (m *messageSender) EscapeMarkdown(s string) string {
 	return bot.EscapeMarkdown(s)
 }
 
-func (m *messageSender) SendPNG(
+func (m *messageSender) SendPNGMarkdown(
 	ctx context.Context,
 	chatID msginfo.ChatID,
+	caption string,
 	png []byte,
 ) error {
 	if _, err := m.bot.SendPhoto(ctx, &bot.SendPhotoParams{
@@ -102,6 +103,8 @@ func (m *messageSender) SendPNG(
 		Photo: &models.InputFileUpload{
 			Data: bytes.NewReader(png),
 		},
+		Caption:   caption,
+		ParseMode: models.ParseModeMarkdown,
 	}); err != nil {
 		return fmt.Errorf("send photo: %w", err)
 	}
