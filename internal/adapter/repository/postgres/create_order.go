@@ -37,6 +37,10 @@ func (p *Postgres) CreateOrder(ctx context.Context, coi port.CreateOrderInput) (
 
 	var orderID int
 	if err := sqlx.GetContext(ctx, p.db, &orderID, p.db.Rebind(query), args...); err != nil {
+		if p.driver.IsConstraintError(err, "only_one_active_order_unique_idx") {
+			return 0, errAlreadyExists
+		}
+
 		return 0, fmt.Errorf("get context: %w", err)
 	}
 

@@ -6,13 +6,13 @@ import (
 	"fmt"
 
 	"github.com/go-telegram/bot"
-	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jinzhu/configor"
 	"github.com/uptrace/opentelemetry-go-extra/otelsql"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/messagesender"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/qrcodegenerator"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/driver"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/tgbot"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/config"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/order"
@@ -81,7 +81,9 @@ func MakePostgres(cfg config.Postgres) (*postgres.Postgres, func(), error) {
 		return nil, func() {}, nil
 	}
 
-	db, err := otelsql.Open("pgx", cfg.Connection)
+	driver := driver.NewPgx()
+
+	db, err := otelsql.Open(driver.Name(), cfg.Connection)
 	if err != nil {
 		return nil, nil, fmt.Errorf("open database: %w", err)
 	}
@@ -90,7 +92,7 @@ func MakePostgres(cfg config.Postgres) (*postgres.Postgres, func(), error) {
 		return nil, nil, fmt.Errorf("ping: %w", err)
 	}
 
-	p := postgres.New(db, "pgx")
+	p := postgres.New(db, driver)
 
 	return p, func() {
 		db.Close()

@@ -10,12 +10,19 @@ import (
 
 var _ port.OrderRepository = (*Postgres)(nil)
 
-type Postgres struct {
-	db sqlx.ExtContext
+type Driver interface {
+	Name() string
+	IsConstraintError(err error, constraint string) bool
 }
 
-func New(db *sql.DB, driverName string) *Postgres {
+type Postgres struct {
+	db     sqlx.ExtContext
+	driver Driver
+}
+
+func New(db *sql.DB, driver Driver) *Postgres {
 	return &Postgres{
-		db: sqlx.NewDb(db, driverName),
+		db:     sqlx.NewDb(db, driver.Name()),
+		driver: driver,
 	}
 }
