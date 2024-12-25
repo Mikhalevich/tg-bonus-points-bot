@@ -24,6 +24,12 @@ func (o *Order) MakeOrder(ctx context.Context, info msginfo.Info) error {
 		})
 
 	if err != nil {
+		if o.repository.IsAlreadyExistsError(err) {
+			o.sender.ReplyText(ctx, info.ChatID, info.MessageID,
+				"You have active order already")
+			return nil
+		}
+
 		return fmt.Errorf("repository create order: %w", err)
 	}
 

@@ -27,4 +27,5 @@ type OrderRepository interface {
 	) error
 	IsNotFoundError(err error) bool
 	IsNotUpdatedError(err error) bool
+	IsAlreadyExistsError(err error) bool
 }
