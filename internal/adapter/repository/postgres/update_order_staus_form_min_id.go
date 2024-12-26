@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -42,6 +44,10 @@ func (p *Postgres) UpdateOrderStatusForMinID(
 
 	var modelOrder model.Order
 	if err := sqlx.GetContext(ctx, p.db, &modelOrder, p.db.Rebind(query), args...); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errNotFound
+		}
+
 		return nil, fmt.Errorf("get context: %w", err)
 	}
 
