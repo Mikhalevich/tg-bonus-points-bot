@@ -12,6 +12,7 @@ all: build
 
 build:
 	go build -mod=vendor -o $(BIN_PATH)/bot ./cmd/bot/main.go
+	go build -mod=vendor -o $(BIN_PATH)/manager ./cmd/manager/main.go
 
 test:
 	go test ./...

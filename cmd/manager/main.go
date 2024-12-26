@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	var cfg config.ConsumerBot
+	var cfg config.ManagerHTTPService
 	if err := infra.LoadConfig(&cfg); err != nil {
 		logger.StdLogger().WithError(err).Error("failed to load config")
 		os.Exit(1)
@@ -32,7 +32,7 @@ func main() {
 	}
 }
 
-func runService(cfg config.ConsumerBot, log logger.Logger) error {
+func runService(cfg config.ManagerHTTPService, log logger.Logger) error {
 	if err := tracing.SetupTracer(cfg.Tracing.Endpoint, cfg.Tracing.ServiceName, ""); err != nil {
 		return fmt.Errorf("setup tracer: %w", err)
 	}
@@ -40,18 +40,19 @@ func runService(cfg config.ConsumerBot, log logger.Logger) error {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
-	log.Info("starting bot")
+	log.Info("service starting")
 
-	if err := infra.StartBot(
+	if err := infra.StartManagerService(
 		ctx,
+		cfg.HTTPPort,
 		cfg.Bot.Token,
 		cfg.Postgres,
-		log.WithField("bot_name", "schedule"),
+		log.WithField("service_name", "http_manager"),
 	); err != nil {
 		return fmt.Errorf("start bot: %w", err)
 	}
 
-	log.Info("bot stopped")
+	log.Info("service stopped")
 
 	return nil
 }
