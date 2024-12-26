@@ -88,6 +88,23 @@ func (m *messageSender) ReplyTextMarkdown(
 	}
 }
 
+func (m *messageSender) SendTextMarkdown(
+	ctx context.Context,
+	chatID msginfo.ChatID,
+	text string,
+) {
+	if _, err := m.bot.SendMessage(ctx, &bot.SendMessageParams{
+		ChatID:    chatID.Int64(),
+		ParseMode: models.ParseModeMarkdown,
+		Text:      text,
+	}); err != nil {
+		logger.FromContext(ctx).
+			WithError(err).
+			WithField("text_markdown", text).
+			Error("failed to send text markdown")
+	}
+}
+
 func (m *messageSender) EscapeMarkdown(s string) string {
 	return bot.EscapeMarkdown(s)
 }

@@ -1,10 +1,18 @@
 package config
 
-type ScheduleBot struct {
+type ConsumerBot struct {
 	LogLevel string   `yaml:"log_level" required:"true"`
 	Tracing  Tracing  `yaml:"tracing" required:"true"`
 	Bot      Bot      `yaml:"bot" required:"true"`
 	Postgres Postgres `yaml:"postgres" required:"true"`
+}
+
+type ManagerHTTPService struct {
+	LogLevel string   `yaml:"log_level" required:"true"`
+	Tracing  Tracing  `yaml:"tracing" required:"true"`
+	Bot      Bot      `yaml:"bot" required:"true"`
+	Postgres Postgres `yaml:"postgres" required:"true"`
+	HTTPPort int      `yaml:"http_port" required:"true"`
 }
 
 type Bot struct {

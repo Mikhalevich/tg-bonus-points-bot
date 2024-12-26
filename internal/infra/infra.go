@@ -13,9 +13,11 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/qrcodegenerator"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/driver"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/httpmanager"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/tgbot"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/config"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/manager"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 )
 
@@ -97,4 +99,38 @@ func MakePostgres(cfg config.Postgres) (*postgres.Postgres, func(), error) {
 	return p, func() {
 		db.Close()
 	}, nil
+}
+
+func StartManagerService(
+	ctx context.Context,
+	httpPort int,
+	botAPItoken string,
+	postgresCfg config.Postgres,
+	logger logger.Logger,
+) error {
+	b, err := bot.New(botAPItoken, bot.WithSkipGetMe())
+	if err != nil {
+		return fmt.Errorf("creating bot: %w", err)
+	}
+
+	pg, cleanup, err := MakePostgres(postgresCfg)
+	if err != nil {
+		return fmt.Errorf("make postgres: %w", err)
+	}
+	defer cleanup()
+
+	var (
+		sender           = messagesender.New(b)
+		managerProcessor = manager.New(sender, pg)
+	)
+
+	if err := httpmanager.Start(
+		ctx,
+		httpPort,
+		managerProcessor,
+	); err != nil {
+		return fmt.Errorf("start bot: %w", err)
+	}
+
+	return nil
 }
