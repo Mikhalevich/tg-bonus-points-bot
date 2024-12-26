@@ -1,16 +1,25 @@
 package handler
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
+
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/httpmanager/handler/response"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 )
 
 func (h *Handler) GetNextPendingOrderToProcess(w http.ResponseWriter, r *http.Request) {
-	_, err := h.manager.GetNextPendingOrderToProcess(r.Context())
+	inProgressOrder, err := h.manager.GetNextPendingOrderToProcess(r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), convertErrorToHTTPCode(err))
 		return
 	}
 
-	fmt.Fprintf(w, "it works...")
+	w.Header().Add("Content-Type", "application/json")
+
+	if err := json.NewEncoder(w).Encode(response.ToOrder(inProgressOrder)); err != nil {
+		logger.FromContext(r.Context()).
+			WithError(err).
+			Error("encode json response")
+	}
 }
