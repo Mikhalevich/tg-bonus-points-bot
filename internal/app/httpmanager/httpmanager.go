@@ -20,7 +20,7 @@ func Start(
 		h   = handler.New(manager)
 	)
 
-	mux.HandleFunc("GET /next-order-to-process", h.GetNextPendingOrderToProcess)
+	mux.HandleFunc("GET /order/next", h.GetNextPendingOrderToProcess)
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", port),
