@@ -124,10 +124,9 @@ func StartManagerService(
 		managerProcessor = manager.New(sender, pg)
 	)
 
-	if err := httpmanager.Start(
+	if err := httpmanager.New(managerProcessor, logger).Start(
 		ctx,
 		httpPort,
-		managerProcessor,
 	); err != nil {
 		return fmt.Errorf("start bot: %w", err)
 	}

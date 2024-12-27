@@ -29,7 +29,7 @@ func ToOrder(o *order.Order) *Order {
 
 	return &Order{
 		ID:               o.ID.String(),
-		Status:           o.ID.String(),
+		Status:           o.Status.String(),
 		VerificationCode: o.VerificationCode,
 		Timeline:         timeline,
 	}

@@ -10,21 +10,29 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 )
 
-func Start(
+type HTTPManager struct {
+	mux    *http.ServeMux
+	logger logger.Logger
+}
+
+func New(manager handler.Manager, logger logger.Logger) *HTTPManager {
+	m := &HTTPManager{
+		mux:    http.NewServeMux(),
+		logger: logger,
+	}
+
+	m.routes(handler.New(manager))
+
+	return m
+}
+
+func (m *HTTPManager) Start(
 	ctx context.Context,
 	port int,
-	manager handler.Manager,
 ) error {
-	var (
-		mux = http.NewServeMux()
-		h   = handler.New(manager)
-	)
-
-	mux.HandleFunc("GET /next-order-to-process", h.GetNextPendingOrderToProcess)
-
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", port),
-		Handler:      mux,
+		Handler:      m.mux,
 		ReadTimeout:  time.Second * 10,
 		WriteTimeout: time.Second * 10,
 	}
