@@ -19,3 +19,7 @@ func (e *Error) Error() string {
 func NotFound(msg string) *Error {
 	return New(TypeNotFound, msg)
 }
+
+func AlreadyExists(msg string) *Error {
+	return New(TypeAlreadyExists, msg)
+}

@@ -13,5 +13,13 @@ type ManagerRepository interface {
 		operationTime time.Time,
 		prevStatus, newStatus order.Status,
 	) (*order.Order, error)
+	UpdateOrderStatus(
+		ctx context.Context,
+		id order.ID,
+		operationTime time.Time,
+		newStatus order.Status,
+		prevStatuses ...order.Status,
+	) error
 	IsNotFoundError(err error) bool
+	IsNotUpdatedError(err error) bool
 }

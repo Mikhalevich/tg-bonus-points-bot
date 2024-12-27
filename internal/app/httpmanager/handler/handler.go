@@ -8,6 +8,7 @@ import (
 
 type Manager interface {
 	GetNextPendingOrderToProcess(ctx context.Context) (*order.Order, error)
+	UpdateOrderStatus(ctx context.Context, id order.ID, status order.Status) error
 }
 
 type Handler struct {
