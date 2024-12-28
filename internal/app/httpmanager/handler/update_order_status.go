@@ -19,7 +19,7 @@ func (h *Handler) UpdateOrderStatus(w http.ResponseWriter, r *http.Request) erro
 		return fmt.Errorf("validate: %w", err)
 	}
 
-	orderID, err := order.IDFromString(orderStatusReq.ID)
+	orderID, err := order.IDFromString(r.PathValue("id"))
 	if err != nil {
 		return fmt.Errorf("invalid id format: %w", err)
 	}

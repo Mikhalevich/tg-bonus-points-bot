@@ -15,19 +15,24 @@ func (m *Manager) UpdateOrderStatus(ctx context.Context, id order.ID, status ord
 		return fmt.Errorf("calculate legal previous statuses: %w", err)
 	}
 
-	if err := m.repository.UpdateOrderStatus(
+	updatedOrder, err := m.repository.UpdateOrderStatus(
 		ctx,
 		id,
 		time.Now(),
 		status,
 		previousStatuses...,
-	); err != nil {
+	)
+
+	if err != nil {
 		if m.repository.IsNotUpdatedError(err) {
 			return perror.NotFound("order with relevant status not found")
 		}
 
 		return fmt.Errorf("update order status: %w", err)
 	}
+
+	m.customerSender.SendTextMarkdown(ctx, updatedOrder.ChatID,
+		fmt.Sprintf("order status updated to %s", status.String()))
 
 	return nil
 }

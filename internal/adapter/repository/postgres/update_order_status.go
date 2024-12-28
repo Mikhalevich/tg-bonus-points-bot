@@ -2,11 +2,14 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/internal/model"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
@@ -16,7 +19,7 @@ func (p *Postgres) UpdateOrderStatus(
 	operationTime time.Time,
 	newStatus order.Status,
 	prevStatuses ...order.Status,
-) error {
+) (*order.Order, error) {
 	query := fmt.Sprintf(`
 		UPDATE orders SET
 			status = :status,
@@ -24,6 +27,7 @@ func (p *Postgres) UpdateOrderStatus(
 		WHERE
 			id = :id AND
 			status IN (?)
+		RETURNING *
 	`, operationTimeFieldByStatus(newStatus))
 
 	query, args, err := sqlx.Named(
@@ -35,31 +39,31 @@ func (p *Postgres) UpdateOrderStatus(
 		})
 
 	if err != nil {
-		return fmt.Errorf("named: %w", err)
+		return nil, fmt.Errorf("named: %w", err)
 	}
 
 	args = append(args, prevStatuses)
 
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return fmt.Errorf("in statement %w", err)
+		return nil, fmt.Errorf("in statement %w", err)
 	}
 
-	res, err := p.db.ExecContext(ctx, p.db.Rebind(query), args...)
+	var modOrder model.Order
+	if err := sqlx.GetContext(ctx, p.db, &modOrder, p.db.Rebind(query), args...); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errNotUpdated
+		}
+
+		return nil, fmt.Errorf("exec context: %w", err)
+	}
+
+	portOrder, err := model.ToPortOrder(&modOrder)
 	if err != nil {
-		return fmt.Errorf("exec context: %w", err)
+		return nil, fmt.Errorf("convert to port order: %w", err)
 	}
 
-	rows, err := res.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("rows affected: %w", err)
-	}
-
-	if rows == 0 {
-		return errNotUpdated
-	}
-
-	return nil
+	return portOrder, nil
 }
 
 func operationTimeFieldByStatus(s order.Status) string {

@@ -19,7 +19,7 @@ type ManagerRepository interface {
 		operationTime time.Time,
 		newStatus order.Status,
 		prevStatuses ...order.Status,
-	) error
+	) (*order.Order, error)
 	IsNotFoundError(err error) bool
 	IsNotUpdatedError(err error) bool
 }
