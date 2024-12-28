@@ -7,6 +7,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/httpmanager/handler/request"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/httpmanager/internal/httperror"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/perror"
 )
 
 func (h *Handler) UpdateOrderStatus(w http.ResponseWriter, r *http.Request) *httperror.ErrorHTTPResponse {
@@ -30,6 +31,10 @@ func (h *Handler) UpdateOrderStatus(w http.ResponseWriter, r *http.Request) *htt
 	}
 
 	if err := h.manager.UpdateOrderStatus(r.Context(), orderID, status); err != nil {
+		if perror.IsType(err, perror.TypeNotFound) {
+			return httperror.NotFound("no orders with relevant status")
+		}
+
 		return httperror.InternalServerError("update order status", err)
 	}
 

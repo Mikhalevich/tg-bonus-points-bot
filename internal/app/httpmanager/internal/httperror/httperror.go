@@ -34,3 +34,7 @@ func InternalServerError(wrapContext string, err error) *ErrorHTTPResponse {
 func BadRequest(msg string) *ErrorHTTPResponse {
 	return New(http.StatusBadRequest, msg)
 }
+
+func NotFound(msg string) *ErrorHTTPResponse {
+	return New(http.StatusNotFound, msg)
+}

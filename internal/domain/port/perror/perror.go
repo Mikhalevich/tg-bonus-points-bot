@@ -17,12 +17,23 @@ func New(t Type, msg string) Error {
 }
 
 func ParseError(err error) Error {
-	var perr *Error
+	var perr Error
 	if errors.As(err, &perr) {
-		return *perr
+		return perr
 	}
 
 	return New(TypeUnspecified, "unspecified error")
+}
+
+func IsType(err error, t Type) bool {
+	var perr Error
+	if errors.As(err, &perr) {
+		if perr.Type == t {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (e Error) Error() string {
