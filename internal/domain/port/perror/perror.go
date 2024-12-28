@@ -22,7 +22,7 @@ func ParseError(err error) Error {
 		return *perr
 	}
 
-	return New(TypeInvalid, "internal error")
+	return New(TypeUnspecified, "unspecified error")
 }
 
 func (e Error) Error() string {
