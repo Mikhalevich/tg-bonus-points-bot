@@ -36,34 +36,17 @@ func (c *Customer) GetActiveOrder(ctx context.Context, info msginfo.Info) error 
 func formatOrder(o *order.Order, escaper func(string) string) string {
 	format := []string{
 		fmt.Sprintf("order id: *%s*", escaper(o.ID.String())),
-		fmt.Sprintf("status: *%s*", formatStatus(o.Status)),
+		fmt.Sprintf("status: *%s*", o.Status.HumanReadable()),
 		fmt.Sprintf("verification code: *%s*", escaper(o.VerificationCode)),
 	}
 
 	for _, t := range o.Timeline {
 		format = append(format, fmt.Sprintf(
 			"%s Time: *%s*",
-			formatStatus(t.Status),
+			t.Status.HumanReadable(),
 			escaper(t.Time.Format(time.RFC3339))),
 		)
 	}
 
 	return strings.Join(format, "\n")
-}
-
-func formatStatus(s order.Status) string {
-	switch s {
-	case order.StatusCreated:
-		return "Pending"
-	case order.StatusInProgress:
-		return "In Progress"
-	case order.StatusReady:
-		return "Ready"
-	case order.StatusCompleted:
-		return "Completed"
-	case order.StatusCanceled:
-		return "Canceled"
-	}
-
-	return ""
 }
