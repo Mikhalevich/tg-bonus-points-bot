@@ -31,30 +31,6 @@ func IDFromString(id string) (ID, error) {
 	return ID(intID), nil
 }
 
-type Status string
-
-func (s Status) String() string {
-	return string(s)
-}
-
-func StatusFromString(s string) (Status, error) {
-	status := Status(s)
-	switch status {
-	case StatusCreated, StatusInProgress, StatusReady, StatusCompleted, StatusCanceled:
-		return status, nil
-	default:
-		return Status("invalid"), fmt.Errorf("invalid status: %s", s)
-	}
-}
-
-const (
-	StatusCreated    Status = "created"
-	StatusInProgress Status = "in_progress"
-	StatusReady      Status = "ready"
-	StatusCompleted  Status = "completed"
-	StatusCanceled   Status = "canceled"
-)
-
 type Order struct {
 	ID               ID
 	ChatID           msginfo.ChatID

@@ -32,7 +32,7 @@ func (m *Manager) UpdateOrderStatus(ctx context.Context, id order.ID, status ord
 	}
 
 	m.customerSender.SendTextMarkdown(ctx, updatedOrder.ChatID,
-		fmt.Sprintf("order status updated to %s", status.String()))
+		m.makeChangedOrderStatusMarkdownMsg(status))
 
 	return nil
 }

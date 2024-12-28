@@ -20,7 +20,11 @@ func (m *Manager) GetNextPendingOrderToProcess(ctx context.Context) (*order.Orde
 	}
 
 	m.customerSender.SendTextMarkdown(ctx, order.ChatID,
-		fmt.Sprintf("order status changed to *%s*", m.customerSender.EscapeMarkdown(order.Status.String())))
+		m.makeChangedOrderStatusMarkdownMsg(order.Status))
 
 	return order, nil
+}
+
+func (m *Manager) makeChangedOrderStatusMarkdownMsg(s order.Status) string {
+	return fmt.Sprintf("your order status changed to *%s*", m.customerSender.EscapeMarkdown(s.HumanReadable()))
 }
