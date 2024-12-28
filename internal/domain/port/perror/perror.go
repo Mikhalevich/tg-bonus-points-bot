@@ -23,3 +23,7 @@ func NotFound(msg string) *Error {
 func AlreadyExists(msg string) *Error {
 	return New(TypeAlreadyExists, msg)
 }
+
+func InvalidParam(msg string) *Error {
+	return New(TypeInvalidParam, msg)
+}

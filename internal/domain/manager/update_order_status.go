@@ -10,12 +10,17 @@ import (
 )
 
 func (m *Manager) UpdateOrderStatus(ctx context.Context, id order.ID, status order.Status) error {
+	previousStatuses, err := calculateLegalPreviousStatuses(status)
+	if err != nil {
+		return fmt.Errorf("calculate legal previous statuses: %w", err)
+	}
+
 	if err := m.repository.UpdateOrderStatus(
 		ctx,
 		id,
 		time.Now(),
 		status,
-		calculateLegalPreviousStatuses(status)...,
+		previousStatuses...,
 	); err != nil {
 		if m.repository.IsNotUpdatedError(err) {
 			return perror.NotFound("order with relevant status not found")
@@ -27,19 +32,19 @@ func (m *Manager) UpdateOrderStatus(ctx context.Context, id order.ID, status ord
 	return nil
 }
 
-func calculateLegalPreviousStatuses(s order.Status) []order.Status {
+func calculateLegalPreviousStatuses(s order.Status) ([]order.Status, error) {
 	switch s {
 	case order.StatusCreated:
-		return nil
+		return nil, perror.InvalidParam("invalid order transition")
 	case order.StatusInProgress:
-		return []order.Status{order.StatusCreated}
+		return []order.Status{order.StatusCreated}, nil
 	case order.StatusReady:
-		return []order.Status{order.StatusInProgress}
+		return []order.Status{order.StatusInProgress}, nil
 	case order.StatusCompleted:
-		return []order.Status{order.StatusCreated, order.StatusInProgress, order.StatusReady}
+		return []order.Status{order.StatusCreated, order.StatusInProgress, order.StatusReady}, nil
 	case order.StatusCanceled:
-		return []order.Status{order.StatusCreated, order.StatusInProgress, order.StatusReady}
+		return []order.Status{order.StatusCreated, order.StatusInProgress, order.StatusReady}, nil
 	}
 
-	return nil
+	return nil, perror.InvalidParam("invalid order status")
 }
