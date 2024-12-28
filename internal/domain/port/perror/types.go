@@ -3,5 +3,8 @@ package perror
 type Type int
 
 const (
-	TypeNotFound Type = iota + 1
+	TypeUnspecified Type = iota
+	TypeNotFound
+	TypeAlreadyExists
+	TypeInvalidParam
 )

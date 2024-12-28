@@ -22,6 +22,15 @@ func IDFromInt(id int) ID {
 	return ID(id)
 }
 
+func IDFromString(id string) (ID, error) {
+	intID, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("parse int: %w", err)
+	}
+
+	return ID(intID), nil
+}
+
 type Status string
 
 func (s Status) String() string {
