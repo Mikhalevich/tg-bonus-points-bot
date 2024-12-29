@@ -118,8 +118,8 @@ func (m *messageSender) SendText(
 	}); err != nil {
 		logger.FromContext(ctx).
 			WithError(err).
-			WithField("text_markdown", text).
-			Error("failed to send text markdown")
+			WithField("text", text).
+			Error("failed to send text")
 	}
 }
 
