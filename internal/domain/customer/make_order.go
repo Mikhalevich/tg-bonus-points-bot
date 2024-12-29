@@ -48,7 +48,13 @@ func (c *Customer) MakeOrder(ctx context.Context, info msginfo.Info) error {
 		},
 	}, c.sender.EscapeMarkdown)
 
-	if err := c.sender.SendPNGMarkdown(ctx, info.ChatID, orderInfo, png); err != nil {
+	if err := c.sender.SendPNGMarkdown(
+		ctx,
+		info.ChatID,
+		orderInfo,
+		png,
+		cancelOrderButton(id),
+	); err != nil {
 		return fmt.Errorf("send png: %w", err)
 	}
 
