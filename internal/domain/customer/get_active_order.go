@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
@@ -28,9 +29,22 @@ func (c *Customer) GetActiveOrder(ctx context.Context, info msginfo.Info) error 
 		return fmt.Errorf("get order by chat_id: %w", err)
 	}
 
-	c.sender.ReplyTextMarkdown(ctx, info.ChatID, info.MessageID, formatOrder(activeOrder, c.sender.EscapeMarkdown))
+	formattedOrder := formatOrder(activeOrder, c.sender.EscapeMarkdown)
+
+	if isOrderCancelable(activeOrder.Status) {
+		c.sender.ReplyTextMarkdown(ctx, info.ChatID, info.MessageID, formattedOrder, cancelOrderButton(activeOrder.ID))
+	} else {
+		c.sender.ReplyTextMarkdown(ctx, info.ChatID, info.MessageID, formattedOrder)
+	}
 
 	return nil
+}
+
+func cancelOrderButton(id order.ID) port.Button {
+	return port.Button{
+		Text: "Cancel",
+		Data: id.String(),
+	}
 }
 
 func formatOrder(o *order.Order, escaper func(string) string) string {

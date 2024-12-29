@@ -12,9 +12,11 @@ type Button struct {
 }
 
 type MessageSender interface {
+	SendText(ctx context.Context, chatID msginfo.ChatID, text string)
 	SendTextMarkdown(ctx context.Context, chatID msginfo.ChatID, text string)
 	ReplyText(ctx context.Context, chatID msginfo.ChatID, replyToMsgID msginfo.MessageID, text string, buttons ...Button)
-	ReplyTextMarkdown(ctx context.Context, chatID msginfo.ChatID, replyToMsgID msginfo.MessageID, text string)
+	ReplyTextMarkdown(ctx context.Context, chatID msginfo.ChatID,
+		replyToMsgID msginfo.MessageID, text string, buttons ...Button)
 	EscapeMarkdown(s string) string
-	SendPNGMarkdown(ctx context.Context, chatID msginfo.ChatID, caption string, png []byte) error
+	SendPNGMarkdown(ctx context.Context, chatID msginfo.ChatID, caption string, png []byte, buttons ...Button) error
 }

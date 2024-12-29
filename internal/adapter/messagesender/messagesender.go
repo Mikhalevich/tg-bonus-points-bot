@@ -72,14 +72,16 @@ func (m *messageSender) ReplyTextMarkdown(
 	chatID msginfo.ChatID,
 	replyToMsgID msginfo.MessageID,
 	text string,
+	buttons ...port.Button,
 ) {
 	if _, err := m.bot.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID: chatID.Int64(),
 		ReplyParameters: &models.ReplyParameters{
 			MessageID: replyToMsgID.Int(),
 		},
-		ParseMode: models.ParseModeMarkdown,
-		Text:      text,
+		ParseMode:   models.ParseModeMarkdown,
+		Text:        text,
+		ReplyMarkup: makeButtonsMarkup(buttons...),
 	}); err != nil {
 		logger.FromContext(ctx).
 			WithError(err).
@@ -105,6 +107,22 @@ func (m *messageSender) SendTextMarkdown(
 	}
 }
 
+func (m *messageSender) SendText(
+	ctx context.Context,
+	chatID msginfo.ChatID,
+	text string,
+) {
+	if _, err := m.bot.SendMessage(ctx, &bot.SendMessageParams{
+		ChatID: chatID.Int64(),
+		Text:   text,
+	}); err != nil {
+		logger.FromContext(ctx).
+			WithError(err).
+			WithField("text", text).
+			Error("failed to send text")
+	}
+}
+
 func (m *messageSender) EscapeMarkdown(s string) string {
 	return bot.EscapeMarkdown(s)
 }
@@ -114,14 +132,16 @@ func (m *messageSender) SendPNGMarkdown(
 	chatID msginfo.ChatID,
 	caption string,
 	png []byte,
+	buttons ...port.Button,
 ) error {
 	if _, err := m.bot.SendPhoto(ctx, &bot.SendPhotoParams{
 		ChatID: chatID.Int64(),
 		Photo: &models.InputFileUpload{
 			Data: bytes.NewReader(png),
 		},
-		Caption:   caption,
-		ParseMode: models.ParseModeMarkdown,
+		Caption:     caption,
+		ParseMode:   models.ParseModeMarkdown,
+		ReplyMarkup: makeButtonsMarkup(buttons...),
 	}); err != nil {
 		return fmt.Errorf("send photo: %w", err)
 	}
