@@ -29,11 +29,13 @@ func (c *Customer) GetActiveOrder(ctx context.Context, info msginfo.Info) error 
 		return fmt.Errorf("get order by chat_id: %w", err)
 	}
 
-	c.sender.ReplyTextMarkdown(
-		ctx, info.ChatID, info.MessageID,
-		formatOrder(activeOrder, c.sender.EscapeMarkdown),
-		cancelOrderButton(activeOrder.ID),
-	)
+	formattedOrder := formatOrder(activeOrder, c.sender.EscapeMarkdown)
+
+	if isOrderCancelable(activeOrder.Status) {
+		c.sender.ReplyTextMarkdown(ctx, info.ChatID, info.MessageID, formattedOrder, cancelOrderButton(activeOrder.ID))
+	} else {
+		c.sender.ReplyTextMarkdown(ctx, info.ChatID, info.MessageID, formattedOrder)
+	}
 
 	return nil
 }
