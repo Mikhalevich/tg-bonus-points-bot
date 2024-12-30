@@ -13,8 +13,8 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/qrcodegenerator"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/driver"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/botconsumer"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/httpmanager"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/tgbot"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/config"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/manager"
@@ -66,11 +66,11 @@ func StartBot(
 		customerProcessor = customer.New(sender, qrGenerator, pg)
 	)
 
-	if err := tgbot.Start(
+	if err := botconsumer.Start(
 		ctx,
 		b,
 		logger,
-		tgbot.Routes(customerProcessor),
+		customerProcessor,
 	); err != nil {
 		return fmt.Errorf("start bot: %w", err)
 	}
