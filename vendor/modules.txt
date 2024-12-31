@@ -5,6 +5,19 @@ github.com/BurntSushi/toml/internal
 # github.com/cenkalti/backoff/v4 v4.3.0
 ## explicit; go 1.18
 github.com/cenkalti/backoff/v4
+# github.com/danielgtaylor/huma/v2 v2.27.0
+## explicit; go 1.22
+github.com/danielgtaylor/huma/v2
+github.com/danielgtaylor/huma/v2/adapters/humago
+github.com/danielgtaylor/huma/v2/casing
+github.com/danielgtaylor/huma/v2/formats/cbor
+github.com/danielgtaylor/huma/v2/negotiation
+github.com/danielgtaylor/huma/v2/queryparam
+github.com/danielgtaylor/huma/v2/validation
+github.com/danielgtaylor/huma/v2/yaml
+# github.com/fxamacker/cbor/v2 v2.7.0
+## explicit; go 1.17
+github.com/fxamacker/cbor/v2
 # github.com/go-logr/logr v1.4.2
 ## explicit; go 1.18
 github.com/go-logr/logr
@@ -72,6 +85,9 @@ github.com/uptrace/opentelemetry-go-extra/otelsql
 # github.com/uptrace/opentelemetry-go-extra/otelutil v0.3.2
 ## explicit; go 1.22
 github.com/uptrace/opentelemetry-go-extra/otelutil
+# github.com/x448/float16 v0.8.4
+## explicit; go 1.11
+github.com/x448/float16
 # go.opentelemetry.io/auto/sdk v1.1.0
 ## explicit; go 1.22.0
 go.opentelemetry.io/auto/sdk

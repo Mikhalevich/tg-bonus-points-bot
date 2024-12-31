@@ -1,27 +1,27 @@
 package httpmanager
 
 import (
-	"encoding/json"
-	"net/http"
+	"context"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/httpmanager/internal/httperror"
+	"github.com/danielgtaylor/huma/v2"
+
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/tracing"
 )
 
-type handlerFunc func(w http.ResponseWriter, r *http.Request) *httperror.ErrorHTTPResponse
+type handlerFunc[I, O any] func(context.Context, *I) (*O, error)
 
-type errorBody struct {
-	Message string `json:"message"`
+func addRoute[I, O any](m *HTTPManager, op huma.Operation, hf handlerFunc[I, O]) {
+	huma.Register(
+		m.humaAPI,
+		op,
+		makeHandlerWrapper(m, op.Path, hf),
+	)
 }
 
-func (m *HTTPManager) addRoute(pattern string, hf handlerFunc) {
-	m.mux.HandleFunc(pattern, m.makeHTTPHandler(pattern, hf))
-}
-
-func (m *HTTPManager) makeHTTPHandler(pattern string, hf handlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx, span := tracing.StartSpanName(r.Context(), pattern)
+func makeHandlerWrapper[I, O any](m *HTTPManager, pattern string, hf handlerFunc[I, O]) handlerFunc[I, O] {
+	return func(ctx context.Context, input *I) (*O, error) {
+		ctx, span := tracing.StartSpanName(ctx, pattern)
 		defer span.End()
 
 		var (
@@ -29,23 +29,12 @@ func (m *HTTPManager) makeHTTPHandler(pattern string, hf handlerFunc) http.Handl
 			ctxLog = logger.WithLogger(ctx, log)
 		)
 
-		if err := hf(w, r.WithContext(ctxLog)); err != nil {
-			if err.Err != nil {
-				log.WithError(err.Err).
-					Error("http handler error")
-			}
-
-			w.WriteHeader(err.Code)
-
-			if err := json.NewEncoder(w).Encode(
-				errorBody{
-					Message: err.Message,
-				},
-			); err != nil {
-				log.WithError(err).Error("encode json body error")
-			}
-
-			return
+		output, err := hf(ctxLog, input)
+		if err != nil {
+			log.WithError(err).
+				Error("http handler error")
 		}
+
+		return output, err
 	}
 }
