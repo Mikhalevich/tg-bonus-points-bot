@@ -1,42 +1,45 @@
 package handler
 
 import (
-	"encoding/json"
-	"net/http"
+	"context"
+	"fmt"
+
+	"github.com/danielgtaylor/huma/v2"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/httpmanager/handler/request"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/httpmanager/internal/httperror"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/perror"
 )
 
-func (h *Handler) UpdateOrderStatus(w http.ResponseWriter, r *http.Request) *httperror.ErrorHTTPResponse {
-	var orderStatusReq request.OrderStatus
-	if err := json.NewDecoder(r.Body).Decode(&orderStatusReq); err != nil {
-		return httperror.InternalServerError("json decode request", err)
-	}
+type UpdateOrderStatusInput struct {
+	ID   string `path:"id" maxLength:"30" example:"123" doc:"Order id"`
+	Body request.OrderStatus
+}
 
-	if herr := orderStatusReq.Validate(); herr != nil {
-		return herr
-	}
+type UpdateOrderStatusOutput struct {
+}
 
-	orderID, err := order.IDFromString(r.PathValue("id"))
+func (h *Handler) UpdateOrderStatus(
+	ctx context.Context,
+	input *UpdateOrderStatusInput,
+) (*UpdateOrderStatusOutput, error) {
+	orderID, err := order.IDFromString(input.ID)
 	if err != nil {
-		return httperror.BadRequest("invalid id format").WithError(err)
+		return nil, huma.Error400BadRequest("invalid id format")
 	}
 
-	status, err := order.StatusFromString(orderStatusReq.Status)
+	status, err := order.StatusFromString(input.Body.Status)
 	if err != nil {
-		return httperror.BadRequest("invalid status").WithError(err)
+		return nil, huma.Error400BadRequest("invalid status")
 	}
 
-	if err := h.manager.UpdateOrderStatus(r.Context(), orderID, status); err != nil {
+	if err := h.manager.UpdateOrderStatus(ctx, orderID, status); err != nil {
 		if perror.IsType(err, perror.TypeNotFound) {
-			return httperror.NotFound("no orders with relevant status")
+			return nil, huma.Error404NotFound("no orders with relevant status")
 		}
 
-		return httperror.InternalServerError("update order status", err)
+		return nil, fmt.Errorf("update order status: %w", err)
 	}
 
-	return nil
+	return &UpdateOrderStatusOutput{}, nil
 }

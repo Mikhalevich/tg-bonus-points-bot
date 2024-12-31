@@ -7,15 +7,15 @@ import (
 )
 
 type Order struct {
-	ID               string       `json:"id"`
-	Status           string       `json:"status"`
-	VerificationCode string       `json:"verification_code"`
-	Timeline         []StatusTime `json:"timeline"`
+	ID               string       `json:"id" example:"123" doc:"Order id"`
+	Status           string       `json:"status" example:"created" doc:"Order status"`
+	VerificationCode string       `json:"verification_code" example:"012" doc:"Order verification code"`
+	Timeline         []StatusTime `json:"timeline" doc:"Timeline status changes"`
 }
 
 type StatusTime struct {
-	Status string    `json:"status"`
-	Time   time.Time `json:"time"`
+	Status string    `json:"status" example:"created" doc:"Order status"`
+	Time   time.Time `json:"time" doc:"Status time"`
 }
 
 func ToOrder(o *order.Order) *Order {
