@@ -2,18 +2,19 @@ package tgbot
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/go-telegram/bot"
+
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 )
 
-func (t *TGBot) SendMessage(ctx context.Context, chatID int64, msg string) error {
+func (t *TGBot) SendMessage(ctx context.Context, chatID int64, msg string) {
 	if _, err := t.bot.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID: chatID,
 		Text:   msg,
 	}); err != nil {
-		return fmt.Errorf("send message: %w", err)
+		logger.FromContext(ctx).
+			WithError(err).
+			Error("send message error")
 	}
-
-	return nil
 }

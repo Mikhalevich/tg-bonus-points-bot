@@ -3,12 +3,13 @@ package port
 import (
 	"context"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 )
 
 type Button struct {
 	Text string
-	Data string
+	ID   button.ID
 }
 
 type MessageSender interface {

@@ -56,7 +56,7 @@ func makeButtonsMarkup(buttons ...port.Button) models.ReplyMarkup {
 	for _, b := range buttons {
 		buttonRow = append(buttonRow, models.InlineKeyboardButton{
 			Text:         b.Text,
-			CallbackData: b.Data,
+			CallbackData: b.ID.String(),
 		})
 	}
 

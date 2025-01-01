@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
@@ -32,7 +33,12 @@ func (c *Customer) GetActiveOrder(ctx context.Context, chatID msginfo.ChatID, me
 	formattedOrder := formatOrder(activeOrder, c.sender.EscapeMarkdown)
 
 	if isOrderCancelable(activeOrder.Status) {
-		c.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder, cancelOrderButton(activeOrder.ID))
+		cancelButton := button.CancelOrder(chatID, activeOrder.ID)
+		if err := c.buttonRepository.StoreButton(ctx, &cancelButton); err != nil {
+			return fmt.Errorf("store cancel button: %w", err)
+		}
+
+		c.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder, cancelOrderButton(cancelButton.ID))
 	} else {
 		c.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder)
 	}
@@ -40,10 +46,10 @@ func (c *Customer) GetActiveOrder(ctx context.Context, chatID msginfo.ChatID, me
 	return nil
 }
 
-func cancelOrderButton(id order.ID) port.Button {
+func cancelOrderButton(id button.ID) port.Button {
 	return port.Button{
 		Text: "Cancel",
-		Data: id.String(),
+		ID:   id,
 	}
 }
 
