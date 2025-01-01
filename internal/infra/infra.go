@@ -7,8 +7,11 @@ import (
 
 	"github.com/go-telegram/bot"
 	"github.com/jinzhu/configor"
+	"github.com/redis/go-redis/extra/redisotel/v9"
+	"github.com/redis/go-redis/v9"
 	"github.com/uptrace/opentelemetry-go-extra/otelsql"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/buttonrespository"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/messagesender"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/qrcodegenerator"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres"
@@ -18,6 +21,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/config"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/manager"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 )
 
@@ -47,6 +51,7 @@ func StartBot(
 	ctx context.Context,
 	botAPItoken string,
 	postgresCfg config.Postgres,
+	buttonRedisCfg config.ButtonRedis,
 	logger logger.Logger,
 ) error {
 	b, err := bot.New(botAPItoken, bot.WithSkipGetMe())
@@ -60,10 +65,15 @@ func StartBot(
 	}
 	defer cleanup()
 
+	buttonRepository, err := MakeRedisButtonRepository(ctx, buttonRedisCfg)
+	if err != nil {
+		return fmt.Errorf("make redis button repository: %w", err)
+	}
+
 	var (
 		sender            = messagesender.New(b)
 		qrGenerator       = qrcodegenerator.New()
-		customerProcessor = customer.New(sender, qrGenerator, pg, nil)
+		customerProcessor = customer.New(sender, qrGenerator, pg, buttonRepository)
 	)
 
 	if err := botconsumer.Start(
@@ -76,6 +86,24 @@ func StartBot(
 	}
 
 	return nil
+}
+
+func MakeRedisButtonRepository(ctx context.Context, cfg config.ButtonRedis) (port.ButtonRepository, error) {
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     cfg.Addr,
+		Password: cfg.Pwd,
+		DB:       cfg.DB,
+	})
+
+	if err := redisotel.InstrumentTracing(rdb); err != nil {
+		return nil, fmt.Errorf("redis instrument tracing: %w", err)
+	}
+
+	if err := rdb.Ping(ctx).Err(); err != nil {
+		return nil, fmt.Errorf("redis ping: %w", err)
+	}
+
+	return buttonrespository.New(rdb, cfg.TTL), nil
 }
 
 func MakePostgres(cfg config.Postgres) (*postgres.Postgres, func(), error) {

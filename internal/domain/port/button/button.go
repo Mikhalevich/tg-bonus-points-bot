@@ -29,13 +29,13 @@ type Button struct {
 	ID        ID
 	ChatID    msginfo.ChatID
 	Operation Operation
-	Data      any
+	Payload   []byte
 }
 
 func (b Button) OrderID() (order.ID, error) {
-	id, ok := b.Data.(order.ID)
-	if !ok {
-		return 0, fmt.Errorf("invalid order id: %v", b.Data)
+	id, err := order.IDFromString(string(b.Payload))
+	if err != nil {
+		return 0, fmt.Errorf("invalid order id: %s", b.Payload)
 	}
 
 	return id, nil
@@ -46,6 +46,6 @@ func CancelOrder(chatID msginfo.ChatID, orderID order.ID) Button {
 		ID:        IDFromString(uuid.NewString()),
 		ChatID:    chatID,
 		Operation: OperationCancelOrder,
-		Data:      orderID,
+		Payload:   []byte(orderID.String()),
 	}
 }

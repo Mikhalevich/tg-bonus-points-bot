@@ -20,7 +20,7 @@ type BotMessage struct {
 }
 
 type MessageSender interface {
-	SendMessage(ctx context.Context, chatID int64, msg string) error
+	SendMessage(ctx context.Context, chatID int64, msg string)
 }
 
 type Handler func(ctx context.Context, msg BotMessage, sender MessageSender) error

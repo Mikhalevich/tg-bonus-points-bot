@@ -9,4 +9,5 @@ import (
 type ButtonRepository interface {
 	StoreButton(ctx context.Context, b *button.Button) error
 	GetButton(ctx context.Context, id button.ID) (*button.Button, error)
+	IsNotFoundError(err error) bool
 }

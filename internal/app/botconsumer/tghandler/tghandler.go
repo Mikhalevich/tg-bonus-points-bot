@@ -3,6 +3,7 @@ package tghandler
 import (
 	"context"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
@@ -11,6 +12,7 @@ type OrderProcessor interface {
 	MakeOrder(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID) error
 	GetActiveOrder(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID) error
 	CancelOrder(ctx context.Context, id order.ID) error
+	GetButton(ctx context.Context, id button.ID) (*button.Button, error)
 }
 
 type TGHandler struct {

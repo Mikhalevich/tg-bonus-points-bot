@@ -46,6 +46,7 @@ func runService(cfg config.ConsumerBot, log logger.Logger) error {
 		ctx,
 		cfg.Bot.Token,
 		cfg.Postgres,
+		cfg.ButtonRedis,
 		log.WithField("bot_name", "schedule"),
 	); err != nil {
 		return fmt.Errorf("start bot: %w", err)
