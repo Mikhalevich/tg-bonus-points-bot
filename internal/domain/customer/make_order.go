@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
@@ -31,6 +32,11 @@ func (c *Customer) MakeOrder(ctx context.Context, chatID msginfo.ChatID, message
 		return fmt.Errorf("repository create order: %w", err)
 	}
 
+	cancelButton := button.CancelOrder(chatID, id)
+	if err := c.buttonRepository.StoreButton(ctx, &cancelButton); err != nil {
+		return fmt.Errorf("store cancel button: %w", err)
+	}
+
 	png, err := c.qrCode.GeneratePNG(id.String())
 	if err != nil {
 		return fmt.Errorf("qrcode generate png: %w", err)
@@ -53,7 +59,7 @@ func (c *Customer) MakeOrder(ctx context.Context, chatID msginfo.ChatID, message
 		chatID,
 		orderInfo,
 		png,
-		cancelOrderButton(id),
+		cancelOrderButton(cancelButton.ID),
 	); err != nil {
 		return fmt.Errorf("send png: %w", err)
 	}

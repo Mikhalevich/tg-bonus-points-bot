@@ -63,7 +63,7 @@ func StartBot(
 	var (
 		sender            = messagesender.New(b)
 		qrGenerator       = qrcodegenerator.New()
-		customerProcessor = customer.New(sender, qrGenerator, pg)
+		customerProcessor = customer.New(sender, qrGenerator, pg, nil)
 	)
 
 	if err := botconsumer.Start(

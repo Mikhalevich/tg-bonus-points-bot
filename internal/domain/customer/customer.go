@@ -5,19 +5,22 @@ import (
 )
 
 type Customer struct {
-	sender     port.MessageSender
-	qrCode     port.QRCodeGenerator
-	repository port.CustomerRepository
+	sender           port.MessageSender
+	qrCode           port.QRCodeGenerator
+	repository       port.CustomerRepository
+	buttonRepository port.ButtonRepository
 }
 
 func New(
 	sender port.MessageSender,
 	qrCode port.QRCodeGenerator,
 	repository port.CustomerRepository,
+	buttonRepository port.ButtonRepository,
 ) *Customer {
 	return &Customer{
-		sender:     sender,
-		qrCode:     qrCode,
-		repository: repository,
+		sender:           sender,
+		qrCode:           qrCode,
+		repository:       repository,
+		buttonRepository: buttonRepository,
 	}
 }
