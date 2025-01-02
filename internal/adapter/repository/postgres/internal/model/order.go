@@ -19,6 +19,7 @@ type Order struct {
 	ReadyAt          sql.NullTime `db:"ready_at"`
 	CompletedAt      sql.NullTime `db:"completed_at"`
 	CanceledAt       sql.NullTime `db:"canceled_at"`
+	RejectedAt       sql.NullTime `db:"rejected_at"`
 }
 
 func ToPortOrder(o *Order) (*order.Order, error) {
@@ -38,6 +39,7 @@ func ToPortOrder(o *Order) (*order.Order, error) {
 	timeline = appendTimelineStatus(timeline, o.ReadyAt, order.StatusReady)
 	timeline = appendTimelineStatus(timeline, o.CompletedAt, order.StatusCompleted)
 	timeline = appendTimelineStatus(timeline, o.CanceledAt, order.StatusCanceled)
+	timeline = appendTimelineStatus(timeline, o.RejectedAt, order.StatusRejected)
 
 	return &order.Order{
 		ID:               order.IDFromInt(o.ID),

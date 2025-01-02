@@ -78,6 +78,8 @@ func operationTimeFieldByStatus(s order.Status) string {
 		return "completed_at"
 	case order.StatusCanceled:
 		return "canceled_at"
+	case order.StatusRejected:
+		return "rejected_at"
 	}
 
 	return "invalid"

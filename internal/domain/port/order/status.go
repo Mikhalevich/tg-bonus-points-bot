@@ -12,6 +12,7 @@ const (
 	StatusReady      Status = "ready"
 	StatusCompleted  Status = "completed"
 	StatusCanceled   Status = "canceled"
+	StatusRejected   Status = "rejected"
 )
 
 func (s Status) String() string {
@@ -30,6 +31,8 @@ func (s Status) HumanReadable() string {
 		return "Completed"
 	case StatusCanceled:
 		return "Canceled"
+	case StatusRejected:
+		return "Rejected"
 	}
 
 	return ""
@@ -38,7 +41,7 @@ func (s Status) HumanReadable() string {
 func StatusFromString(s string) (Status, error) {
 	status := Status(s)
 	switch status {
-	case StatusCreated, StatusInProgress, StatusReady, StatusCompleted, StatusCanceled:
+	case StatusCreated, StatusInProgress, StatusReady, StatusCompleted, StatusCanceled, StatusRejected:
 		return status, nil
 	default:
 		return Status("invalid"), fmt.Errorf("invalid status: %s", s)
