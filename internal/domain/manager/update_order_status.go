@@ -49,6 +49,8 @@ func calculateLegalPreviousStatuses(s order.Status) ([]order.Status, error) {
 		return []order.Status{order.StatusCreated, order.StatusInProgress, order.StatusReady}, nil
 	case order.StatusCanceled:
 		return []order.Status{order.StatusCreated, order.StatusInProgress, order.StatusReady}, nil
+	case order.StatusRejected:
+		return []order.Status{order.StatusCreated, order.StatusInProgress, order.StatusReady}, nil
 	}
 
 	return nil, perror.InvalidParam("invalid order status")

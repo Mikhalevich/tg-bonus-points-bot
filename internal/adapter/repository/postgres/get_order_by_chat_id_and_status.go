@@ -28,7 +28,8 @@ func (p *Postgres) GetOrderByChatIDAndStatus(
 			in_progress_at,
 			ready_at,
 			completed_at,
-			canceled_at
+			canceled_at,
+			rejected_at
 		FROM
 			orders
 		WHERE

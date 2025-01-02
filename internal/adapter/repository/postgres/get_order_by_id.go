@@ -24,7 +24,8 @@ func (p *Postgres) GetOrderByID(ctx context.Context, id order.ID) (*order.Order,
 			in_progress_at,
 			ready_at,
 			completed_at,
-			canceled_at
+			canceled_at,
+			rejected_at
 		FROM
 			orders
 		WHERE

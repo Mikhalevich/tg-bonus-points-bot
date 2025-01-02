@@ -6,7 +6,8 @@ CREATE TYPE order_status AS ENUM (
     'in_progress',
     'ready',
     'completed',
-    'canceled'
+    'canceled',
+    'rejected'
 );
 
 CREATE TABLE orders(
@@ -18,7 +19,8 @@ CREATE TABLE orders(
     in_progress_at TIMESTAMPTZ,
     ready_at TIMESTAMPTZ,
     completed_at TIMESTAMPTZ,
-    canceled_at TIMESTAMPTZ
+    canceled_at TIMESTAMPTZ,
+    rejected_at TIMESTAMPTZ
 );
 
 CREATE INDEX chat_id_created_at_idx ON orders(chat_id, created_at);
