@@ -34,4 +34,17 @@ func (m *HTTPManager) routes(handler *handler.Handler) {
 		},
 		handler.UpdateOrderStatus,
 	)
+
+	addRoute(m,
+		huma.Operation{
+			OperationID:   "get-products",
+			Method:        http.MethodGet,
+			Path:          "/product/",
+			Summary:       "Get products",
+			Description:   "Get available products",
+			Tags:          []string{"Product"},
+			DefaultStatus: http.StatusOK,
+		},
+		handler.GetProducts,
+	)
 }
