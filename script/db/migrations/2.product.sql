@@ -32,10 +32,11 @@ INSERT INTO product(title, price, is_enabled, created_at, updated_at) VALUES('ch
 
 INSERT INTO category(title, is_enabled) VALUES('coffee', TRUE);
 INSERT INTO category(title, is_enabled) VALUES('food', TRUE);
+INSERT INTO category(title, is_enabled) VALUES('seafood', FALSE);
 
 INSERT INTO product_category(product_id, category_id) VALUES(1, 1);
 INSERT INTO product_category(product_id, category_id) VALUES(2, 1);
-INSERT INTO product_category(product_id, category_id) VALUES(3, 1);
+INSERT INTO product_category(product_id, category_id) VALUES(3, 3);
 INSERT INTO product_category(product_id, category_id) VALUES(4, 2);
 
 -- +migrate Down

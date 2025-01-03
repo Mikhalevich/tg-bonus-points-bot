@@ -10,7 +10,7 @@ import (
 type Manager interface {
 	GetNextPendingOrderToProcess(ctx context.Context) (*order.Order, error)
 	UpdateOrderStatus(ctx context.Context, id order.ID, status order.Status) error
-	GetProducts(ctx context.Context) ([]product.Category, error)
+	GetProducts(ctx context.Context, filter product.Filter) ([]product.Category, error)
 }
 
 type Handler struct {
