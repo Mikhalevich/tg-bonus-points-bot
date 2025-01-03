@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
 type ManagerRepository interface {
@@ -20,6 +21,7 @@ type ManagerRepository interface {
 		newStatus order.Status,
 		prevStatuses ...order.Status,
 	) (*order.Order, error)
+	GetCategoryProducts(ctx context.Context) ([]product.Category, error)
 	IsNotFoundError(err error) bool
 	IsNotUpdatedError(err error) bool
 }

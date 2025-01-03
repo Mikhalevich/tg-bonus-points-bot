@@ -6,7 +6,6 @@ import (
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
 type CreateOrderInput struct {
@@ -30,5 +29,4 @@ type CustomerRepository interface {
 	IsNotFoundError(err error) bool
 	IsNotUpdatedError(err error) bool
 	IsAlreadyExistsError(err error) bool
-	GetCategoryProducts(ctx context.Context) ([]product.Category, error)
 }
