@@ -2,6 +2,7 @@ package httpmanager
 
 import (
 	"context"
+	"errors"
 
 	"github.com/danielgtaylor/huma/v2"
 
@@ -33,8 +34,20 @@ func makeHandlerWrapper[I, O any](m *HTTPManager, pattern string, hf handlerFunc
 		if err != nil {
 			log.WithError(err).
 				Error("http handler error")
+
+			return output, supressSensitiveInfoFromError(err)
 		}
 
-		return output, err
+		return output, nil
 	}
+}
+
+func supressSensitiveInfoFromError(originErr error) error {
+	var humaError *huma.ErrorModel
+	if errors.As(originErr, &humaError) {
+		humaError.Errors = nil
+		return humaError
+	}
+
+	return huma.Error500InternalServerError("internal error")
 }
