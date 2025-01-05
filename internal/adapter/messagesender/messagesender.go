@@ -9,6 +9,7 @@ import (
 	"github.com/go-telegram/bot/models"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 )
@@ -30,7 +31,7 @@ func (m *messageSender) ReplyText(
 	chatID msginfo.ChatID,
 	replyToMsgID msginfo.MessageID,
 	text string,
-	buttons ...port.Button,
+	buttons ...button.InlineKeyboardButton,
 ) {
 	if _, err := m.bot.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID: chatID.Int64(),
@@ -47,7 +48,7 @@ func (m *messageSender) ReplyText(
 	}
 }
 
-func makeButtonsMarkup(buttons ...port.Button) models.ReplyMarkup {
+func makeButtonsMarkup(buttons ...button.InlineKeyboardButton) models.ReplyMarkup {
 	if len(buttons) == 0 {
 		return nil
 	}
@@ -55,7 +56,7 @@ func makeButtonsMarkup(buttons ...port.Button) models.ReplyMarkup {
 	buttonRow := make([]models.InlineKeyboardButton, 0, len(buttons))
 	for _, b := range buttons {
 		buttonRow = append(buttonRow, models.InlineKeyboardButton{
-			Text:         b.Text,
+			Text:         b.Caption,
 			CallbackData: b.ID.String(),
 		})
 	}
@@ -72,7 +73,7 @@ func (m *messageSender) ReplyTextMarkdown(
 	chatID msginfo.ChatID,
 	replyToMsgID msginfo.MessageID,
 	text string,
-	buttons ...port.Button,
+	buttons ...button.InlineKeyboardButton,
 ) {
 	if _, err := m.bot.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID: chatID.Int64(),
@@ -132,7 +133,7 @@ func (m *messageSender) SendPNGMarkdown(
 	chatID msginfo.ChatID,
 	caption string,
 	png []byte,
-	buttons ...port.Button,
+	buttons ...button.InlineKeyboardButton,
 ) error {
 	if _, err := m.bot.SendPhoto(ctx, &bot.SendPhotoParams{
 		ChatID: chatID.Int64(),

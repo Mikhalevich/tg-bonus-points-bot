@@ -32,9 +32,9 @@ func (c *Customer) MakeOrder(ctx context.Context, chatID msginfo.ChatID, message
 		return fmt.Errorf("repository create order: %w", err)
 	}
 
-	cancelButton := button.CancelOrder(chatID, id)
-	if err := c.buttonRepository.StoreButton(ctx, &cancelButton); err != nil {
-		return fmt.Errorf("store cancel button: %w", err)
+	cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(chatID, id), "Cancel")
+	if err != nil {
+		return fmt.Errorf("store cancel order button: %w", err)
 	}
 
 	png, err := c.qrCode.GeneratePNG(id.String())
@@ -59,7 +59,7 @@ func (c *Customer) MakeOrder(ctx context.Context, chatID msginfo.ChatID, message
 		chatID,
 		orderInfo,
 		png,
-		cancelOrderButton(cancelButton.ID),
+		cancelBtn,
 	); err != nil {
 		return fmt.Errorf("send png: %w", err)
 	}

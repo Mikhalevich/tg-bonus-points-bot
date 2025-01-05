@@ -7,17 +7,14 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 )
 
-type Button struct {
-	Text string
-	ID   button.ID
-}
-
 type MessageSender interface {
 	SendText(ctx context.Context, chatID msginfo.ChatID, text string)
 	SendTextMarkdown(ctx context.Context, chatID msginfo.ChatID, text string)
-	ReplyText(ctx context.Context, chatID msginfo.ChatID, replyToMsgID msginfo.MessageID, text string, buttons ...Button)
+	ReplyText(ctx context.Context, chatID msginfo.ChatID, replyToMsgID msginfo.MessageID, text string,
+		buttons ...button.InlineKeyboardButton)
 	ReplyTextMarkdown(ctx context.Context, chatID msginfo.ChatID,
-		replyToMsgID msginfo.MessageID, text string, buttons ...Button)
+		replyToMsgID msginfo.MessageID, text string, buttons ...button.InlineKeyboardButton)
 	EscapeMarkdown(s string) string
-	SendPNGMarkdown(ctx context.Context, chatID msginfo.ChatID, caption string, png []byte, buttons ...Button) error
+	SendPNGMarkdown(ctx context.Context, chatID msginfo.ChatID, caption string, png []byte,
+		buttons ...button.InlineKeyboardButton) error
 }
