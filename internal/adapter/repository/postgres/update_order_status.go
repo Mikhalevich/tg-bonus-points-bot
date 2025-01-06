@@ -10,6 +10,7 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/internal/model"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/internal/transaction"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
@@ -20,22 +21,64 @@ func (p *Postgres) UpdateOrderStatus(
 	newStatus order.Status,
 	prevStatuses ...order.Status,
 ) (*order.Order, error) {
-	query := fmt.Sprintf(`
+	var (
+		dbOrder       *model.Order
+		orderTimeline []model.OrderTimeline
+		err           error
+	)
+
+	if err := transaction.Transaction(ctx, p.db, true,
+		func(ctx context.Context, tx sqlx.ExtContext) error {
+			dbOrder, err = updateOrderStatus(ctx, tx, id, newStatus, prevStatuses...)
+			if err != nil {
+				return fmt.Errorf("update order status: %w", err)
+			}
+
+			if err := insertOrderTimeline(ctx, tx, model.OrderTimeline{
+				ID:        id.Int(),
+				Status:    newStatus.String(),
+				UpdatedAt: operationTime,
+			}); err != nil {
+				return fmt.Errorf("insert order timeline: %w", err)
+			}
+
+			orderTimeline, err = selectOrderTimeline(ctx, tx, id.Int())
+			if err != nil {
+				return fmt.Errorf("select order timeline: %w", err)
+			}
+
+			return nil
+		},
+	); err != nil {
+		return nil, fmt.Errorf("transaction: %w", err)
+	}
+
+	portOrder, err := model.ToPortOrder(dbOrder, orderTimeline)
+	if err != nil {
+		return nil, fmt.Errorf("convert to port order: %w", err)
+	}
+
+	return portOrder, nil
+}
+
+func updateOrderStatus(
+	ctx context.Context,
+	ext sqlx.ExtContext,
+	id order.ID,
+	newStatus order.Status,
+	prevStatuses ...order.Status,
+) (*model.Order, error) {
+	query, args, err := sqlx.Named(`
 		UPDATE orders SET
-			status = :status,
-			%s = :operation_time
+			status = :status
 		WHERE
 			id = :id AND
 			status IN (?)
 		RETURNING *
-	`, operationTimeFieldByStatus(newStatus))
-
-	query, args, err := sqlx.Named(
-		query,
+		`,
 		map[string]any{
-			"status":         newStatus,
-			"operation_time": operationTime,
-			"id":             id.Int(),
+			"status": newStatus,
+			"id":     id.Int(),
 		})
 
 	if err != nil {
@@ -49,38 +92,33 @@ func (p *Postgres) UpdateOrderStatus(
 		return nil, fmt.Errorf("in statement %w", err)
 	}
 
-	var modOrder model.Order
-	if err := sqlx.GetContext(ctx, p.db, &modOrder, p.db.Rebind(query), args...); err != nil {
+	var dbOrder model.Order
+	if err := sqlx.GetContext(ctx, ext, &dbOrder, ext.Rebind(query), args...); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, errNotUpdated
 		}
 
-		return nil, fmt.Errorf("exec context: %w", err)
+		return nil, fmt.Errorf("get context: %w", err)
 	}
 
-	portOrder, err := model.ToPortOrder(&modOrder)
-	if err != nil {
-		return nil, fmt.Errorf("convert to port order: %w", err)
-	}
-
-	return portOrder, nil
+	return &dbOrder, nil
 }
 
-func operationTimeFieldByStatus(s order.Status) string {
-	switch s {
-	case order.StatusCreated:
-		return "created_at"
-	case order.StatusInProgress:
-		return "in_progress_at"
-	case order.StatusReady:
-		return "ready_at"
-	case order.StatusCompleted:
-		return "completed_at"
-	case order.StatusCanceled:
-		return "canceled_at"
-	case order.StatusRejected:
-		return "rejected_at"
+func insertOrderTimeline(ctx context.Context, ext sqlx.ExtContext, timeline model.OrderTimeline) error {
+	if _, err := sqlx.NamedExecContext(ctx, ext, `
+		INSERT INTO order_status_timeline(
+			order_id,
+			status,
+			updated_at
+		) VALUES(
+			:order_id,
+			:status,
+			:updated_at
+		)
+	`, timeline,
+	); err != nil {
+		return fmt.Errorf("named exec context: %w", err)
 	}
 
-	return "invalid"
+	return nil
 }

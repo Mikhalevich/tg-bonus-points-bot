@@ -15,7 +15,8 @@ func (c *Customer) GetActiveOrder(ctx context.Context, chatID msginfo.ChatID, me
 	activeOrder, err := c.repository.GetOrderByChatIDAndStatus(
 		ctx,
 		chatID,
-		order.StatusCreated,
+		order.StatusAssembling,
+		order.StatusConfirmed,
 		order.StatusInProgress,
 		order.StatusReady,
 	)

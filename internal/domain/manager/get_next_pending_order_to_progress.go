@@ -10,7 +10,7 @@ import (
 )
 
 func (m *Manager) GetNextPendingOrderToProcess(ctx context.Context) (*order.Order, error) {
-	order, err := m.repository.UpdateOrderStatusForMinID(ctx, time.Now(), order.StatusCreated, order.StatusInProgress)
+	order, err := m.repository.UpdateOrderStatusForMinID(ctx, time.Now(), order.StatusInProgress, order.StatusConfirmed)
 	if err != nil {
 		if m.repository.IsNotFoundError(err) {
 			return nil, perror.NotFound("no pending orders")

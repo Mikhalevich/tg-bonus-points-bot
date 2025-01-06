@@ -7,7 +7,8 @@ import (
 type Status string
 
 const (
-	StatusCreated    Status = "created"
+	StatusAssembling Status = "assembling"
+	StatusConfirmed  Status = "confirmed"
 	StatusInProgress Status = "in_progress"
 	StatusReady      Status = "ready"
 	StatusCompleted  Status = "completed"
@@ -21,8 +22,10 @@ func (s Status) String() string {
 
 func (s Status) HumanReadable() string {
 	switch s {
-	case StatusCreated:
-		return "Created"
+	case StatusAssembling:
+		return "Assembling"
+	case StatusConfirmed:
+		return "Confirmed"
 	case StatusInProgress:
 		return "In Progress"
 	case StatusReady:
@@ -41,7 +44,13 @@ func (s Status) HumanReadable() string {
 func StatusFromString(s string) (Status, error) {
 	status := Status(s)
 	switch status {
-	case StatusCreated, StatusInProgress, StatusReady, StatusCompleted, StatusCanceled, StatusRejected:
+	case StatusAssembling,
+		StatusConfirmed,
+		StatusInProgress,
+		StatusReady,
+		StatusCompleted,
+		StatusCanceled,
+		StatusRejected:
 		return status, nil
 	default:
 		return Status("invalid"), fmt.Errorf("invalid status: %s", s)

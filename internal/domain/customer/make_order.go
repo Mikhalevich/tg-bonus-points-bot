@@ -15,7 +15,7 @@ import (
 func (c *Customer) MakeOrder(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID) error {
 	input := port.CreateOrderInput{
 		ChatID:              chatID,
-		Status:              order.StatusCreated,
+		Status:              order.StatusAssembling,
 		StatusOperationTime: time.Now(),
 		VerificationCode:    generateVerificationCode(),
 	}

@@ -20,7 +20,8 @@ func (c *Customer) CancelOrder(ctx context.Context, id order.ID) error {
 		return nil
 	}
 
-	canceledOrder, err := c.repository.UpdateOrderStatus(ctx, id, time.Now(), order.StatusCanceled, order.StatusCreated)
+	canceledOrder, err := c.repository.UpdateOrderStatus(ctx, id, time.Now(), order.StatusCanceled,
+		order.StatusAssembling, order.StatusConfirmed)
 	if err != nil {
 		if c.repository.IsNotUpdatedError(err) {
 			c.sender.SendText(ctx, activeOrder.ChatID, "order cannot be canceled")
@@ -37,5 +38,5 @@ func (c *Customer) CancelOrder(ctx context.Context, id order.ID) error {
 }
 
 func isOrderCancelable(s order.Status) bool {
-	return s == order.StatusCreated
+	return s == order.StatusAssembling || s == order.StatusConfirmed
 }

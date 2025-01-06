@@ -12,7 +12,7 @@ type ManagerRepository interface {
 	UpdateOrderStatusForMinID(
 		ctx context.Context,
 		operationTime time.Time,
-		prevStatus, newStatus order.Status,
+		newStatus, prevStatus order.Status,
 	) (*order.Order, error)
 	UpdateOrderStatus(
 		ctx context.Context,
