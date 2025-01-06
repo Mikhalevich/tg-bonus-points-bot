@@ -81,7 +81,7 @@ func (c *Customer) makeOrderButtons(
 
 	buttons = append(buttons, cancelBtn)
 
-	confirmBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(chatID, orderID), "Confirm")
+	confirmBtn, err := c.makeInlineKeyboardButton(ctx, button.ConfirmOrder(chatID, orderID), "Confirm")
 	if err != nil {
 		return nil, fmt.Errorf("confirm order button: %w", err)
 	}

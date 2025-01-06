@@ -21,15 +21,49 @@ func (t *TGHandler) DefaultCallbackQuery(ctx context.Context, msg tgbot.BotMessa
 		return fmt.Errorf("get button: %w", err)
 	}
 
-	if btn.Operation == button.OperationCancelOrder {
-		orderID, err := btn.OrderID()
-		if err != nil {
-			return errors.New("invalid order id")
-		}
+	if btn.ChatID.Int64() != msg.ChatID {
+		return fmt.Errorf("chat not match button: %d msg: %d", btn.ChatID.Int64(), msg.ChatID)
+	}
 
-		if err := t.orderProcessor.CancelOrder(ctx, orderID); err != nil {
+	switch btn.Operation {
+	case button.OperationCancelOrder:
+		if err := t.cancelOrder(ctx, btn); err != nil {
 			return fmt.Errorf("cancel order: %w", err)
 		}
+
+	case button.OperationConfirmOrder:
+		if err := t.confirmOrder(ctx, btn); err != nil {
+			return fmt.Errorf("confirm order: %w", err)
+		}
+
+	case button.OperationProductCategory:
+		return errors.New("not implemented")
+	}
+
+	return nil
+}
+
+func (t *TGHandler) cancelOrder(ctx context.Context, btn *button.Button) error {
+	orderID, err := btn.OrderID()
+	if err != nil {
+		return errors.New("invalid order id")
+	}
+
+	if err := t.orderProcessor.CancelOrder(ctx, btn.ChatID, orderID); err != nil {
+		return fmt.Errorf("cancel order: %w", err)
+	}
+
+	return nil
+}
+
+func (t *TGHandler) confirmOrder(ctx context.Context, btn *button.Button) error {
+	orderID, err := btn.OrderID()
+	if err != nil {
+		return errors.New("invalid order id")
+	}
+
+	if err := t.orderProcessor.ConfirmOrder(ctx, btn.ChatID, orderID); err != nil {
+		return fmt.Errorf("confirm order: %w", err)
 	}
 
 	return nil

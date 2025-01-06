@@ -39,6 +39,18 @@ type Order struct {
 	Timeline         []StatusTime
 }
 
+func (o Order) IsSameChat(chatID msginfo.ChatID) bool {
+	return o.ChatID == chatID
+}
+
+func (o Order) CanCancel() bool {
+	return o.Status == StatusAssembling || o.Status == StatusConfirmed
+}
+
+func (o Order) CanConfirm() bool {
+	return o.Status == StatusAssembling
+}
+
 type StatusTime struct {
 	Status Status
 	Time   time.Time
