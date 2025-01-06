@@ -9,12 +9,6 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-type Operation string
-
-const (
-	OperationCancelOrder Operation = "CancelOrder"
-)
-
 type ID string
 
 func (id ID) String() string {
@@ -32,6 +26,28 @@ type Button struct {
 	Payload   []byte
 }
 
+func generateID() ID {
+	return IDFromString(uuid.NewString())
+}
+
+func CancelOrder(chatID msginfo.ChatID, id order.ID) Button {
+	return Button{
+		ID:        generateID(),
+		ChatID:    chatID,
+		Operation: OperationCancelOrder,
+		Payload:   []byte(id.String()),
+	}
+}
+
+func ConfirmOrder(chatID msginfo.ChatID, id order.ID) Button {
+	return Button{
+		ID:        generateID(),
+		ChatID:    chatID,
+		Operation: OperationConfirmOrder,
+		Payload:   []byte(id.String()),
+	}
+}
+
 func (b Button) OrderID() (order.ID, error) {
 	id, err := order.IDFromString(string(b.Payload))
 	if err != nil {
@@ -41,11 +57,15 @@ func (b Button) OrderID() (order.ID, error) {
 	return id, nil
 }
 
-func CancelOrder(chatID msginfo.ChatID, orderID order.ID) Button {
+func ProductCategory(chatID msginfo.ChatID, title string) Button {
 	return Button{
-		ID:        IDFromString(uuid.NewString()),
+		ID:        generateID(),
 		ChatID:    chatID,
-		Operation: OperationCancelOrder,
-		Payload:   []byte(orderID.String()),
+		Operation: OperationProductCategory,
+		Payload:   []byte(title),
 	}
+}
+
+func (b Button) ProductCategory() string {
+	return string(b.Payload)
 }

@@ -2,7 +2,8 @@
 -- SQL in section 'Up' is executed when this migration is applied
 
 CREATE TYPE order_status AS ENUM (
-    'created',
+    'assembling',
+    'confirmed',
     'in_progress',
     'ready',
     'completed',
@@ -13,22 +14,27 @@ CREATE TYPE order_status AS ENUM (
 CREATE TABLE orders(
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     chat_id BIGINT NOT NULL,
-    status order_status NOT NULL DEFAULT 'created',
-    verification_code TEXT NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL,
-    in_progress_at TIMESTAMPTZ,
-    ready_at TIMESTAMPTZ,
-    completed_at TIMESTAMPTZ,
-    canceled_at TIMESTAMPTZ,
-    rejected_at TIMESTAMPTZ
+    status order_status NOT NULL DEFAULT 'assembling',
+    verification_code TEXT NOT NULL
 );
 
-CREATE INDEX chat_id_created_at_idx ON orders(chat_id, created_at);
-CREATE INDEX chat_id_status_idx ON orders(chat_id, status);
-CREATE UNIQUE INDEX only_one_active_order_unique_idx ON orders(chat_id) WHERE status IN ('created', 'in_progress', 'ready');
+CREATE INDEX orders_chat_id_status_idx ON orders(chat_id, status);
+CREATE UNIQUE INDEX orders_only_one_active_order_unique_idx ON orders(chat_id) WHERE status IN ('assembling', 'confirmed', 'in_progress', 'ready');
+
+CREATE TABLE order_status_timeline(
+    order_id INTEGER NOT NULL,
+    status order_status NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL,
+
+    CONSTRAINT order_status_timeline_pk PRIMARY KEY(order_id, status),
+    CONSTRAINT order_status_timeline_order_id_fk FOREIGN KEY(order_id) REFERENCES orders(id)
+);
+
+CREATE INDEX order_status_timeline_order_id_idx ON order_status_timeline(order_id);
 
 -- +migrate Down
 -- SQL section 'Down' is executed when this migration is rolled back
 
+DROP TABLE order_status_timeline;
 DROP TABLE order;
 DROP TYPE order_status;

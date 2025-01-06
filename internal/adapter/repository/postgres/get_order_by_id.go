@@ -13,19 +13,32 @@ import (
 )
 
 func (p *Postgres) GetOrderByID(ctx context.Context, id order.ID) (*order.Order, error) {
+	dbOrder, err := selectOrderByID(ctx, p.db, id)
+	if err != nil {
+		return nil, fmt.Errorf("select order by id: %w", err)
+	}
+
+	orderTimeline, err := selectOrderTimeline(ctx, p.db, dbOrder.ID)
+	if err != nil {
+		return nil, fmt.Errorf("select order timeline: %w", err)
+	}
+
+	portOrder, err := model.ToPortOrder(dbOrder, orderTimeline)
+	if err != nil {
+		return nil, fmt.Errorf("convert to port order: %w", err)
+	}
+
+	return portOrder, nil
+}
+
+func selectOrderByID(ctx context.Context, ext sqlx.ExtContext, id order.ID) (*model.Order, error) {
 	var modelOrder model.Order
-	if err := sqlx.GetContext(ctx, p.db, &modelOrder,
+	if err := sqlx.GetContext(ctx, ext, &modelOrder,
 		`SELECT
 			id,
 			chat_id,
 			status,
-			verification_code,
-			created_at,
-			in_progress_at,
-			ready_at,
-			completed_at,
-			canceled_at,
-			rejected_at
+			verification_code
 		FROM
 			orders
 		WHERE
@@ -39,10 +52,5 @@ func (p *Postgres) GetOrderByID(ctx context.Context, id order.ID) (*order.Order,
 		return nil, fmt.Errorf("get context: %w", err)
 	}
 
-	portOrder, err := model.ToPortOrder(&modelOrder)
-	if err != nil {
-		return nil, fmt.Errorf("convert to port order: %w", err)
-	}
-
-	return portOrder, nil
+	return &modelOrder, nil
 }

@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
@@ -16,7 +15,8 @@ func (c *Customer) GetActiveOrder(ctx context.Context, chatID msginfo.ChatID, me
 	activeOrder, err := c.repository.GetOrderByChatIDAndStatus(
 		ctx,
 		chatID,
-		order.StatusCreated,
+		order.StatusAssembling,
+		order.StatusConfirmed,
 		order.StatusInProgress,
 		order.StatusReady,
 	)
@@ -32,25 +32,18 @@ func (c *Customer) GetActiveOrder(ctx context.Context, chatID msginfo.ChatID, me
 
 	formattedOrder := formatOrder(activeOrder, c.sender.EscapeMarkdown)
 
-	if isOrderCancelable(activeOrder.Status) {
-		cancelButton := button.CancelOrder(chatID, activeOrder.ID)
-		if err := c.buttonRepository.StoreButton(ctx, &cancelButton); err != nil {
-			return fmt.Errorf("store cancel button: %w", err)
+	if activeOrder.CanCancel() {
+		cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(chatID, activeOrder.ID), "Cancel")
+		if err != nil {
+			return fmt.Errorf("make cancel order button: %w", err)
 		}
 
-		c.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder, cancelOrderButton(cancelButton.ID))
+		c.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder, cancelBtn)
 	} else {
 		c.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder)
 	}
 
 	return nil
-}
-
-func cancelOrderButton(id button.ID) port.Button {
-	return port.Button{
-		Text: "Cancel",
-		ID:   id,
-	}
 }
 
 func formatOrder(o *order.Order, escaper func(string) string) string {

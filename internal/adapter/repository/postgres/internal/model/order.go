@@ -1,8 +1,8 @@
 package model
 
 import (
-	"database/sql"
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
@@ -10,57 +10,47 @@ import (
 )
 
 type Order struct {
-	ID               int          `db:"id"`
-	ChatID           int64        `db:"chat_id"`
-	Status           string       `db:"status"`
-	VerificationCode string       `db:"verification_code"`
-	CreatedAt        time.Time    `db:"created_at"`
-	InProgressAt     sql.NullTime `db:"in_progress_at"`
-	ReadyAt          sql.NullTime `db:"ready_at"`
-	CompletedAt      sql.NullTime `db:"completed_at"`
-	CanceledAt       sql.NullTime `db:"canceled_at"`
-	RejectedAt       sql.NullTime `db:"rejected_at"`
+	ID               int    `db:"id"`
+	ChatID           int64  `db:"chat_id"`
+	Status           string `db:"status"`
+	VerificationCode string `db:"verification_code"`
 }
 
-func ToPortOrder(o *Order) (*order.Order, error) {
-	status, err := order.StatusFromString(o.Status)
+type OrderTimeline struct {
+	ID        int       `db:"order_id"`
+	Status    string    `db:"status"`
+	UpdatedAt time.Time `db:"updated_at"`
+}
+
+func ToPortOrder(dbOrder *Order, dbTimeline []OrderTimeline) (*order.Order, error) {
+	orderStatus, err := order.StatusFromString(dbOrder.Status)
 	if err != nil {
-		return nil, fmt.Errorf("create status from string: %w", err)
+		return nil, fmt.Errorf("status from string: %w", err)
 	}
 
-	timeline := []order.StatusTime{
-		{
-			Status: order.StatusCreated,
-			Time:   o.CreatedAt,
-		},
-	}
+	sort.Slice(dbTimeline, func(i, j int) bool {
+		return dbTimeline[i].UpdatedAt.Sub(dbTimeline[j].UpdatedAt) < 0
+	})
 
-	timeline = appendTimelineStatus(timeline, o.InProgressAt, order.StatusInProgress)
-	timeline = appendTimelineStatus(timeline, o.ReadyAt, order.StatusReady)
-	timeline = appendTimelineStatus(timeline, o.CompletedAt, order.StatusCompleted)
-	timeline = appendTimelineStatus(timeline, o.CanceledAt, order.StatusCanceled)
-	timeline = appendTimelineStatus(timeline, o.RejectedAt, order.StatusRejected)
+	portTimeline := make([]order.StatusTime, 0, len(dbTimeline))
+
+	for _, t := range dbTimeline {
+		status, err := order.StatusFromString(t.Status)
+		if err != nil {
+			return nil, fmt.Errorf("timeline status from string: %w", err)
+		}
+
+		portTimeline = append(portTimeline, order.StatusTime{
+			Status: status,
+			Time:   t.UpdatedAt,
+		})
+	}
 
 	return &order.Order{
-		ID:               order.IDFromInt(o.ID),
-		ChatID:           msginfo.ChatIDFromInt(o.ChatID),
-		Status:           status,
-		VerificationCode: o.VerificationCode,
-		Timeline:         timeline,
+		ID:               order.IDFromInt(dbOrder.ID),
+		ChatID:           msginfo.ChatIDFromInt(dbOrder.ChatID),
+		Status:           orderStatus,
+		VerificationCode: dbOrder.VerificationCode,
+		Timeline:         portTimeline,
 	}, nil
-}
-
-func appendTimelineStatus(
-	timeline []order.StatusTime,
-	sqlTime sql.NullTime,
-	status order.Status,
-) []order.StatusTime {
-	if !sqlTime.Valid {
-		return timeline
-	}
-
-	return append(timeline, order.StatusTime{
-		Status: status,
-		Time:   sqlTime.Time,
-	})
 }

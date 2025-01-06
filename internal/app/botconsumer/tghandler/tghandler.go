@@ -11,7 +11,8 @@ import (
 type OrderProcessor interface {
 	MakeOrder(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID) error
 	GetActiveOrder(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID) error
-	CancelOrder(ctx context.Context, id order.ID) error
+	CancelOrder(ctx context.Context, chatID msginfo.ChatID, orderID order.ID) error
+	ConfirmOrder(ctx context.Context, chatID msginfo.ChatID, orderID order.ID) error
 	GetButton(ctx context.Context, id button.ID) (*button.Button, error)
 }
 

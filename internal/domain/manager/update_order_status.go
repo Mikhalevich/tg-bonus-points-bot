@@ -39,18 +39,20 @@ func (m *Manager) UpdateOrderStatus(ctx context.Context, id order.ID, status ord
 
 func calculateLegalPreviousStatuses(s order.Status) ([]order.Status, error) {
 	switch s {
-	case order.StatusCreated:
+	case order.StatusAssembling:
 		return nil, perror.InvalidParam("invalid order transition")
+	case order.StatusConfirmed:
+		return []order.Status{order.StatusAssembling}, nil
 	case order.StatusInProgress:
-		return []order.Status{order.StatusCreated}, nil
+		return []order.Status{order.StatusConfirmed}, nil
 	case order.StatusReady:
 		return []order.Status{order.StatusInProgress}, nil
 	case order.StatusCompleted:
-		return []order.Status{order.StatusCreated, order.StatusInProgress, order.StatusReady}, nil
+		return []order.Status{order.StatusConfirmed, order.StatusInProgress, order.StatusReady}, nil
 	case order.StatusCanceled:
-		return []order.Status{order.StatusCreated, order.StatusInProgress, order.StatusReady}, nil
+		return []order.Status{order.StatusConfirmed, order.StatusInProgress, order.StatusReady}, nil
 	case order.StatusRejected:
-		return []order.Status{order.StatusCreated, order.StatusInProgress, order.StatusReady}, nil
+		return []order.Status{order.StatusConfirmed, order.StatusInProgress, order.StatusReady}, nil
 	}
 
 	return nil, perror.InvalidParam("invalid order status")

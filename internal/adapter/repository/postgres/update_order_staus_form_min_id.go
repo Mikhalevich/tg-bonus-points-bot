@@ -10,40 +10,81 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/internal/model"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/internal/transaction"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
 func (p *Postgres) UpdateOrderStatusForMinID(
 	ctx context.Context,
 	operationTime time.Time,
-	prevStatus, newStatus order.Status,
+	newStatus, prevStatus order.Status,
 ) (*order.Order, error) {
-	query := fmt.Sprintf(`
+	var (
+		dbOrder  *model.Order
+		timeline []model.OrderTimeline
+		err      error
+	)
+
+	if err := transaction.Transaction(ctx, p.db, true,
+		func(ctx context.Context, tx sqlx.ExtContext) error {
+			dbOrder, err = updateOrderStatusForMinID(ctx, tx, newStatus, prevStatus)
+			if err != nil {
+				return fmt.Errorf("update order status for min id: %w", err)
+			}
+
+			if err := insertOrderTimeline(ctx, tx, model.OrderTimeline{
+				ID:        dbOrder.ID,
+				Status:    newStatus.String(),
+				UpdatedAt: operationTime,
+			}); err != nil {
+				return fmt.Errorf("insert order timeline: %w", err)
+			}
+
+			timeline, err = selectOrderTimeline(ctx, tx, dbOrder.ID)
+			if err != nil {
+				return fmt.Errorf("select order timeline: %w", err)
+			}
+
+			return nil
+		},
+	); err != nil {
+		return nil, fmt.Errorf("transaction: %w", err)
+	}
+
+	portOrder, err := model.ToPortOrder(dbOrder, timeline)
+	if err != nil {
+		return nil, fmt.Errorf("convert to port order: %w", err)
+	}
+
+	return portOrder, nil
+}
+
+func updateOrderStatusForMinID(
+	ctx context.Context,
+	ext sqlx.ExtContext,
+	newStatus order.Status,
+	prevStatus order.Status,
+) (*model.Order, error) {
+	query, args, err := sqlx.Named(`
 		UPDATE orders SET
-			status = :new_status,
-			%s = :operation_time
+			status = :new_status
 		WHERE id = (
 				SELECT MIN(id)
 				FROM orders
 				WHERE status = :previous_status
 			)
 		RETURNING *
-	`, operationTimeFieldByStatus(newStatus))
-
-	query, args, err := sqlx.Named(
-		query,
-		map[string]any{
-			"new_status":      newStatus,
-			"operation_time":  operationTime,
-			"previous_status": prevStatus,
-		})
+		`, map[string]any{
+		"new_status":      newStatus,
+		"previous_status": prevStatus,
+	})
 
 	if err != nil {
 		return nil, fmt.Errorf("named: %w", err)
 	}
 
-	var modelOrder model.Order
-	if err := sqlx.GetContext(ctx, p.db, &modelOrder, p.db.Rebind(query), args...); err != nil {
+	var dbOrder model.Order
+	if err := sqlx.GetContext(ctx, ext, &dbOrder, ext.Rebind(query), args...); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, errNotFound
 		}
@@ -51,10 +92,5 @@ func (p *Postgres) UpdateOrderStatusForMinID(
 		return nil, fmt.Errorf("get context: %w", err)
 	}
 
-	portOrder, err := model.ToPortOrder(&modelOrder)
-	if err != nil {
-		return nil, fmt.Errorf("convert to port order: %w", err)
-	}
-
-	return portOrder, nil
+	return &dbOrder, nil
 }
