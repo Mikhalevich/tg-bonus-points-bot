@@ -8,8 +8,10 @@ import (
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/flag"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
 func (c *Customer) MakeOrder(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID) error {
@@ -32,37 +34,40 @@ func (c *Customer) MakeOrder(ctx context.Context, chatID msginfo.ChatID, message
 		return fmt.Errorf("repository create order: %w", err)
 	}
 
+	categories, err := c.repository.GetCategoryProducts(ctx, product.Filter{
+		Products: flag.Enabled,
+		Category: flag.Enabled,
+	})
+	if err != nil {
+		return fmt.Errorf("get products: %w", err)
+	}
+
+	buttons := make([]button.InlineKeyboardButton, 0, len(categories)+2)
+
+	for _, v := range categories {
+		b, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(chatID, id), v.Title)
+		if err != nil {
+			return fmt.Errorf("category order button: %w", err)
+		}
+
+		buttons = append(buttons, b)
+	}
+
 	cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(chatID, id), "Cancel")
 	if err != nil {
-		return fmt.Errorf("store cancel order button: %w", err)
+		return fmt.Errorf("cancel order button: %w", err)
 	}
 
-	png, err := c.qrCode.GeneratePNG(id.String())
+	buttons = append(buttons, cancelBtn)
+
+	confirmBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(chatID, id), "Confirm")
 	if err != nil {
-		return fmt.Errorf("qrcode generate png: %w", err)
+		return fmt.Errorf("confirm order button: %w", err)
 	}
 
-	orderInfo := formatOrder(&order.Order{
-		ID:               id,
-		Status:           input.Status,
-		VerificationCode: input.VerificationCode,
-		Timeline: []order.StatusTime{
-			{
-				Status: input.Status,
-				Time:   input.StatusOperationTime,
-			},
-		},
-	}, c.sender.EscapeMarkdown)
+	buttons = append(buttons, confirmBtn)
 
-	if err := c.sender.SendPNGMarkdown(
-		ctx,
-		chatID,
-		orderInfo,
-		png,
-		cancelBtn,
-	); err != nil {
-		return fmt.Errorf("send png: %w", err)
-	}
+	c.sender.ReplyText(ctx, chatID, messageID, "Choose category", buttons...)
 
 	return nil
 }
