@@ -42,30 +42,10 @@ func (c *Customer) MakeOrder(ctx context.Context, chatID msginfo.ChatID, message
 		return fmt.Errorf("get products: %w", err)
 	}
 
-	buttons := make([]button.InlineKeyboardButton, 0, len(categories)+2)
-
-	for _, v := range categories {
-		b, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(chatID, id), v.Title)
-		if err != nil {
-			return fmt.Errorf("category order button: %w", err)
-		}
-
-		buttons = append(buttons, b)
-	}
-
-	cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(chatID, id), "Cancel")
+	buttons, err := c.makeOrderButtons(ctx, chatID, id, categories)
 	if err != nil {
-		return fmt.Errorf("cancel order button: %w", err)
+		return fmt.Errorf("make order buttons: %w", err)
 	}
-
-	buttons = append(buttons, cancelBtn)
-
-	confirmBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(chatID, id), "Confirm")
-	if err != nil {
-		return fmt.Errorf("confirm order button: %w", err)
-	}
-
-	buttons = append(buttons, confirmBtn)
 
 	c.sender.ReplyText(ctx, chatID, messageID, "Choose category", buttons...)
 
@@ -75,4 +55,38 @@ func (c *Customer) MakeOrder(ctx context.Context, chatID msginfo.ChatID, message
 func generateVerificationCode() string {
 	//nolint:gosec
 	return fmt.Sprintf("%03d", rand.Intn(1000))
+}
+
+func (c *Customer) makeOrderButtons(
+	ctx context.Context,
+	chatID msginfo.ChatID,
+	orderID order.ID,
+	categories []product.Category,
+) ([]button.InlineKeyboardButton, error) {
+	buttons := make([]button.InlineKeyboardButton, 0, len(categories)+2)
+
+	for _, v := range categories {
+		b, err := c.makeInlineKeyboardButton(ctx, button.ProductCategory(chatID, v.Title), v.Title)
+		if err != nil {
+			return nil, fmt.Errorf("category order button: %w", err)
+		}
+
+		buttons = append(buttons, b)
+	}
+
+	cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(chatID, orderID), "Cancel")
+	if err != nil {
+		return nil, fmt.Errorf("cancel order button: %w", err)
+	}
+
+	buttons = append(buttons, cancelBtn)
+
+	confirmBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(chatID, orderID), "Confirm")
+	if err != nil {
+		return nil, fmt.Errorf("confirm order button: %w", err)
+	}
+
+	buttons = append(buttons, confirmBtn)
+
+	return buttons, nil
 }
