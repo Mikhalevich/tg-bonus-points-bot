@@ -58,7 +58,7 @@ func (c *Customer) ConfirmOrder(ctx context.Context, chatID msginfo.ChatID, orde
 		confirmedOrder.ChatID,
 		formatOrder(confirmedOrder, c.sender.EscapeMarkdown),
 		png,
-		cancelBtn,
+		button.Row(cancelBtn),
 	); err != nil {
 		return fmt.Errorf("send png: %w", err)
 	}

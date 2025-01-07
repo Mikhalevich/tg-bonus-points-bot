@@ -31,7 +31,7 @@ func (m *messageSender) ReplyText(
 	chatID msginfo.ChatID,
 	replyToMsgID msginfo.MessageID,
 	text string,
-	buttons ...button.InlineKeyboardButton,
+	rows ...button.InlineKeyboardButtonRow,
 ) {
 	if _, err := m.bot.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID: chatID.Int64(),
@@ -39,7 +39,7 @@ func (m *messageSender) ReplyText(
 			MessageID: replyToMsgID.Int(),
 		},
 		Text:        text,
-		ReplyMarkup: makeButtonsMarkup(buttons...),
+		ReplyMarkup: makeButtonsMarkup(rows...),
 	}); err != nil {
 		logger.FromContext(ctx).
 			WithError(err).
@@ -48,23 +48,28 @@ func (m *messageSender) ReplyText(
 	}
 }
 
-func makeButtonsMarkup(buttons ...button.InlineKeyboardButton) models.ReplyMarkup {
-	if len(buttons) == 0 {
+func makeButtonsMarkup(rows ...button.InlineKeyboardButtonRow) models.ReplyMarkup {
+	if len(rows) == 0 {
 		return nil
 	}
 
-	buttonRow := make([]models.InlineKeyboardButton, 0, len(buttons))
-	for _, b := range buttons {
-		buttonRow = append(buttonRow, models.InlineKeyboardButton{
-			Text:         b.Caption,
-			CallbackData: b.ID.String(),
-		})
+	keyboard := make([][]models.InlineKeyboardButton, 0, len(rows))
+
+	for _, row := range rows {
+		buttonRow := make([]models.InlineKeyboardButton, 0, len(row))
+
+		for _, b := range row {
+			buttonRow = append(buttonRow, models.InlineKeyboardButton{
+				Text:         b.Caption,
+				CallbackData: b.ID.String(),
+			})
+		}
+
+		keyboard = append(keyboard, buttonRow)
 	}
 
 	return models.InlineKeyboardMarkup{
-		InlineKeyboard: [][]models.InlineKeyboardButton{
-			buttonRow,
-		},
+		InlineKeyboard: keyboard,
 	}
 }
 
@@ -73,7 +78,7 @@ func (m *messageSender) ReplyTextMarkdown(
 	chatID msginfo.ChatID,
 	replyToMsgID msginfo.MessageID,
 	text string,
-	buttons ...button.InlineKeyboardButton,
+	rows ...button.InlineKeyboardButtonRow,
 ) {
 	if _, err := m.bot.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID: chatID.Int64(),
@@ -82,7 +87,7 @@ func (m *messageSender) ReplyTextMarkdown(
 		},
 		ParseMode:   models.ParseModeMarkdown,
 		Text:        text,
-		ReplyMarkup: makeButtonsMarkup(buttons...),
+		ReplyMarkup: makeButtonsMarkup(rows...),
 	}); err != nil {
 		logger.FromContext(ctx).
 			WithError(err).
@@ -133,7 +138,7 @@ func (m *messageSender) SendPNGMarkdown(
 	chatID msginfo.ChatID,
 	caption string,
 	png []byte,
-	buttons ...button.InlineKeyboardButton,
+	rows ...button.InlineKeyboardButtonRow,
 ) error {
 	if _, err := m.bot.SendPhoto(ctx, &bot.SendPhotoParams{
 		ChatID: chatID.Int64(),
@@ -142,7 +147,7 @@ func (m *messageSender) SendPNGMarkdown(
 		},
 		Caption:     caption,
 		ParseMode:   models.ParseModeMarkdown,
-		ReplyMarkup: makeButtonsMarkup(buttons...),
+		ReplyMarkup: makeButtonsMarkup(rows...),
 	}); err != nil {
 		return fmt.Errorf("send photo: %w", err)
 	}
