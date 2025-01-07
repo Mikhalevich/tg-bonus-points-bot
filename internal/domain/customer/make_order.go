@@ -62,8 +62,8 @@ func (c *Customer) makeOrderButtons(
 	chatID msginfo.ChatID,
 	orderID order.ID,
 	categories []product.Category,
-) ([]button.InlineKeyboardButton, error) {
-	buttons := make([]button.InlineKeyboardButton, 0, len(categories)+2)
+) ([]button.InlineKeyboardButtonRow, error) {
+	buttons := make([]button.InlineKeyboardButtonRow, 0, len(categories)+1)
 
 	for _, v := range categories {
 		b, err := c.makeInlineKeyboardButton(ctx, button.ProductCategory(chatID, v.Title), v.Title)
@@ -71,7 +71,7 @@ func (c *Customer) makeOrderButtons(
 			return nil, fmt.Errorf("category order button: %w", err)
 		}
 
-		buttons = append(buttons, b)
+		buttons = append(buttons, button.Row(b))
 	}
 
 	cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(chatID, orderID), "Cancel")
@@ -79,14 +79,12 @@ func (c *Customer) makeOrderButtons(
 		return nil, fmt.Errorf("cancel order button: %w", err)
 	}
 
-	buttons = append(buttons, cancelBtn)
-
 	confirmBtn, err := c.makeInlineKeyboardButton(ctx, button.ConfirmOrder(chatID, orderID), "Confirm")
 	if err != nil {
 		return nil, fmt.Errorf("confirm order button: %w", err)
 	}
 
-	buttons = append(buttons, confirmBtn)
+	buttons = append(buttons, button.Row(cancelBtn, confirmBtn))
 
 	return buttons, nil
 }

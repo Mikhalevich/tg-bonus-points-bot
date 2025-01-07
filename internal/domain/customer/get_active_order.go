@@ -38,7 +38,7 @@ func (c *Customer) GetActiveOrder(ctx context.Context, chatID msginfo.ChatID, me
 			return fmt.Errorf("make cancel order button: %w", err)
 		}
 
-		c.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder, cancelBtn)
+		c.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder, button.Row(cancelBtn))
 	} else {
 		c.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder)
 	}
