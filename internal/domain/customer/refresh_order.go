@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/flag"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
@@ -18,7 +19,7 @@ func (c *Customer) RefreshOrder(
 	assemblingOrder, err := c.repository.GetOrderByID(ctx, orderID)
 	if err != nil {
 		if c.repository.IsNotFoundError(err) {
-			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, "no such order")
+			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderNotExists())
 			return nil
 		}
 
@@ -26,8 +27,7 @@ func (c *Customer) RefreshOrder(
 	}
 
 	if !assemblingOrder.IsAssembling() {
-		c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID,
-			fmt.Sprintf("order in %s state", assemblingOrder.Status.HumanReadable()))
+		c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderStatus(assemblingOrder.Status))
 		return nil
 	}
 
@@ -44,7 +44,7 @@ func (c *Customer) RefreshOrder(
 		return fmt.Errorf("make order buttons: %w", err)
 	}
 
-	c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, "Choose category", buttons...)
+	c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderCategoryPage(), buttons...)
 
 	return nil
 }

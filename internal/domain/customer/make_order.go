@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/flag"
@@ -26,8 +27,7 @@ func (c *Customer) MakeOrder(ctx context.Context, info msginfo.Info) error {
 
 	if err != nil {
 		if c.repository.IsAlreadyExistsError(err) {
-			c.sender.ReplyText(ctx, info.ChatID, info.MessageID,
-				"You have active order already")
+			c.sender.ReplyText(ctx, info.ChatID, info.MessageID, message.AlreadyHasActiveOrder())
 			return nil
 		}
 
@@ -47,7 +47,7 @@ func (c *Customer) MakeOrder(ctx context.Context, info msginfo.Info) error {
 		return fmt.Errorf("make order buttons: %w", err)
 	}
 
-	c.sender.ReplyText(ctx, info.ChatID, info.MessageID, "Choose category", buttons...)
+	c.sender.ReplyText(ctx, info.ChatID, info.MessageID, message.OrderCategoryPage(), buttons...)
 
 	return nil
 }
@@ -74,12 +74,12 @@ func (c *Customer) makeOrderButtons(
 		buttons = append(buttons, button.Row(b))
 	}
 
-	cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(chatID, orderID), "Cancel")
+	cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrderEditMsg(chatID, orderID), message.Cancel())
 	if err != nil {
 		return nil, fmt.Errorf("cancel order button: %w", err)
 	}
 
-	confirmBtn, err := c.makeInlineKeyboardButton(ctx, button.ConfirmOrder(chatID, orderID), "Confirm")
+	confirmBtn, err := c.makeInlineKeyboardButton(ctx, button.ConfirmOrder(chatID, orderID), message.Confirm())
 	if err != nil {
 		return nil, fmt.Errorf("confirm order button: %w", err)
 	}
