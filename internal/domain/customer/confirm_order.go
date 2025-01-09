@@ -65,7 +65,7 @@ func (c *Customer) ConfirmOrder(ctx context.Context, info msginfo.Info, orderID 
 		return fmt.Errorf("send png: %w", err)
 	}
 
-	c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, "completed")
+	c.sender.DeleteMessage(ctx, info.ChatID, info.MessageID)
 
 	return nil
 }

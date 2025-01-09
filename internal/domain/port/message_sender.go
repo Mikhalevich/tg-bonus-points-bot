@@ -20,4 +20,5 @@ type MessageSender interface {
 	EditTextMessage(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID,
 		text string, rows ...button.InlineKeyboardButtonRow,
 	)
+	DeleteMessage(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID)
 }
