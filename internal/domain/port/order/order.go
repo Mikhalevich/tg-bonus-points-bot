@@ -47,7 +47,7 @@ func (o Order) CanCancel() bool {
 	return o.Status == StatusAssembling || o.Status == StatusConfirmed
 }
 
-func (o Order) CanConfirm() bool {
+func (o Order) IsAssembling() bool {
 	return o.Status == StatusAssembling
 }
 

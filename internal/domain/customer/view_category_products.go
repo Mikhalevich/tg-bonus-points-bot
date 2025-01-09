@@ -12,8 +12,7 @@ import (
 
 func (c *Customer) ViewCategoryProducts(
 	ctx context.Context,
-	chatID msginfo.ChatID,
-	messageID msginfo.MessageID,
+	info msginfo.Info,
 	orderID order.ID,
 	categoryID product.ID,
 ) error {
@@ -31,12 +30,12 @@ func (c *Customer) ViewCategoryProducts(
 		return fmt.Errorf("get products by category id: %w", err)
 	}
 
-	buttons, err := c.makeProductsButtons(ctx, chatID, orderID, products)
+	buttons, err := c.makeProductsButtons(ctx, info.ChatID, orderID, products)
 	if err != nil {
 		return fmt.Errorf("make products buttons: %w", err)
 	}
 
-	c.sender.EditTextMessage(ctx, chatID, messageID, "choose product", buttons...)
+	c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, "choose product", buttons...)
 
 	return nil
 }
