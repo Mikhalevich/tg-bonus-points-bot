@@ -11,8 +11,10 @@ import (
 func (t *TGHandler) GetActiveOrder(ctx context.Context, msg tgbot.BotMessage, sender tgbot.MessageSender) error {
 	if err := t.orderProcessor.GetActiveOrder(
 		ctx,
-		msginfo.ChatIDFromInt(msg.ChatID),
-		msginfo.MessageIDFromInt(msg.MessageID),
+		msginfo.Info{
+			ChatID:    msginfo.ChatIDFromInt(msg.ChatID),
+			MessageID: msginfo.MessageIDFromInt(msg.MessageID),
+		},
 	); err != nil {
 		return fmt.Errorf("make order: %w", err)
 	}

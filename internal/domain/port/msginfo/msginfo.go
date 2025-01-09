@@ -19,3 +19,8 @@ func (c ChatID) Int64() int64 {
 func ChatIDFromInt(id int64) ChatID {
 	return ChatID(id)
 }
+
+type Info struct {
+	ChatID    ChatID
+	MessageID MessageID
+}

@@ -14,9 +14,9 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
-func (c *Customer) MakeOrder(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID) error {
+func (c *Customer) MakeOrder(ctx context.Context, info msginfo.Info) error {
 	input := port.CreateOrderInput{
-		ChatID:              chatID,
+		ChatID:              info.ChatID,
 		Status:              order.StatusAssembling,
 		StatusOperationTime: time.Now(),
 		VerificationCode:    generateVerificationCode(),
@@ -26,7 +26,7 @@ func (c *Customer) MakeOrder(ctx context.Context, chatID msginfo.ChatID, message
 
 	if err != nil {
 		if c.repository.IsAlreadyExistsError(err) {
-			c.sender.ReplyText(ctx, chatID, messageID,
+			c.sender.ReplyText(ctx, info.ChatID, info.MessageID,
 				"You have active order already")
 			return nil
 		}
@@ -42,12 +42,12 @@ func (c *Customer) MakeOrder(ctx context.Context, chatID msginfo.ChatID, message
 		return fmt.Errorf("get products: %w", err)
 	}
 
-	buttons, err := c.makeOrderButtons(ctx, chatID, id, categories)
+	buttons, err := c.makeOrderButtons(ctx, info.ChatID, id, categories)
 	if err != nil {
 		return fmt.Errorf("make order buttons: %w", err)
 	}
 
-	c.sender.ReplyText(ctx, chatID, messageID, "Choose category", buttons...)
+	c.sender.ReplyText(ctx, info.ChatID, info.MessageID, "Choose category", buttons...)
 
 	return nil
 }

@@ -12,8 +12,7 @@ import (
 
 func (c *Customer) RefreshOrder(
 	ctx context.Context,
-	chatID msginfo.ChatID,
-	messageID msginfo.MessageID,
+	info msginfo.Info,
 	orderID order.ID,
 ) error {
 	assemblingOrder, err := c.repository.GetOrderByID(ctx, orderID)
@@ -22,7 +21,7 @@ func (c *Customer) RefreshOrder(
 	}
 
 	if assemblingOrder.Status != order.StatusAssembling {
-		c.sender.EditTextMessage(ctx, chatID, messageID,
+		c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID,
 			fmt.Sprintf("order has different state: %s", assemblingOrder.Status.HumanReadable()))
 		return nil
 	}
@@ -35,12 +34,12 @@ func (c *Customer) RefreshOrder(
 		return fmt.Errorf("get products: %w", err)
 	}
 
-	buttons, err := c.makeOrderButtons(ctx, chatID, assemblingOrder.ID, categories)
+	buttons, err := c.makeOrderButtons(ctx, info.ChatID, assemblingOrder.ID, categories)
 	if err != nil {
 		return fmt.Errorf("make order buttons: %w", err)
 	}
 
-	c.sender.EditTextMessage(ctx, chatID, messageID, "Choose category", buttons...)
+	c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, "Choose category", buttons...)
 
 	return nil
 }

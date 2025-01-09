@@ -10,14 +10,12 @@ import (
 )
 
 type OrderProcessor interface {
-	MakeOrder(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID) error
-	GetActiveOrder(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID) error
-	CancelOrder(ctx context.Context, chatID msginfo.ChatID, orderID order.ID) error
-	ConfirmOrder(ctx context.Context, chatID msginfo.ChatID, orderID order.ID) error
-	ViewCategoryProducts(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID,
-		orderID order.ID, categoryID product.ID) error
-	RefreshOrder(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID,
-		orderID order.ID) error
+	MakeOrder(ctx context.Context, info msginfo.Info) error
+	GetActiveOrder(ctx context.Context, info msginfo.Info) error
+	CancelOrder(ctx context.Context, info msginfo.Info, orderID order.ID) error
+	ConfirmOrder(ctx context.Context, info msginfo.Info, orderID order.ID) error
+	ViewCategoryProducts(ctx context.Context, info msginfo.Info, orderID order.ID, categoryID product.ID) error
+	RefreshOrder(ctx context.Context, info msginfo.Info, orderID order.ID) error
 	GetButton(ctx context.Context, id button.ID) (*button.Button, error)
 }
 

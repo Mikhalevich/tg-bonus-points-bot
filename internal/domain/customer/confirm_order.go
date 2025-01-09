@@ -10,24 +10,24 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (c *Customer) ConfirmOrder(ctx context.Context, chatID msginfo.ChatID, orderID order.ID) error {
+func (c *Customer) ConfirmOrder(ctx context.Context, info msginfo.Info, orderID order.ID) error {
 	assemblingOrder, err := c.repository.GetOrderByID(ctx, orderID)
 	if err != nil {
 		if c.repository.IsNotFoundError(err) {
-			c.sender.SendText(ctx, chatID, "Order not found")
+			c.sender.SendText(ctx, info.ChatID, "Order not found")
 			return nil
 		}
 
 		return fmt.Errorf("get order by id: %w", err)
 	}
 
-	if !assemblingOrder.IsSameChat(chatID) {
-		c.sender.SendText(ctx, chatID, "Order permission failure")
+	if !assemblingOrder.IsSameChat(info.ChatID) {
+		c.sender.SendText(ctx, info.ChatID, "Order permission failure")
 		return nil
 	}
 
 	if !assemblingOrder.CanConfirm() {
-		c.sender.SendTextMarkdown(ctx, chatID,
+		c.sender.SendTextMarkdown(ctx, info.ChatID,
 			fmt.Sprintf("order cannot be confirmed from *%s* state", assemblingOrder.Status.HumanReadable()))
 		return nil
 	}
@@ -36,7 +36,7 @@ func (c *Customer) ConfirmOrder(ctx context.Context, chatID msginfo.ChatID, orde
 		order.StatusConfirmed, order.StatusAssembling)
 	if err != nil {
 		if c.repository.IsNotUpdatedError(err) {
-			c.sender.SendText(ctx, chatID, "Order cannot be confirmed")
+			c.sender.SendText(ctx, info.ChatID, "Order cannot be confirmed")
 			return nil
 		}
 

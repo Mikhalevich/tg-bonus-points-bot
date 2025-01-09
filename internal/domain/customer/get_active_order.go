@@ -11,10 +11,10 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (c *Customer) GetActiveOrder(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID) error {
+func (c *Customer) GetActiveOrder(ctx context.Context, info msginfo.Info) error {
 	activeOrder, err := c.repository.GetOrderByChatIDAndStatus(
 		ctx,
-		chatID,
+		info.ChatID,
 		order.StatusAssembling,
 		order.StatusConfirmed,
 		order.StatusInProgress,
@@ -23,7 +23,7 @@ func (c *Customer) GetActiveOrder(ctx context.Context, chatID msginfo.ChatID, me
 
 	if err != nil {
 		if c.repository.IsNotFoundError(err) {
-			c.sender.ReplyText(ctx, chatID, messageID, "no active orders")
+			c.sender.ReplyText(ctx, info.ChatID, info.MessageID, "no active orders")
 			return nil
 		}
 
@@ -33,14 +33,14 @@ func (c *Customer) GetActiveOrder(ctx context.Context, chatID msginfo.ChatID, me
 	formattedOrder := formatOrder(activeOrder, c.sender.EscapeMarkdown)
 
 	if activeOrder.CanCancel() {
-		cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(chatID, activeOrder.ID), "Cancel")
+		cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(info.ChatID, activeOrder.ID), "Cancel")
 		if err != nil {
 			return fmt.Errorf("make cancel order button: %w", err)
 		}
 
-		c.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder, button.Row(cancelBtn))
+		c.sender.ReplyTextMarkdown(ctx, info.ChatID, info.MessageID, formattedOrder, button.Row(cancelBtn))
 	} else {
-		c.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder)
+		c.sender.ReplyTextMarkdown(ctx, info.ChatID, info.MessageID, formattedOrder)
 	}
 
 	return nil
