@@ -80,12 +80,18 @@ func (t *TGHandler) confirmOrder(ctx context.Context, btn *button.Button) error 
 }
 
 func (t *TGHandler) ViewProducts(ctx context.Context, messageID msginfo.MessageID, btn *button.Button) error {
-	categoryID, err := btn.ProductID()
+	payload, err := btn.ViewCategoryPayload()
 	if err != nil {
-		return fmt.Errorf("invalid category id: %w", err)
+		return fmt.Errorf("invalid payload: %w", err)
 	}
 
-	if err := t.orderProcessor.ViewCategoryProducts(ctx, btn.ChatID, messageID, categoryID); err != nil {
+	if err := t.orderProcessor.ViewCategoryProducts(
+		ctx,
+		btn.ChatID,
+		messageID,
+		payload.OrderID,
+		payload.CategoryID,
+	); err != nil {
 		return fmt.Errorf("view category products: %w", err)
 	}
 
