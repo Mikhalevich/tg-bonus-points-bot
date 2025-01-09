@@ -58,20 +58,38 @@ func (b Button) OrderID() (order.ID, error) {
 	return id, nil
 }
 
-func ProductCategory(chatID msginfo.ChatID, id product.ID) Button {
+func ViewCategory(chatID msginfo.ChatID, id product.ID) Button {
 	return Button{
 		ID:        generateID(),
 		ChatID:    chatID,
-		Operation: OperationProductCategory,
+		Operation: OperationViewCategory,
 		Payload:   []byte(id.String()),
 	}
 }
 
-func (b Button) ProductCategoryID() (product.ID, error) {
+func (b Button) ProductID() (product.ID, error) {
 	id, err := product.IDFromString(string(b.Payload))
 	if err != nil {
-		return 0, fmt.Errorf("invalid category id: %w", err)
+		return 0, fmt.Errorf("invalid id: %w", err)
 	}
 
 	return id, nil
+}
+
+func Product(chatID msginfo.ChatID, id product.ID) Button {
+	return Button{
+		ID:        generateID(),
+		ChatID:    chatID,
+		Operation: OperationProduct,
+		Payload:   []byte(id.String()),
+	}
+}
+
+func BackToOrder(chatID msginfo.ChatID, id order.ID) Button {
+	return Button{
+		ID:        generateID(),
+		ChatID:    chatID,
+		Operation: OperationBackToOrder,
+		Payload:   []byte(id.String()),
+	}
 }
