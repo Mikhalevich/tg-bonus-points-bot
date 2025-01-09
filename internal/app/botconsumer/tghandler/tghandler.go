@@ -16,6 +16,8 @@ type OrderProcessor interface {
 	ConfirmOrder(ctx context.Context, chatID msginfo.ChatID, orderID order.ID) error
 	ViewCategoryProducts(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID,
 		orderID order.ID, categoryID product.ID) error
+	RefreshOrder(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID,
+		orderID order.ID) error
 	GetButton(ctx context.Context, id button.ID) (*button.Button, error)
 }
 

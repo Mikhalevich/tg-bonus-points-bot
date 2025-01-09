@@ -39,7 +39,7 @@ func (t *TGHandler) DefaultCallbackQuery(ctx context.Context, msg tgbot.BotMessa
 		}
 
 	case button.OperationViewCategory:
-		if err := t.ViewProducts(ctx, msginfo.MessageIDFromInt(msg.MessageID), btn); err != nil {
+		if err := t.viewProducts(ctx, msginfo.MessageIDFromInt(msg.MessageID), btn); err != nil {
 			return fmt.Errorf("view products: %w", err)
 		}
 
@@ -47,7 +47,9 @@ func (t *TGHandler) DefaultCallbackQuery(ctx context.Context, msg tgbot.BotMessa
 		return errors.New("not implemented")
 
 	case button.OperationBackToOrder:
-		return errors.New("not implemented")
+		if err := t.backToOrder(ctx, msginfo.MessageIDFromInt(msg.MessageID), btn); err != nil {
+			return fmt.Errorf("back to order: %w", err)
+		}
 	}
 
 	return nil
@@ -79,7 +81,7 @@ func (t *TGHandler) confirmOrder(ctx context.Context, btn *button.Button) error 
 	return nil
 }
 
-func (t *TGHandler) ViewProducts(ctx context.Context, messageID msginfo.MessageID, btn *button.Button) error {
+func (t *TGHandler) viewProducts(ctx context.Context, messageID msginfo.MessageID, btn *button.Button) error {
 	payload, err := btn.ViewCategoryPayload()
 	if err != nil {
 		return fmt.Errorf("invalid payload: %w", err)
@@ -93,6 +95,19 @@ func (t *TGHandler) ViewProducts(ctx context.Context, messageID msginfo.MessageI
 		payload.CategoryID,
 	); err != nil {
 		return fmt.Errorf("view category products: %w", err)
+	}
+
+	return nil
+}
+
+func (t *TGHandler) backToOrder(ctx context.Context, messageID msginfo.MessageID, btn *button.Button) error {
+	orderID, err := btn.OrderID()
+	if err != nil {
+		return fmt.Errorf("invalid order id: %w", err)
+	}
+
+	if err := t.orderProcessor.RefreshOrder(ctx, btn.ChatID, messageID, orderID); err != nil {
+		return fmt.Errorf("refresh order: %w", err)
 	}
 
 	return nil
