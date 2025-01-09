@@ -26,7 +26,7 @@ func (c *Customer) ConfirmOrder(ctx context.Context, info msginfo.Info, orderID 
 		return nil
 	}
 
-	if !assemblingOrder.CanConfirm() {
+	if !assemblingOrder.IsAssembling() {
 		c.sender.SendTextMarkdown(ctx, info.ChatID,
 			fmt.Sprintf("order cannot be confirmed from *%s* state", assemblingOrder.Status.HumanReadable()))
 		return nil

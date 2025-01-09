@@ -17,12 +17,17 @@ func (c *Customer) RefreshOrder(
 ) error {
 	assemblingOrder, err := c.repository.GetOrderByID(ctx, orderID)
 	if err != nil {
+		if c.repository.IsNotFoundError(err) {
+			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, "no such order")
+			return nil
+		}
+
 		return fmt.Errorf("get order by id: %w", err)
 	}
 
-	if assemblingOrder.Status != order.StatusAssembling {
+	if !assemblingOrder.IsAssembling() {
 		c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID,
-			fmt.Sprintf("order has different state: %s", assemblingOrder.Status.HumanReadable()))
+			fmt.Sprintf("order in %s state", assemblingOrder.Status.HumanReadable()))
 		return nil
 	}
 
