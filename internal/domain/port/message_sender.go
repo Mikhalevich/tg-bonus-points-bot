@@ -17,4 +17,7 @@ type MessageSender interface {
 	EscapeMarkdown(s string) string
 	SendPNGMarkdown(ctx context.Context, chatID msginfo.ChatID, caption string, png []byte,
 		buttons ...button.InlineKeyboardButtonRow) error
+	EditTextMessage(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID,
+		text string, rows ...button.InlineKeyboardButtonRow,
+	)
 }
