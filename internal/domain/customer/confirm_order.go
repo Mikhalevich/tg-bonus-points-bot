@@ -44,7 +44,8 @@ func (c *Customer) ConfirmOrder(ctx context.Context, info msginfo.Info, orderID 
 		return fmt.Errorf("update order status: %w", err)
 	}
 
-	cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(confirmedOrder.ChatID, orderID), message.Cancel())
+	cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrderSendMsg(confirmedOrder.ChatID, orderID),
+		message.Cancel())
 	if err != nil {
 		return fmt.Errorf("cancel order button: %w", err)
 	}

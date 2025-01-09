@@ -74,7 +74,7 @@ func (c *Customer) makeOrderButtons(
 		buttons = append(buttons, button.Row(b))
 	}
 
-	cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(chatID, orderID), message.Cancel())
+	cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrderEditMsg(chatID, orderID), message.Cancel())
 	if err != nil {
 		return nil, fmt.Errorf("cancel order button: %w", err)
 	}

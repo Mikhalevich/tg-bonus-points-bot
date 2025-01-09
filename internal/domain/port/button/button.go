@@ -28,11 +28,20 @@ func generateID() ID {
 	return IDFromString(uuid.NewString())
 }
 
-func CancelOrder(chatID msginfo.ChatID, id order.ID) Button {
+func CancelOrderSendMsg(chatID msginfo.ChatID, id order.ID) Button {
 	return Button{
 		ID:        generateID(),
 		ChatID:    chatID,
-		Operation: OperationCancelOrder,
+		Operation: OperationCancelOrderSendMessage,
+		Payload:   []byte(id.String()),
+	}
+}
+
+func CancelOrderEditMsg(chatID msginfo.ChatID, id order.ID) Button {
+	return Button{
+		ID:        generateID(),
+		ChatID:    chatID,
+		Operation: OperationCancelOrderEditMessage,
 		Payload:   []byte(id.String()),
 	}
 }

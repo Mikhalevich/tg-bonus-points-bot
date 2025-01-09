@@ -11,11 +11,24 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (c *Customer) CancelOrder(ctx context.Context, info msginfo.Info, orderID order.ID) error {
+func (c *Customer) CancelOrderSendMessage(ctx context.Context, chatID msginfo.ChatID, orderID order.ID) error {
+	return c.cancelOrder(
+		ctx,
+		msginfo.Info{
+			ChatID: chatID,
+		},
+		orderID)
+}
+
+func (c *Customer) CancelOrderEditMessage(ctx context.Context, info msginfo.Info, orderID order.ID) error {
+	return c.cancelOrder(ctx, info, orderID)
+}
+
+func (c *Customer) cancelOrder(ctx context.Context, info msginfo.Info, orderID order.ID) error {
 	assemblingOrder, err := c.repository.GetOrderByID(ctx, orderID)
 	if err != nil {
 		if c.repository.IsNotFoundError(err) {
-			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderNotExists())
+			c.sendOrEditMessage(ctx, info, message.OrderNotExists())
 			return nil
 		}
 
@@ -27,7 +40,7 @@ func (c *Customer) CancelOrder(ctx context.Context, info msginfo.Info, orderID o
 	}
 
 	if !assemblingOrder.CanCancel() {
-		c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderStatus(assemblingOrder.Status))
+		c.sendOrEditMessage(ctx, info, message.OrderStatus(assemblingOrder.Status))
 		return nil
 	}
 
@@ -43,7 +56,16 @@ func (c *Customer) CancelOrder(ctx context.Context, info msginfo.Info, orderID o
 		return fmt.Errorf("update order status: %w", err)
 	}
 
-	c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderStatusChanged(canceledOrder.Status))
+	c.sendOrEditMessage(ctx, info, message.OrderStatusChanged(canceledOrder.Status))
 
 	return nil
+}
+
+func (c *Customer) sendOrEditMessage(ctx context.Context, info msginfo.Info, msg string) {
+	if info.MessageID.Int() != 0 {
+		c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, msg)
+		return
+	}
+
+	c.sender.SendText(ctx, info.ChatID, msg)
 }
