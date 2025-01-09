@@ -27,7 +27,7 @@ func (c *Customer) ConfirmOrder(ctx context.Context, info msginfo.Info, orderID 
 		return errors.New("chat order is different")
 	}
 
-	if !assemblingOrder.CanCancel() {
+	if !assemblingOrder.IsAssembling() {
 		c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderStatus(assemblingOrder.Status))
 		return nil
 	}

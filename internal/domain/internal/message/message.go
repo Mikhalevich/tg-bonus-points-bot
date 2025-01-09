@@ -22,10 +22,26 @@ func OrderWithStatusNotExists(s order.Status) string {
 	return fmt.Sprintf("Order in %s status is not exists", s.HumanReadable())
 }
 
+func AlreadyHasActiveOrder() string {
+	return "You have active order already"
+}
+
 func OrderCategoryPage() string {
-	return "Choose category to view products to order"
+	return "Select category to view products to order"
+}
+
+func OrderProductPage() string {
+	return "Select product to order"
 }
 
 func Cancel() string {
 	return "Cancel"
+}
+
+func Back() string {
+	return "Back"
+}
+
+func Confirm() string {
+	return "Confirm"
 }
