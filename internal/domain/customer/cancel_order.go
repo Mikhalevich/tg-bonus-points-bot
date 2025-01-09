@@ -2,32 +2,32 @@ package customer
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
 func (c *Customer) CancelOrder(ctx context.Context, info msginfo.Info, orderID order.ID) error {
-	activeOrder, err := c.repository.GetOrderByID(ctx, orderID)
+	assemblingOrder, err := c.repository.GetOrderByID(ctx, orderID)
 	if err != nil {
 		if c.repository.IsNotFoundError(err) {
-			c.sender.SendText(ctx, info.ChatID, "Order not found")
+			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderNotExists())
 			return nil
 		}
 
 		return fmt.Errorf("get order by id: %w", err)
 	}
 
-	if !activeOrder.IsSameChat(info.ChatID) {
-		c.sender.SendText(ctx, info.ChatID, "Order permission failure")
-		return nil
+	if !assemblingOrder.IsSameChat(info.ChatID) {
+		return errors.New("chat order is different")
 	}
 
-	if !activeOrder.CanCancel() {
-		c.sender.SendTextMarkdown(ctx, info.ChatID,
-			fmt.Sprintf("order cannot be canceled in *%s* state", activeOrder.Status.HumanReadable()))
+	if !assemblingOrder.CanCancel() {
+		c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderStatus(assemblingOrder.Status))
 		return nil
 	}
 
@@ -35,15 +35,15 @@ func (c *Customer) CancelOrder(ctx context.Context, info msginfo.Info, orderID o
 		order.StatusAssembling, order.StatusConfirmed)
 	if err != nil {
 		if c.repository.IsNotUpdatedError(err) {
-			c.sender.SendText(ctx, activeOrder.ChatID, "order cannot be canceled")
+			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID,
+				message.OrderWithStatusNotExists(assemblingOrder.Status))
 			return nil
 		}
 
 		return fmt.Errorf("update order status: %w", err)
 	}
 
-	c.sender.SendTextMarkdown(ctx, canceledOrder.ChatID,
-		fmt.Sprintf("order canceled successfully\n%s", formatOrder(canceledOrder, c.sender.EscapeMarkdown)))
+	c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderStatusChanged(canceledOrder.Status))
 
 	return nil
 }

@@ -2,9 +2,11 @@ package customer
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
@@ -14,7 +16,7 @@ func (c *Customer) ConfirmOrder(ctx context.Context, info msginfo.Info, orderID 
 	assemblingOrder, err := c.repository.GetOrderByID(ctx, orderID)
 	if err != nil {
 		if c.repository.IsNotFoundError(err) {
-			c.sender.SendText(ctx, info.ChatID, "Order not found")
+			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderNotExists())
 			return nil
 		}
 
@@ -22,13 +24,11 @@ func (c *Customer) ConfirmOrder(ctx context.Context, info msginfo.Info, orderID 
 	}
 
 	if !assemblingOrder.IsSameChat(info.ChatID) {
-		c.sender.SendText(ctx, info.ChatID, "Order permission failure")
-		return nil
+		return errors.New("chat order is different")
 	}
 
-	if !assemblingOrder.IsAssembling() {
-		c.sender.SendTextMarkdown(ctx, info.ChatID,
-			fmt.Sprintf("order cannot be confirmed from *%s* state", assemblingOrder.Status.HumanReadable()))
+	if !assemblingOrder.CanCancel() {
+		c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderStatus(assemblingOrder.Status))
 		return nil
 	}
 
@@ -36,14 +36,15 @@ func (c *Customer) ConfirmOrder(ctx context.Context, info msginfo.Info, orderID 
 		order.StatusConfirmed, order.StatusAssembling)
 	if err != nil {
 		if c.repository.IsNotUpdatedError(err) {
-			c.sender.SendText(ctx, info.ChatID, "Order cannot be confirmed")
+			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID,
+				message.OrderWithStatusNotExists(assemblingOrder.Status))
 			return nil
 		}
 
 		return fmt.Errorf("update order status: %w", err)
 	}
 
-	cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(confirmedOrder.ChatID, orderID), "Cancel")
+	cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(confirmedOrder.ChatID, orderID), message.Cancel())
 	if err != nil {
 		return fmt.Errorf("cancel order button: %w", err)
 	}
@@ -62,6 +63,8 @@ func (c *Customer) ConfirmOrder(ctx context.Context, info msginfo.Info, orderID 
 	); err != nil {
 		return fmt.Errorf("send png: %w", err)
 	}
+
+	c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, "completed")
 
 	return nil
 }
