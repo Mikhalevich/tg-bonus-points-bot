@@ -2,11 +2,11 @@ package tghandler
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/internal/tgbot"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/perror"
 )
 
@@ -37,7 +37,9 @@ func (t *TGHandler) DefaultCallbackQuery(ctx context.Context, msg tgbot.BotMessa
 		}
 
 	case button.OperationProductCategory:
-		return errors.New("not implemented")
+		if err := t.ViewProducts(ctx, msginfo.MessageIDFromInt(msg.MessageID), btn); err != nil {
+			return fmt.Errorf("view products: %w", err)
+		}
 	}
 
 	return nil
@@ -46,7 +48,7 @@ func (t *TGHandler) DefaultCallbackQuery(ctx context.Context, msg tgbot.BotMessa
 func (t *TGHandler) cancelOrder(ctx context.Context, btn *button.Button) error {
 	orderID, err := btn.OrderID()
 	if err != nil {
-		return errors.New("invalid order id")
+		return fmt.Errorf("invalid order id: %w", err)
 	}
 
 	if err := t.orderProcessor.CancelOrder(ctx, btn.ChatID, orderID); err != nil {
@@ -59,11 +61,24 @@ func (t *TGHandler) cancelOrder(ctx context.Context, btn *button.Button) error {
 func (t *TGHandler) confirmOrder(ctx context.Context, btn *button.Button) error {
 	orderID, err := btn.OrderID()
 	if err != nil {
-		return errors.New("invalid order id")
+		return fmt.Errorf("invalid order id: %w", err)
 	}
 
 	if err := t.orderProcessor.ConfirmOrder(ctx, btn.ChatID, orderID); err != nil {
 		return fmt.Errorf("confirm order: %w", err)
+	}
+
+	return nil
+}
+
+func (t *TGHandler) ViewProducts(ctx context.Context, messageID msginfo.MessageID, btn *button.Button) error {
+	categoryID, err := btn.ProductCategoryID()
+	if err != nil {
+		return fmt.Errorf("invalid category id: %w", err)
+	}
+
+	if err := t.orderProcessor.ViewCategoryProducts(ctx, btn.ChatID, messageID, categoryID); err != nil {
+		return fmt.Errorf("view category products: %w", err)
 	}
 
 	return nil
