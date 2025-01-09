@@ -7,6 +7,7 @@ import (
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
 type ID string
@@ -57,15 +58,20 @@ func (b Button) OrderID() (order.ID, error) {
 	return id, nil
 }
 
-func ProductCategory(chatID msginfo.ChatID, title string) Button {
+func ProductCategory(chatID msginfo.ChatID, id product.ID) Button {
 	return Button{
 		ID:        generateID(),
 		ChatID:    chatID,
 		Operation: OperationProductCategory,
-		Payload:   []byte(title),
+		Payload:   []byte(id.String()),
 	}
 }
 
-func (b Button) ProductCategory() string {
-	return string(b.Payload)
+func (b Button) ProductCategoryID() (product.ID, error) {
+	id, err := product.IDFromString(string(b.Payload))
+	if err != nil {
+		return 0, fmt.Errorf("invalid category id: %w", err)
+	}
+
+	return id, nil
 }
