@@ -24,7 +24,8 @@ func (p *Postgres) GetCategoryProducts(ctx context.Context, filter product.Filte
 func buildProductsQuery(filter product.Filter) string {
 	return fmt.Sprintf(`
 		SELECT
-			p.id,
+			p.id AS product_id,
+			c.id AS category_id,
 			p.title AS product_title,
 			c.title AS category_title,
 			p.price,

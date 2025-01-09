@@ -1,8 +1,6 @@
 package button
 
 import (
-	"fmt"
-
 	"github.com/google/uuid"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
@@ -46,26 +44,4 @@ func ConfirmOrder(chatID msginfo.ChatID, id order.ID) Button {
 		Operation: OperationConfirmOrder,
 		Payload:   []byte(id.String()),
 	}
-}
-
-func (b Button) OrderID() (order.ID, error) {
-	id, err := order.IDFromString(string(b.Payload))
-	if err != nil {
-		return 0, fmt.Errorf("invalid order id: %s", b.Payload)
-	}
-
-	return id, nil
-}
-
-func ProductCategory(chatID msginfo.ChatID, title string) Button {
-	return Button{
-		ID:        generateID(),
-		ChatID:    chatID,
-		Operation: OperationProductCategory,
-		Payload:   []byte(title),
-	}
-}
-
-func (b Button) ProductCategory() string {
-	return string(b.Payload)
 }

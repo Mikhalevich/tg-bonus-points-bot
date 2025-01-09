@@ -31,7 +31,7 @@ func ConvertFromPortProduct(portCategory []product.Category) []Category {
 		products := make([]Product, 0, len(v.Products))
 		for _, v := range v.Products {
 			products = append(products, Product{
-				ID:        v.ID,
+				ID:        v.ID.Int(),
 				Title:     v.Title,
 				Price:     v.Price,
 				IsEnabled: v.IsEnabled,

@@ -65,7 +65,7 @@ func (p *Postgres) insertOrder(ctx context.Context, ext sqlx.ExtContext, dbOrder
 
 	var orderID int
 	if err := sqlx.GetContext(ctx, ext, &orderID, ext.Rebind(query), args...); err != nil {
-		if p.driver.IsConstraintError(err, "only_one_active_order_unique_idx") {
+		if p.driver.IsConstraintError(err, "orders_only_one_active_order_unique_idx") {
 			return 0, errAlreadyExists
 		}
 
