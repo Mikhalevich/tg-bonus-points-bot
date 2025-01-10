@@ -10,6 +10,7 @@ type ConsumerBot struct {
 	Bot         Bot         `yaml:"bot" required:"true"`
 	Postgres    Postgres    `yaml:"postgres" required:"true"`
 	ButtonRedis ButtonRedis `yaml:"button_redis" required:"true"`
+	CartRedis   CartRedis   `yaml:"cart_redis" required:"true"`
 }
 
 type ManagerHTTPService struct {
@@ -34,6 +35,13 @@ type Postgres struct {
 }
 
 type ButtonRedis struct {
+	Addr string        `yaml:"addr" required:"true"`
+	Pwd  string        `yaml:"pwd" required:"true"`
+	DB   int           `yaml:"db" required:"true"`
+	TTL  time.Duration `yaml:"ttl" required:"true"`
+}
+
+type CartRedis struct {
 	Addr string        `yaml:"addr" required:"true"`
 	Pwd  string        `yaml:"pwd" required:"true"`
 	DB   int           `yaml:"db" required:"true"`
