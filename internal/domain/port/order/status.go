@@ -7,7 +7,6 @@ import (
 type Status string
 
 const (
-	StatusAssembling Status = "assembling"
 	StatusConfirmed  Status = "confirmed"
 	StatusInProgress Status = "in_progress"
 	StatusReady      Status = "ready"
@@ -22,8 +21,6 @@ func (s Status) String() string {
 
 func (s Status) HumanReadable() string {
 	switch s {
-	case StatusAssembling:
-		return "Assembling"
 	case StatusConfirmed:
 		return "Confirmed"
 	case StatusInProgress:
@@ -44,8 +41,7 @@ func (s Status) HumanReadable() string {
 func StatusFromString(s string) (Status, error) {
 	status := Status(s)
 	switch status {
-	case StatusAssembling,
-		StatusConfirmed,
+	case StatusConfirmed,
 		StatusInProgress,
 		StatusReady,
 		StatusCompleted,

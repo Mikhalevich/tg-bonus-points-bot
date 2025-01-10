@@ -6,20 +6,17 @@ import (
 	"fmt"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
 type ProductPayload struct {
-	OrderID   order.ID
 	ProductID product.ID
 }
 
-func Product(chatID msginfo.ChatID, orderID order.ID, productID product.ID) Button {
+func Product(chatID msginfo.ChatID, productID product.ID) Button {
 	var (
 		buf     bytes.Buffer
 		payload = ViewCategoryPayload{
-			OrderID:    orderID,
 			CategoryID: productID,
 		}
 	)

@@ -33,18 +33,16 @@ func (t *TGHandler) DefaultCallbackQuery(ctx context.Context, msg tgbot.BotMessa
 	}
 
 	switch btn.Operation {
-	case button.OperationCancelOrderEditMessage:
-		if err := t.cancelOrderEditMsg(ctx, info, btn); err != nil {
+	case button.OperationCancelOrder:
+		if err := t.cancelOrder(ctx, info.ChatID, btn); err != nil {
 			return fmt.Errorf("cancel order edit msg: %w", err)
 		}
 
-	case button.OperationCancelOrderSendMessage:
-		if err := t.cancelOrderSendMsg(ctx, info.ChatID, btn); err != nil {
-			return fmt.Errorf("cancel order send msg: %w", err)
-		}
+	case button.OperationCancelCart:
+		return fmt.Errorf("not implemented")
 
-	case button.OperationConfirmOrder:
-		if err := t.confirmOrder(ctx, info, btn); err != nil {
+	case button.OperationConfirmCart:
+		if err := t.confirmCart(ctx, info); err != nil {
 			return fmt.Errorf("confirm order: %w", err)
 		}
 
@@ -57,7 +55,7 @@ func (t *TGHandler) DefaultCallbackQuery(ctx context.Context, msg tgbot.BotMessa
 		return errors.New("not implemented")
 
 	case button.OperationBackToOrder:
-		if err := t.backToOrder(ctx, info, btn); err != nil {
+		if err := t.backToOrder(ctx, info); err != nil {
 			return fmt.Errorf("back to order: %w", err)
 		}
 	}
@@ -65,39 +63,21 @@ func (t *TGHandler) DefaultCallbackQuery(ctx context.Context, msg tgbot.BotMessa
 	return nil
 }
 
-func (t *TGHandler) cancelOrderEditMsg(ctx context.Context, info msginfo.Info, btn *button.Button) error {
+func (t *TGHandler) cancelOrder(ctx context.Context, chatID msginfo.ChatID, btn *button.Button) error {
 	orderID, err := btn.OrderID()
 	if err != nil {
 		return fmt.Errorf("invalid order id: %w", err)
 	}
 
-	if err := t.orderProcessor.CancelOrderEditMessage(ctx, info, orderID); err != nil {
+	if err := t.orderProcessor.CancelOrder(ctx, chatID, orderID); err != nil {
 		return fmt.Errorf("cancel order: %w", err)
 	}
 
 	return nil
 }
 
-func (t *TGHandler) cancelOrderSendMsg(ctx context.Context, chatID msginfo.ChatID, btn *button.Button) error {
-	orderID, err := btn.OrderID()
-	if err != nil {
-		return fmt.Errorf("invalid order id: %w", err)
-	}
-
-	if err := t.orderProcessor.CancelOrderSendMessage(ctx, chatID, orderID); err != nil {
-		return fmt.Errorf("cancel order: %w", err)
-	}
-
-	return nil
-}
-
-func (t *TGHandler) confirmOrder(ctx context.Context, info msginfo.Info, btn *button.Button) error {
-	orderID, err := btn.OrderID()
-	if err != nil {
-		return fmt.Errorf("invalid order id: %w", err)
-	}
-
-	if err := t.orderProcessor.ConfirmOrder(ctx, info, orderID); err != nil {
+func (t *TGHandler) confirmCart(ctx context.Context, info msginfo.Info) error {
+	if err := t.orderProcessor.ConfirmOrder(ctx, info); err != nil {
 		return fmt.Errorf("confirm order: %w", err)
 	}
 
@@ -113,7 +93,6 @@ func (t *TGHandler) viewProducts(ctx context.Context, info msginfo.Info, btn *bu
 	if err := t.orderProcessor.ViewCategoryProducts(
 		ctx,
 		info,
-		payload.OrderID,
 		payload.CategoryID,
 	); err != nil {
 		return fmt.Errorf("view category products: %w", err)
@@ -122,13 +101,8 @@ func (t *TGHandler) viewProducts(ctx context.Context, info msginfo.Info, btn *bu
 	return nil
 }
 
-func (t *TGHandler) backToOrder(ctx context.Context, info msginfo.Info, btn *button.Button) error {
-	orderID, err := btn.OrderID()
-	if err != nil {
-		return fmt.Errorf("invalid order id: %w", err)
-	}
-
-	if err := t.orderProcessor.RefreshOrder(ctx, info, orderID); err != nil {
+func (t *TGHandler) backToOrder(ctx context.Context, info msginfo.Info) error {
+	if err := t.orderProcessor.RefreshOrder(ctx, info); err != nil {
 		return fmt.Errorf("refresh order: %w", err)
 	}
 

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
@@ -15,7 +16,6 @@ func (c *Customer) GetActiveOrder(ctx context.Context, info msginfo.Info) error 
 	activeOrder, err := c.repository.GetOrderByChatIDAndStatus(
 		ctx,
 		info.ChatID,
-		order.StatusAssembling,
 		order.StatusConfirmed,
 		order.StatusInProgress,
 		order.StatusReady,
@@ -33,7 +33,7 @@ func (c *Customer) GetActiveOrder(ctx context.Context, info msginfo.Info) error 
 	formattedOrder := formatOrder(activeOrder, c.sender.EscapeMarkdown)
 
 	if activeOrder.CanCancel() {
-		cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrderSendMsg(info.ChatID, activeOrder.ID), "Cancel")
+		cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(info.ChatID, activeOrder.ID), message.Cancel())
 		if err != nil {
 			return fmt.Errorf("make cancel order button: %w", err)
 		}

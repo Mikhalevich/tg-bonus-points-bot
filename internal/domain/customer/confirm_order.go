@@ -2,63 +2,58 @@ package customer
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (c *Customer) ConfirmOrder(ctx context.Context, info msginfo.Info, orderID order.ID) error {
-	assemblingOrder, err := c.repository.GetOrderByID(ctx, orderID)
+func (c *Customer) ConfirmOrder(ctx context.Context, info msginfo.Info) error {
+	input := port.CreateOrderInput{
+		ChatID:              info.ChatID,
+		Status:              order.StatusConfirmed,
+		StatusOperationTime: time.Now(),
+		VerificationCode:    generateVerificationCode(),
+	}
+
+	id, err := c.repository.CreateOrder(ctx, input)
+
 	if err != nil {
-		if c.repository.IsNotFoundError(err) {
-			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderNotExists())
+		if c.repository.IsAlreadyExistsError(err) {
+			c.sender.ReplyText(ctx, info.ChatID, info.MessageID, message.AlreadyHasActiveOrder())
 			return nil
 		}
 
-		return fmt.Errorf("get order by id: %w", err)
+		return fmt.Errorf("repository create order: %w", err)
 	}
 
-	if !assemblingOrder.IsSameChat(info.ChatID) {
-		return errors.New("chat order is different")
+	if err := c.cart.Clear(ctx, info.ChatID); err != nil {
+		return fmt.Errorf("clear cart: %w", err)
 	}
 
-	if !assemblingOrder.IsAssembling() {
-		c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderStatus(assemblingOrder.Status))
-		return nil
-	}
-
-	confirmedOrder, err := c.repository.UpdateOrderStatus(ctx, orderID, time.Now(),
-		order.StatusConfirmed, order.StatusAssembling)
-	if err != nil {
-		if c.repository.IsNotUpdatedError(err) {
-			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID,
-				message.OrderWithStatusNotExists(assemblingOrder.Status))
-			return nil
-		}
-
-		return fmt.Errorf("update order status: %w", err)
-	}
-
-	cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrderSendMsg(confirmedOrder.ChatID, orderID),
-		message.Cancel())
+	cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(info.ChatID, id), message.Cancel())
 	if err != nil {
 		return fmt.Errorf("cancel order button: %w", err)
 	}
 
-	png, err := c.qrCode.GeneratePNG(orderID.String())
+	png, err := c.qrCode.GeneratePNG(id.String())
 	if err != nil {
 		return fmt.Errorf("qrcode generate png: %w", err)
 	}
 
 	if err := c.sender.SendPNGMarkdown(
 		ctx,
-		confirmedOrder.ChatID,
-		formatOrder(confirmedOrder, c.sender.EscapeMarkdown),
+		info.ChatID,
+		formatOrder(&order.Order{
+			ID:               id,
+			ChatID:           info.ChatID,
+			Status:           input.Status,
+			VerificationCode: input.VerificationCode,
+		}, c.sender.EscapeMarkdown),
 		png,
 		button.Row(cancelBtn),
 	); err != nil {
