@@ -2,7 +2,6 @@ package tghandler
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/internal/tgbot"
@@ -57,7 +56,9 @@ func (t *TGHandler) DefaultCallbackQuery(ctx context.Context, msg tgbot.BotMessa
 		}
 
 	case button.OperationCartAddProduct:
-		return errors.New("not implemented")
+		if err := t.addProduct(ctx, info, btn); err != nil {
+			return fmt.Errorf("add product: %w", err)
+		}
 	}
 
 	return nil
@@ -78,7 +79,7 @@ func (t *TGHandler) cancelOrder(ctx context.Context, chatID msginfo.ChatID, btn 
 
 func (t *TGHandler) confirmCart(ctx context.Context, info msginfo.Info) error {
 	if err := t.orderProcessor.CreateOrder(ctx, info); err != nil {
-		return fmt.Errorf("confirm order: %w", err)
+		return fmt.Errorf("create order: %w", err)
 	}
 
 	return nil
@@ -90,11 +91,7 @@ func (t *TGHandler) viewCategoryProducts(ctx context.Context, info msginfo.Info,
 		return fmt.Errorf("invalid payload: %w", err)
 	}
 
-	if err := t.orderProcessor.CartViewCategoryProducts(
-		ctx,
-		info,
-		id,
-	); err != nil {
+	if err := t.orderProcessor.CartViewCategoryProducts(ctx, info, id); err != nil {
 		return fmt.Errorf("view category products: %w", err)
 	}
 
@@ -103,7 +100,20 @@ func (t *TGHandler) viewCategoryProducts(ctx context.Context, info msginfo.Info,
 
 func (t *TGHandler) viewCategories(ctx context.Context, info msginfo.Info) error {
 	if err := t.orderProcessor.CartViewCategories(ctx, info); err != nil {
-		return fmt.Errorf("refresh order: %w", err)
+		return fmt.Errorf("cart view categories: %w", err)
+	}
+
+	return nil
+}
+
+func (t *TGHandler) addProduct(ctx context.Context, info msginfo.Info, btn *button.Button) error {
+	payload, err := btn.AddProductPayload()
+	if err != nil {
+		return fmt.Errorf("invalid payload: %w", err)
+	}
+
+	if err := t.orderProcessor.CartAddProduct(ctx, info, payload.CategoryID, payload.ProductID); err != nil {
+		return fmt.Errorf("cart add product: %w", err)
 	}
 
 	return nil

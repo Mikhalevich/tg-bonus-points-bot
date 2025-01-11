@@ -1,6 +1,8 @@
 package button
 
 import (
+	"bytes"
+	"encoding/gob"
 	"fmt"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
@@ -23,13 +25,39 @@ func ConfirmCart(chatID msginfo.ChatID) Button {
 	}
 }
 
-func AddProduct(chatID msginfo.ChatID, productID product.ID) Button {
+type AddProductPayload struct {
+	ProductID  product.ID
+	CategoryID product.ID
+}
+
+func AddProduct(chatID msginfo.ChatID, productID, categoryID product.ID) Button {
+	var (
+		payload = AddProductPayload{
+			ProductID:  productID,
+			CategoryID: categoryID,
+		}
+
+		buf bytes.Buffer
+	)
+
+	//nolint:errcheck
+	gob.NewEncoder(&buf).Encode(payload)
+
 	return Button{
 		ID:        generateID(),
 		ChatID:    chatID,
 		Operation: OperationCartAddProduct,
-		Payload:   []byte(productID.String()),
+		Payload:   buf.Bytes(),
 	}
+}
+
+func (b Button) AddProductPayload() (AddProductPayload, error) {
+	var payload AddProductPayload
+	if err := gob.NewDecoder(bytes.NewReader(b.Payload)).Decode(&payload); err != nil {
+		return AddProductPayload{}, fmt.Errorf("gob decode: %w", err)
+	}
+
+	return payload, nil
 }
 
 func (b Button) ProductID() (product.ID, error) {
