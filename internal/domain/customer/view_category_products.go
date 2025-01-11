@@ -38,7 +38,7 @@ func (c *Customer) makeProductsButtons(
 	buttons := make([]button.InlineKeyboardButtonRow, 0, len(products)+1)
 
 	for _, v := range products {
-		b, err := c.makeInlineKeyboardButton(ctx, button.Product(chatID, v.ID), v.Title)
+		b, err := c.makeInlineKeyboardButton(ctx, button.AddProduct(chatID, v.ID), v.Title)
 		if err != nil {
 			return nil, fmt.Errorf("category order button: %w", err)
 		}
@@ -46,7 +46,7 @@ func (c *Customer) makeProductsButtons(
 		buttons = append(buttons, button.Row(b))
 	}
 
-	backBtn, err := c.makeInlineKeyboardButton(ctx, button.BackToOrder(chatID), message.Back())
+	backBtn, err := c.makeInlineKeyboardButton(ctx, button.ViewCategories(chatID), message.Done())
 	if err != nil {
 		return nil, fmt.Errorf("back from products button: %w", err)
 	}

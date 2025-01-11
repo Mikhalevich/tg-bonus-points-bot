@@ -45,7 +45,7 @@ func (c *Customer) makeOrderButtons(
 	buttons := make([]button.InlineKeyboardButtonRow, 0, len(categories)+1)
 
 	for _, v := range categories {
-		b, err := c.makeInlineKeyboardButton(ctx, button.ViewCategory(chatID, v.ID), v.Title)
+		b, err := c.makeInlineKeyboardButton(ctx, button.ViewCategoryProducts(chatID, v.ID), v.Title)
 		if err != nil {
 			return nil, fmt.Errorf("category order button: %w", err)
 		}

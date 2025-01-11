@@ -33,31 +33,31 @@ func (t *TGHandler) DefaultCallbackQuery(ctx context.Context, msg tgbot.BotMessa
 	}
 
 	switch btn.Operation {
-	case button.OperationCancelOrder:
+	case button.OperationOrderCancel:
 		if err := t.cancelOrder(ctx, info.ChatID, btn); err != nil {
 			return fmt.Errorf("cancel order edit msg: %w", err)
 		}
 
-	case button.OperationCancelCart:
+	case button.OperationCartCancel:
 		return fmt.Errorf("not implemented")
 
-	case button.OperationConfirmCart:
+	case button.OperationCartConfirm:
 		if err := t.confirmCart(ctx, info); err != nil {
 			return fmt.Errorf("confirm order: %w", err)
 		}
 
-	case button.OperationViewCategory:
-		if err := t.viewProducts(ctx, info, btn); err != nil {
+	case button.OperationCartViewCategories:
+		if err := t.viewCategories(ctx, info); err != nil {
+			return fmt.Errorf("view categories: %w", err)
+		}
+
+	case button.OperationCartViewCategoryProducts:
+		if err := t.viewCategoryProducts(ctx, info, btn); err != nil {
 			return fmt.Errorf("view products: %w", err)
 		}
 
-	case button.OperationProduct:
+	case button.OperationCartAddProduct:
 		return errors.New("not implemented")
-
-	case button.OperationBackToOrder:
-		if err := t.backToOrder(ctx, info); err != nil {
-			return fmt.Errorf("back to order: %w", err)
-		}
 	}
 
 	return nil
@@ -84,8 +84,8 @@ func (t *TGHandler) confirmCart(ctx context.Context, info msginfo.Info) error {
 	return nil
 }
 
-func (t *TGHandler) viewProducts(ctx context.Context, info msginfo.Info, btn *button.Button) error {
-	payload, err := btn.ViewCategoryPayload()
+func (t *TGHandler) viewCategoryProducts(ctx context.Context, info msginfo.Info, btn *button.Button) error {
+	id, err := btn.CategoryID()
 	if err != nil {
 		return fmt.Errorf("invalid payload: %w", err)
 	}
@@ -93,7 +93,7 @@ func (t *TGHandler) viewProducts(ctx context.Context, info msginfo.Info, btn *bu
 	if err := t.orderProcessor.ViewCategoryProducts(
 		ctx,
 		info,
-		payload.CategoryID,
+		id,
 	); err != nil {
 		return fmt.Errorf("view category products: %w", err)
 	}
@@ -101,7 +101,7 @@ func (t *TGHandler) viewProducts(ctx context.Context, info msginfo.Info, btn *bu
 	return nil
 }
 
-func (t *TGHandler) backToOrder(ctx context.Context, info msginfo.Info) error {
+func (t *TGHandler) viewCategories(ctx context.Context, info msginfo.Info) error {
 	if err := t.orderProcessor.RefreshOrder(ctx, info); err != nil {
 		return fmt.Errorf("refresh order: %w", err)
 	}
