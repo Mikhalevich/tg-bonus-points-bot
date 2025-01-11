@@ -61,5 +61,9 @@ func formatOrder(o *order.Order, escaper func(string) string) string {
 		)
 	}
 
+	for _, v := range o.Products {
+		format = append(format, fmt.Sprintf("%s x%d %d", escaper(v.Product.Title), v.Count, v.Product.Price))
+	}
+
 	return strings.Join(format, "\n")
 }

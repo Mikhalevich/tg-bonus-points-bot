@@ -40,6 +40,11 @@ type Product struct {
 	UpdatedAt time.Time
 }
 
+type ProductCount struct {
+	Product Product
+	Count   int
+}
+
 type Category struct {
 	ID       ID
 	Title    string

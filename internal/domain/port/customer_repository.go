@@ -14,6 +14,7 @@ type CreateOrderInput struct {
 	Status              order.Status
 	StatusOperationTime time.Time
 	VerificationCode    string
+	Products            []product.ProductCount
 }
 
 type CustomerRepository interface {

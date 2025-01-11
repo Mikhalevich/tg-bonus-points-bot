@@ -11,14 +11,31 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
 func (c *Customer) CreateOrder(ctx context.Context, info msginfo.Info) error {
+	cartProducts, err := c.cart.GetProducts(ctx, info.ChatID)
+	if err != nil {
+		if c.cart.IsNotFoundError(err) {
+			c.sender.SendText(ctx, info.ChatID, message.NoProductsForOrder())
+			return nil
+		}
+
+		return fmt.Errorf("get cart products: %w", err)
+	}
+
+	orderProducts, err := c.orderProducts(ctx, cartProducts)
+	if err != nil {
+		return fmt.Errorf("products info: %w", err)
+	}
+
 	input := port.CreateOrderInput{
 		ChatID:              info.ChatID,
 		Status:              order.StatusConfirmed,
 		StatusOperationTime: time.Now(),
 		VerificationCode:    generateVerificationCode(),
+		Products:            orderProducts,
 	}
 
 	id, err := c.repository.CreateOrder(ctx, input)
@@ -69,4 +86,21 @@ func (c *Customer) CreateOrder(ctx context.Context, info msginfo.Info) error {
 func generateVerificationCode() string {
 	//nolint:gosec
 	return fmt.Sprintf("%03d", rand.Intn(1000))
+}
+
+func (c *Customer) orderProducts(ctx context.Context, cartProducts []port.CartItem) ([]product.ProductCount, error) {
+	products := make([]product.ProductCount, 0, len(cartProducts))
+
+	for _, v := range cartProducts {
+		products = append(products, product.ProductCount{
+			Product: product.Product{
+				ID:    v.ProductID,
+				Title: "product test title",
+				Price: 100,
+			},
+			Count: 1,
+		})
+	}
+
+	return products, nil
 }

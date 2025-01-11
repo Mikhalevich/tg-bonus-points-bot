@@ -23,12 +23,17 @@ func (p *Postgres) GetOrderByChatIDAndStatus(
 		return nil, fmt.Errorf("select order by chat id and status: %w", err)
 	}
 
+	orderProducts, err := selectOrderProducts(ctx, p.db, dbOrder.ID)
+	if err != nil {
+		return nil, fmt.Errorf("select order products: %w", err)
+	}
+
 	orderTimeline, err := selectOrderTimeline(ctx, p.db, dbOrder.ID)
 	if err != nil {
 		return nil, fmt.Errorf("select order timeline: %w", err)
 	}
 
-	portOrder, err := model.ToPortOrder(dbOrder, orderTimeline)
+	portOrder, err := model.ToPortOrder(dbOrder, orderProducts, orderTimeline)
 	if err != nil {
 		return nil, fmt.Errorf("convert to port order: %w", err)
 	}
@@ -79,7 +84,8 @@ func selectOrderTimeline(ctx context.Context, ext sqlx.ExtContext, orderID int) 
 			updated_at
 		FROM
 			order_status_timeline
-		WHERE order_id = :order_id
+		WHERE
+			order_id = :order_id
 	`, map[string]any{
 		"order_id": orderID,
 	})
@@ -94,4 +100,31 @@ func selectOrderTimeline(ctx context.Context, ext sqlx.ExtContext, orderID int) 
 	}
 
 	return orderTimeline, nil
+}
+
+func selectOrderProducts(ctx context.Context, ext sqlx.ExtContext, id int) ([]model.OrderProducts, error) {
+	query, args, err := sqlx.Named(`
+		SELECT
+			order_id,
+			product_id,
+			count,
+			price
+		FROM
+			order_products
+		WHERE
+			order_id = :order_id
+	`, map[string]any{
+		"order_id": id,
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("named: %w", err)
+	}
+
+	var orderProducts []model.OrderProducts
+	if err := sqlx.SelectContext(ctx, ext, &orderProducts, ext.Rebind(query), args...); err != nil {
+		return nil, fmt.Errorf("select context: %w", err)
+	}
+
+	return orderProducts, nil
 }
