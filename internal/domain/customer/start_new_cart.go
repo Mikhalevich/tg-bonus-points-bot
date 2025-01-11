@@ -11,7 +11,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
-func (c *Customer) MakeOrder(ctx context.Context, info msginfo.Info) error {
+func (c *Customer) StartNewCart(ctx context.Context, info msginfo.Info) error {
 	categories, err := c.repository.GetCategoryProducts(ctx, product.Filter{
 		Products: flag.Enabled,
 		Category: flag.Enabled,
