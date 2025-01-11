@@ -36,7 +36,8 @@ func makeKey(chatID msginfo.ChatID) string {
 
 // addProductToExistingList returns false is the list is not exists and true otherwise.
 func (c *Cart) addProductToExistingList(ctx context.Context, key string, id product.ID) (bool, error) {
-	if err := c.client.RPushX(ctx, key, id.String()).Err(); err != nil {
+	newLen, err := c.client.RPushX(ctx, key, id.String()).Result()
+	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			return false, nil
 		}
@@ -44,12 +45,16 @@ func (c *Cart) addProductToExistingList(ctx context.Context, key string, id prod
 		return false, fmt.Errorf("rpushx: %w", err)
 	}
 
+	if newLen == 0 {
+		return false, nil
+	}
+
 	return true, nil
 }
 
 func (c *Cart) addProductToNotExistingList(ctx context.Context, key string, id product.ID) error {
 	if _, err := c.client.Pipelined(ctx, func(pipline redis.Pipeliner) error {
-		if err := pipline.RPush(ctx, key, id).Err(); err != nil {
+		if err := pipline.RPush(ctx, key, id.String()).Err(); err != nil {
 			return fmt.Errorf("rpush: %w", err)
 		}
 
