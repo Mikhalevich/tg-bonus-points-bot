@@ -2,7 +2,6 @@
 -- SQL in section 'Up' is executed when this migration is applied
 
 CREATE TYPE order_status AS ENUM (
-    'assembling',
     'confirmed',
     'in_progress',
     'ready',
@@ -14,12 +13,12 @@ CREATE TYPE order_status AS ENUM (
 CREATE TABLE orders(
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     chat_id BIGINT NOT NULL,
-    status order_status NOT NULL DEFAULT 'assembling',
+    status order_status NOT NULL,
     verification_code TEXT NOT NULL
 );
 
 CREATE INDEX orders_chat_id_status_idx ON orders(chat_id, status);
-CREATE UNIQUE INDEX orders_only_one_active_order_unique_idx ON orders(chat_id) WHERE status IN ('assembling', 'confirmed', 'in_progress', 'ready');
+CREATE UNIQUE INDEX orders_only_one_active_order_unique_idx ON orders(chat_id) WHERE status IN ('confirmed', 'in_progress', 'ready');
 
 CREATE TABLE order_status_timeline(
     order_id INTEGER NOT NULL,

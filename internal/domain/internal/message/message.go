@@ -38,8 +38,8 @@ func Cancel() string {
 	return "Cancel"
 }
 
-func Back() string {
-	return "Back"
+func Done() string {
+	return "Done"
 }
 
 func Confirm() string {

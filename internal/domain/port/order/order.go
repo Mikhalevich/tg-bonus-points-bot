@@ -44,11 +44,7 @@ func (o Order) IsSameChat(chatID msginfo.ChatID) bool {
 }
 
 func (o Order) CanCancel() bool {
-	return o.Status == StatusAssembling || o.Status == StatusConfirmed
-}
-
-func (o Order) IsAssembling() bool {
-	return o.Status == StatusAssembling
+	return o.Status == StatusConfirmed
 }
 
 type StatusTime struct {

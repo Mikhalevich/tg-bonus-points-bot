@@ -2,7 +2,6 @@ package tghandler
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/internal/tgbot"
@@ -33,103 +32,88 @@ func (t *TGHandler) DefaultCallbackQuery(ctx context.Context, msg tgbot.BotMessa
 	}
 
 	switch btn.Operation {
-	case button.OperationCancelOrderEditMessage:
-		if err := t.cancelOrderEditMsg(ctx, info, btn); err != nil {
+	case button.OperationOrderCancel:
+		if err := t.cancelOrder(ctx, info.ChatID, btn); err != nil {
 			return fmt.Errorf("cancel order edit msg: %w", err)
 		}
 
-	case button.OperationCancelOrderSendMessage:
-		if err := t.cancelOrderSendMsg(ctx, info.ChatID, btn); err != nil {
-			return fmt.Errorf("cancel order send msg: %w", err)
-		}
+	case button.OperationCartCancel:
+		return fmt.Errorf("not implemented")
 
-	case button.OperationConfirmOrder:
-		if err := t.confirmOrder(ctx, info, btn); err != nil {
+	case button.OperationCartConfirm:
+		if err := t.confirmCart(ctx, info); err != nil {
 			return fmt.Errorf("confirm order: %w", err)
 		}
 
-	case button.OperationViewCategory:
-		if err := t.viewProducts(ctx, info, btn); err != nil {
+	case button.OperationCartViewCategories:
+		if err := t.viewCategories(ctx, info); err != nil {
+			return fmt.Errorf("view categories: %w", err)
+		}
+
+	case button.OperationCartViewCategoryProducts:
+		if err := t.viewCategoryProducts(ctx, info, btn); err != nil {
 			return fmt.Errorf("view products: %w", err)
 		}
 
-	case button.OperationProduct:
-		return errors.New("not implemented")
-
-	case button.OperationBackToOrder:
-		if err := t.backToOrder(ctx, info, btn); err != nil {
-			return fmt.Errorf("back to order: %w", err)
+	case button.OperationCartAddProduct:
+		if err := t.addProduct(ctx, info, btn); err != nil {
+			return fmt.Errorf("add product: %w", err)
 		}
 	}
 
 	return nil
 }
 
-func (t *TGHandler) cancelOrderEditMsg(ctx context.Context, info msginfo.Info, btn *button.Button) error {
+func (t *TGHandler) cancelOrder(ctx context.Context, chatID msginfo.ChatID, btn *button.Button) error {
 	orderID, err := btn.OrderID()
 	if err != nil {
 		return fmt.Errorf("invalid order id: %w", err)
 	}
 
-	if err := t.orderProcessor.CancelOrderEditMessage(ctx, info, orderID); err != nil {
+	if err := t.orderProcessor.CancelOrder(ctx, chatID, orderID); err != nil {
 		return fmt.Errorf("cancel order: %w", err)
 	}
 
 	return nil
 }
 
-func (t *TGHandler) cancelOrderSendMsg(ctx context.Context, chatID msginfo.ChatID, btn *button.Button) error {
-	orderID, err := btn.OrderID()
-	if err != nil {
-		return fmt.Errorf("invalid order id: %w", err)
-	}
-
-	if err := t.orderProcessor.CancelOrderSendMessage(ctx, chatID, orderID); err != nil {
-		return fmt.Errorf("cancel order: %w", err)
+func (t *TGHandler) confirmCart(ctx context.Context, info msginfo.Info) error {
+	if err := t.orderProcessor.CreateOrder(ctx, info); err != nil {
+		return fmt.Errorf("create order: %w", err)
 	}
 
 	return nil
 }
 
-func (t *TGHandler) confirmOrder(ctx context.Context, info msginfo.Info, btn *button.Button) error {
-	orderID, err := btn.OrderID()
-	if err != nil {
-		return fmt.Errorf("invalid order id: %w", err)
-	}
-
-	if err := t.orderProcessor.ConfirmOrder(ctx, info, orderID); err != nil {
-		return fmt.Errorf("confirm order: %w", err)
-	}
-
-	return nil
-}
-
-func (t *TGHandler) viewProducts(ctx context.Context, info msginfo.Info, btn *button.Button) error {
-	payload, err := btn.ViewCategoryPayload()
+func (t *TGHandler) viewCategoryProducts(ctx context.Context, info msginfo.Info, btn *button.Button) error {
+	id, err := btn.CategoryID()
 	if err != nil {
 		return fmt.Errorf("invalid payload: %w", err)
 	}
 
-	if err := t.orderProcessor.ViewCategoryProducts(
-		ctx,
-		info,
-		payload.OrderID,
-		payload.CategoryID,
-	); err != nil {
+	if err := t.orderProcessor.CartViewCategoryProducts(ctx, info, id); err != nil {
 		return fmt.Errorf("view category products: %w", err)
 	}
 
 	return nil
 }
 
-func (t *TGHandler) backToOrder(ctx context.Context, info msginfo.Info, btn *button.Button) error {
-	orderID, err := btn.OrderID()
-	if err != nil {
-		return fmt.Errorf("invalid order id: %w", err)
+func (t *TGHandler) viewCategories(ctx context.Context, info msginfo.Info) error {
+	if err := t.orderProcessor.CartViewCategories(ctx, info); err != nil {
+		return fmt.Errorf("cart view categories: %w", err)
 	}
 
-	if err := t.orderProcessor.RefreshOrder(ctx, info, orderID); err != nil {
-		return fmt.Errorf("refresh order: %w", err)
+	return nil
+}
+
+func (t *TGHandler) addProduct(ctx context.Context, info msginfo.Info, btn *button.Button) error {
+	payload, err := btn.AddProductPayload()
+	if err != nil {
+		return fmt.Errorf("invalid payload: %w", err)
+	}
+
+	if err := t.orderProcessor.CartAddProduct(ctx, info, payload.CategoryID, payload.ProductID); err != nil {
+		return fmt.Errorf("cart add product: %w", err)
 	}
 
 	return nil

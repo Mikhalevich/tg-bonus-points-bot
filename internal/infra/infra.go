@@ -12,6 +12,7 @@ import (
 	"github.com/uptrace/opentelemetry-go-extra/otelsql"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/buttonrespository"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/cart"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/messagesender"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/qrcodegenerator"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres"
@@ -51,6 +52,7 @@ func StartBot(
 	ctx context.Context,
 	botAPItoken string,
 	postgresCfg config.Postgres,
+	cartRedisCfg config.CartRedis,
 	buttonRedisCfg config.ButtonRedis,
 	logger logger.Logger,
 ) error {
@@ -65,6 +67,11 @@ func StartBot(
 	}
 	defer cleanup()
 
+	cartRedis, err := MakeRedisCart(ctx, cartRedisCfg)
+	if err != nil {
+		return fmt.Errorf("make redis cart: %w", err)
+	}
+
 	buttonRepository, err := MakeRedisButtonRepository(ctx, buttonRedisCfg)
 	if err != nil {
 		return fmt.Errorf("make redis button repository: %w", err)
@@ -73,7 +80,7 @@ func StartBot(
 	var (
 		sender            = messagesender.New(b)
 		qrGenerator       = qrcodegenerator.New()
-		customerProcessor = customer.New(sender, qrGenerator, pg, buttonRepository)
+		customerProcessor = customer.New(sender, qrGenerator, pg, cartRedis, buttonRepository)
 	)
 
 	if err := botconsumer.Start(
@@ -104,6 +111,24 @@ func MakeRedisButtonRepository(ctx context.Context, cfg config.ButtonRedis) (por
 	}
 
 	return buttonrespository.New(rdb, cfg.TTL), nil
+}
+
+func MakeRedisCart(ctx context.Context, cfg config.CartRedis) (port.Cart, error) {
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     cfg.Addr,
+		Password: cfg.Pwd,
+		DB:       cfg.DB,
+	})
+
+	if err := redisotel.InstrumentTracing(rdb); err != nil {
+		return nil, fmt.Errorf("redis instrument tracing: %w", err)
+	}
+
+	if err := rdb.Ping(ctx).Err(); err != nil {
+		return nil, fmt.Errorf("redis ping: %w", err)
+	}
+
+	return cart.New(rdb, cfg.TTL), nil
 }
 
 func MakePostgres(cfg config.Postgres) (*postgres.Postgres, func(), error) {

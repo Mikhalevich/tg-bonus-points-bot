@@ -11,3 +11,8 @@ button_redis:
   pwd: "redis123"
   db: 1
   ttl: 1h
+cart_redis:
+  addr: "redis:6379"
+  pwd: "redis123"
+  db: 2
+  ttl: 1h

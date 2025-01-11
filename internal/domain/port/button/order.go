@@ -7,11 +7,11 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func BackToOrder(chatID msginfo.ChatID, id order.ID) Button {
+func CancelOrder(chatID msginfo.ChatID, id order.ID) Button {
 	return Button{
 		ID:        generateID(),
 		ChatID:    chatID,
-		Operation: OperationBackToOrder,
+		Operation: OperationOrderCancel,
 		Payload:   []byte(id.String()),
 	}
 }
@@ -19,7 +19,7 @@ func BackToOrder(chatID msginfo.ChatID, id order.ID) Button {
 func (b Button) OrderID() (order.ID, error) {
 	id, err := order.IDFromString(string(b.Payload))
 	if err != nil {
-		return 0, fmt.Errorf("invalid order id: %s", b.Payload)
+		return 0, fmt.Errorf("invaid order id: %w", err)
 	}
 
 	return id, nil
