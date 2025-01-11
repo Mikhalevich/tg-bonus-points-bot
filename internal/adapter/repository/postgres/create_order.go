@@ -79,7 +79,7 @@ func (p *Postgres) insertOrder(ctx context.Context, ext sqlx.ExtContext, dbOrder
 	return order.IDFromInt(orderID), nil
 }
 
-func insertProductsToOrder(ctx context.Context, ext sqlx.ExtContext, products []model.OrderProducts) error {
+func insertProductsToOrder(ctx context.Context, ext sqlx.ExtContext, products []model.OrderProduct) error {
 	res, err := sqlx.NamedExecContext(ctx, ext, `
 		INSERT INTO order_products(
 			order_id,

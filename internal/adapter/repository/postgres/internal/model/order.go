@@ -23,18 +23,28 @@ type OrderTimeline struct {
 	UpdatedAt time.Time `db:"updated_at"`
 }
 
-type OrderProducts struct {
+type OrderProduct struct {
 	OrderID   int `db:"order_id"`
 	ProductID int `db:"product_id"`
 	Count     int `db:"count"`
 	Price     int `db:"price"`
 }
 
-func PortToOrderProducts(id order.ID, portProducts []product.ProductCount) []OrderProducts {
-	dbProducts := make([]OrderProducts, 0, len(portProducts))
+type OrderProductFull struct {
+	ProductID int       `db:"product_id"`
+	Count     int       `db:"count"`
+	Price     int       `db:"price"`
+	Title     string    `db:"title"`
+	IsEnabled bool      `db:"is_enabled"`
+	CreatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
+}
+
+func PortToOrderProducts(id order.ID, portProducts []product.ProductCount) []OrderProduct {
+	dbProducts := make([]OrderProduct, 0, len(portProducts))
 
 	for _, v := range portProducts {
-		dbProducts = append(dbProducts, OrderProducts{
+		dbProducts = append(dbProducts, OrderProduct{
 			OrderID:   id.Int(),
 			ProductID: v.Product.ID.Int(),
 			Count:     v.Count,
@@ -45,17 +55,20 @@ func PortToOrderProducts(id order.ID, portProducts []product.ProductCount) []Ord
 	return dbProducts
 }
 
-func toPortOrderProducts(dbProducts []OrderProducts) []product.ProductCount {
+func toPortOrderProducts(dbProducts []OrderProductFull) []product.ProductCount {
 	portProducts := make([]product.ProductCount, 0, len(dbProducts))
 
 	for _, v := range dbProducts {
 		portProducts = append(portProducts, product.ProductCount{
 			Product: product.Product{
-				ID:    product.IDFromInt(v.ProductID),
-				Title: "test product title",
-				Price: v.Price,
+				ID:        product.IDFromInt(v.ProductID),
+				Title:     v.Title,
+				Price:     v.Price,
+				IsEnabled: v.IsEnabled,
+				CreatedAt: v.CreatedAt,
+				UpdatedAt: v.UpdatedAt,
 			},
-			Count: 1,
+			Count: v.Count,
 		})
 	}
 
@@ -64,7 +77,7 @@ func toPortOrderProducts(dbProducts []OrderProducts) []product.ProductCount {
 
 func ToPortOrder(
 	dbOrder *Order,
-	dbOrderProducts []OrderProducts,
+	dbOrderProducts []OrderProductFull,
 	dbTimeline []OrderTimeline,
 ) (*order.Order, error) {
 	orderStatus, err := order.StatusFromString(dbOrder.Status)

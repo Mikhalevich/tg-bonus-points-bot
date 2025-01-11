@@ -53,29 +53,14 @@ func (c *Customer) CreateOrder(ctx context.Context, info msginfo.Info) error {
 		return fmt.Errorf("clear cart: %w", err)
 	}
 
-	cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(info.ChatID, id), message.Cancel())
-	if err != nil {
-		return fmt.Errorf("cancel order button: %w", err)
-	}
-
-	png, err := c.qrCode.GeneratePNG(id.String())
-	if err != nil {
-		return fmt.Errorf("qrcode generate png: %w", err)
-	}
-
-	if err := c.sender.SendPNGMarkdown(
-		ctx,
-		info.ChatID,
-		formatOrder(&order.Order{
-			ID:               id,
-			ChatID:           info.ChatID,
-			Status:           input.Status,
-			VerificationCode: input.VerificationCode,
-		}, c.sender.EscapeMarkdown),
-		png,
-		button.Row(cancelBtn),
-	); err != nil {
-		return fmt.Errorf("send png: %w", err)
+	if err := c.sendOrderQRImage(ctx, info, order.Order{
+		ID:               id,
+		ChatID:           info.ChatID,
+		Status:           input.Status,
+		VerificationCode: input.VerificationCode,
+		Products:         input.Products,
+	}); err != nil {
+		return fmt.Errorf("send order qr image: %w", err)
 	}
 
 	c.sender.DeleteMessage(ctx, info.ChatID, info.MessageID)
@@ -89,18 +74,61 @@ func generateVerificationCode() string {
 }
 
 func (c *Customer) orderProducts(ctx context.Context, cartProducts []port.CartItem) ([]product.ProductCount, error) {
-	products := make([]product.ProductCount, 0, len(cartProducts))
+	ids := make([]product.ID, 0, len(cartProducts))
 
 	for _, v := range cartProducts {
-		products = append(products, product.ProductCount{
+		ids = append(ids, v.ProductID)
+	}
+
+	productMap, err := c.repository.GetProductsByIDs(ctx, ids)
+	if err != nil {
+		return nil, fmt.Errorf("get products by ids: %w", err)
+	}
+
+	output := make([]product.ProductCount, 0, len(cartProducts))
+
+	for _, v := range cartProducts {
+		productInfo, ok := productMap[v.ProductID]
+		if !ok {
+			return nil, fmt.Errorf("missing product id: %d", v.ProductID.Int())
+		}
+
+		output = append(output, product.ProductCount{
 			Product: product.Product{
-				ID:    v.ProductID,
-				Title: "product test title",
-				Price: 100,
+				ID:        v.ProductID,
+				Title:     productInfo.Title,
+				Price:     productInfo.Price,
+				IsEnabled: productInfo.IsEnabled,
+				CreatedAt: productInfo.CreatedAt,
+				UpdatedAt: productInfo.UpdatedAt,
 			},
-			Count: 1,
+			Count: v.Count,
 		})
 	}
 
-	return products, nil
+	return output, nil
+}
+
+func (c *Customer) sendOrderQRImage(ctx context.Context, info msginfo.Info, ord order.Order) error {
+	cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(info.ChatID, ord.ID), message.Cancel())
+	if err != nil {
+		return fmt.Errorf("cancel order button: %w", err)
+	}
+
+	png, err := c.qrCode.GeneratePNG(ord.ID.String())
+	if err != nil {
+		return fmt.Errorf("qrcode generate png: %w", err)
+	}
+
+	if err := c.sender.SendPNGMarkdown(
+		ctx,
+		info.ChatID,
+		formatOrder(&ord, c.sender.EscapeMarkdown),
+		png,
+		button.Row(cancelBtn),
+	); err != nil {
+		return fmt.Errorf("send png: %w", err)
+	}
+
+	return nil
 }
