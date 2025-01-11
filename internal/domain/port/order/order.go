@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
 type ID int
@@ -37,6 +38,7 @@ type Order struct {
 	Status           Status
 	VerificationCode string
 	Timeline         []StatusTime
+	Products         []product.ProductCount
 }
 
 func (o Order) IsSameChat(chatID msginfo.ChatID) bool {

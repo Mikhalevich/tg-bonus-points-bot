@@ -18,12 +18,17 @@ func (p *Postgres) GetOrderByID(ctx context.Context, id order.ID) (*order.Order,
 		return nil, fmt.Errorf("select order by id: %w", err)
 	}
 
+	orderProducts, err := selectOrderProducts(ctx, p.db, dbOrder.ID)
+	if err != nil {
+		return nil, fmt.Errorf("select order products: %w", err)
+	}
+
 	orderTimeline, err := selectOrderTimeline(ctx, p.db, dbOrder.ID)
 	if err != nil {
 		return nil, fmt.Errorf("select order timeline: %w", err)
 	}
 
-	portOrder, err := model.ToPortOrder(dbOrder, orderTimeline)
+	portOrder, err := model.ToPortOrder(dbOrder, orderProducts, orderTimeline)
 	if err != nil {
 		return nil, fmt.Errorf("convert to port order: %w", err)
 	}

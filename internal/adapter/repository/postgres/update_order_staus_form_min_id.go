@@ -20,9 +20,10 @@ func (p *Postgres) UpdateOrderStatusForMinID(
 	newStatus, prevStatus order.Status,
 ) (*order.Order, error) {
 	var (
-		dbOrder  *model.Order
-		timeline []model.OrderTimeline
-		err      error
+		dbOrder       *model.Order
+		orderProducts []model.OrderProductFull
+		timeline      []model.OrderTimeline
+		err           error
 	)
 
 	if err := transaction.Transaction(ctx, p.db, true,
@@ -40,6 +41,11 @@ func (p *Postgres) UpdateOrderStatusForMinID(
 				return fmt.Errorf("insert order timeline: %w", err)
 			}
 
+			orderProducts, err = selectOrderProducts(ctx, p.db, dbOrder.ID)
+			if err != nil {
+				return fmt.Errorf("select order products: %w", err)
+			}
+
 			timeline, err = selectOrderTimeline(ctx, tx, dbOrder.ID)
 			if err != nil {
 				return fmt.Errorf("select order timeline: %w", err)
@@ -51,7 +57,7 @@ func (p *Postgres) UpdateOrderStatusForMinID(
 		return nil, fmt.Errorf("transaction: %w", err)
 	}
 
-	portOrder, err := model.ToPortOrder(dbOrder, timeline)
+	portOrder, err := model.ToPortOrder(dbOrder, orderProducts, timeline)
 	if err != nil {
 		return nil, fmt.Errorf("convert to port order: %w", err)
 	}

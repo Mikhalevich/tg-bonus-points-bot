@@ -7,6 +7,7 @@ import (
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
 type Order struct {
@@ -22,12 +23,84 @@ type OrderTimeline struct {
 	UpdatedAt time.Time `db:"updated_at"`
 }
 
-func ToPortOrder(dbOrder *Order, dbTimeline []OrderTimeline) (*order.Order, error) {
+type OrderProduct struct {
+	OrderID   int `db:"order_id"`
+	ProductID int `db:"product_id"`
+	Count     int `db:"count"`
+	Price     int `db:"price"`
+}
+
+type OrderProductFull struct {
+	ProductID int       `db:"product_id"`
+	Count     int       `db:"count"`
+	Price     int       `db:"price"`
+	Title     string    `db:"title"`
+	IsEnabled bool      `db:"is_enabled"`
+	CreatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
+}
+
+func PortToOrderProducts(id order.ID, portProducts []product.ProductCount) []OrderProduct {
+	dbProducts := make([]OrderProduct, 0, len(portProducts))
+
+	for _, v := range portProducts {
+		dbProducts = append(dbProducts, OrderProduct{
+			OrderID:   id.Int(),
+			ProductID: v.Product.ID.Int(),
+			Count:     v.Count,
+			Price:     v.Product.Price,
+		})
+	}
+
+	return dbProducts
+}
+
+func toPortOrderProducts(dbProducts []OrderProductFull) []product.ProductCount {
+	portProducts := make([]product.ProductCount, 0, len(dbProducts))
+
+	for _, v := range dbProducts {
+		portProducts = append(portProducts, product.ProductCount{
+			Product: product.Product{
+				ID:        product.IDFromInt(v.ProductID),
+				Title:     v.Title,
+				Price:     v.Price,
+				IsEnabled: v.IsEnabled,
+				CreatedAt: v.CreatedAt,
+				UpdatedAt: v.UpdatedAt,
+			},
+			Count: v.Count,
+		})
+	}
+
+	return portProducts
+}
+
+func ToPortOrder(
+	dbOrder *Order,
+	dbOrderProducts []OrderProductFull,
+	dbTimeline []OrderTimeline,
+) (*order.Order, error) {
 	orderStatus, err := order.StatusFromString(dbOrder.Status)
 	if err != nil {
 		return nil, fmt.Errorf("status from string: %w", err)
 	}
 
+	portTimeline, err := toPortTimeline(dbTimeline)
+	if err != nil {
+		return nil, fmt.Errorf("timeline: %w", err)
+	}
+
+	return &order.Order{
+		ID:               order.IDFromInt(dbOrder.ID),
+		ChatID:           msginfo.ChatIDFromInt(dbOrder.ChatID),
+		Status:           orderStatus,
+		VerificationCode: dbOrder.VerificationCode,
+		Timeline:         portTimeline,
+		Products:         toPortOrderProducts(dbOrderProducts),
+	}, nil
+}
+
+func toPortTimeline(dbTimeline []OrderTimeline) ([]order.StatusTime, error) {
 	sort.Slice(dbTimeline, func(i, j int) bool {
 		return dbTimeline[i].UpdatedAt.Sub(dbTimeline[j].UpdatedAt) < 0
 	})
@@ -46,11 +119,5 @@ func ToPortOrder(dbOrder *Order, dbTimeline []OrderTimeline) (*order.Order, erro
 		})
 	}
 
-	return &order.Order{
-		ID:               order.IDFromInt(dbOrder.ID),
-		ChatID:           msginfo.ChatIDFromInt(dbOrder.ChatID),
-		Status:           orderStatus,
-		VerificationCode: dbOrder.VerificationCode,
-		Timeline:         portTimeline,
-	}, nil
+	return portTimeline, nil
 }

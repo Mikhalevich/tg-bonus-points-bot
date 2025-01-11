@@ -23,6 +23,7 @@ func (p *Postgres) UpdateOrderStatus(
 ) (*order.Order, error) {
 	var (
 		dbOrder       *model.Order
+		orderProducts []model.OrderProductFull
 		orderTimeline []model.OrderTimeline
 		err           error
 	)
@@ -42,6 +43,11 @@ func (p *Postgres) UpdateOrderStatus(
 				return fmt.Errorf("insert order timeline: %w", err)
 			}
 
+			orderProducts, err = selectOrderProducts(ctx, p.db, dbOrder.ID)
+			if err != nil {
+				return fmt.Errorf("select order products: %w", err)
+			}
+
 			orderTimeline, err = selectOrderTimeline(ctx, tx, id.Int())
 			if err != nil {
 				return fmt.Errorf("select order timeline: %w", err)
@@ -53,7 +59,7 @@ func (p *Postgres) UpdateOrderStatus(
 		return nil, fmt.Errorf("transaction: %w", err)
 	}
 
-	portOrder, err := model.ToPortOrder(dbOrder, orderTimeline)
+	portOrder, err := model.ToPortOrder(dbOrder, orderProducts, orderTimeline)
 	if err != nil {
 		return nil, fmt.Errorf("convert to port order: %w", err)
 	}

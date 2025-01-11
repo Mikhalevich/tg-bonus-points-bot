@@ -29,6 +29,10 @@ func (p *Postgres) CreateOrder(ctx context.Context, coi port.CreateOrderInput) (
 			return fmt.Errorf("insert order: %w", err)
 		}
 
+		if err := insertProductsToOrder(ctx, tx, model.PortToOrderProducts(orderID, coi.Products)); err != nil {
+			return fmt.Errorf("insert order products: %w", err)
+		}
+
 		if err := insertOrderTimeline(ctx, tx, model.OrderTimeline{
 			ID:        orderID.Int(),
 			Status:    coi.Status.String(),
@@ -73,4 +77,36 @@ func (p *Postgres) insertOrder(ctx context.Context, ext sqlx.ExtContext, dbOrder
 	}
 
 	return order.IDFromInt(orderID), nil
+}
+
+func insertProductsToOrder(ctx context.Context, ext sqlx.ExtContext, products []model.OrderProduct) error {
+	res, err := sqlx.NamedExecContext(ctx, ext, `
+		INSERT INTO order_products(
+			order_id,
+			product_id,
+			count,
+			price
+		) VALUES (
+			:order_id,
+			:product_id,
+			:count,
+			:price
+		)`,
+		products,
+	)
+
+	if err != nil {
+		return fmt.Errorf("insert order products: %w", err)
+	}
+
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("rows affected: %w", err)
+	}
+
+	if rows == 0 {
+		return errNotUpdated
+	}
+
+	return nil
 }
