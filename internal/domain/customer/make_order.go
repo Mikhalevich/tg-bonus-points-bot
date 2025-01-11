@@ -3,7 +3,6 @@ package customer
 import (
 	"context"
 	"fmt"
-	"math/rand"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
@@ -22,7 +21,7 @@ func (c *Customer) MakeOrder(ctx context.Context, info msginfo.Info) error {
 		return fmt.Errorf("get products: %w", err)
 	}
 
-	buttons, err := c.makeOrderButtons(ctx, info.ChatID, categories)
+	buttons, err := c.makeCartCategoriesButtons(ctx, info.ChatID, categories)
 	if err != nil {
 		return fmt.Errorf("make order buttons: %w", err)
 	}
@@ -32,12 +31,7 @@ func (c *Customer) MakeOrder(ctx context.Context, info msginfo.Info) error {
 	return nil
 }
 
-func generateVerificationCode() string {
-	//nolint:gosec
-	return fmt.Sprintf("%03d", rand.Intn(1000))
-}
-
-func (c *Customer) makeOrderButtons(
+func (c *Customer) makeCartCategoriesButtons(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 	categories []product.Category,

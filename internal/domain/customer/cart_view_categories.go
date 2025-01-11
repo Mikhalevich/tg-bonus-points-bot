@@ -10,7 +10,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
-func (c *Customer) RefreshOrder(
+func (c *Customer) CartViewCategories(
 	ctx context.Context,
 	info msginfo.Info,
 ) error {
@@ -22,7 +22,7 @@ func (c *Customer) RefreshOrder(
 		return fmt.Errorf("get products: %w", err)
 	}
 
-	buttons, err := c.makeOrderButtons(ctx, info.ChatID, categories)
+	buttons, err := c.makeCartCategoriesButtons(ctx, info.ChatID, categories)
 	if err != nil {
 		return fmt.Errorf("make order buttons: %w", err)
 	}

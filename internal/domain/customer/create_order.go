@@ -3,6 +3,7 @@ package customer
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
@@ -12,7 +13,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (c *Customer) ConfirmOrder(ctx context.Context, info msginfo.Info) error {
+func (c *Customer) CreateOrder(ctx context.Context, info msginfo.Info) error {
 	input := port.CreateOrderInput{
 		ChatID:              info.ChatID,
 		Status:              order.StatusConfirmed,
@@ -63,4 +64,9 @@ func (c *Customer) ConfirmOrder(ctx context.Context, info msginfo.Info) error {
 	c.sender.DeleteMessage(ctx, info.ChatID, info.MessageID)
 
 	return nil
+}
+
+func generateVerificationCode() string {
+	//nolint:gosec
+	return fmt.Sprintf("%03d", rand.Intn(1000))
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
-func (c *Customer) ViewCategoryProducts(
+func (c *Customer) CartViewCategoryProducts(
 	ctx context.Context,
 	info msginfo.Info,
 	categoryID product.ID,
@@ -20,7 +20,7 @@ func (c *Customer) ViewCategoryProducts(
 		return fmt.Errorf("get products by category id: %w", err)
 	}
 
-	buttons, err := c.makeProductsButtons(ctx, info.ChatID, products)
+	buttons, err := c.makeCartProductsButtons(ctx, info.ChatID, products)
 	if err != nil {
 		return fmt.Errorf("make products buttons: %w", err)
 	}
@@ -30,7 +30,7 @@ func (c *Customer) ViewCategoryProducts(
 	return nil
 }
 
-func (c *Customer) makeProductsButtons(
+func (c *Customer) makeCartProductsButtons(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 	products []product.Product,

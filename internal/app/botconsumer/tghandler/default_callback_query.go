@@ -77,7 +77,7 @@ func (t *TGHandler) cancelOrder(ctx context.Context, chatID msginfo.ChatID, btn 
 }
 
 func (t *TGHandler) confirmCart(ctx context.Context, info msginfo.Info) error {
-	if err := t.orderProcessor.ConfirmOrder(ctx, info); err != nil {
+	if err := t.orderProcessor.CreateOrder(ctx, info); err != nil {
 		return fmt.Errorf("confirm order: %w", err)
 	}
 
@@ -90,7 +90,7 @@ func (t *TGHandler) viewCategoryProducts(ctx context.Context, info msginfo.Info,
 		return fmt.Errorf("invalid payload: %w", err)
 	}
 
-	if err := t.orderProcessor.ViewCategoryProducts(
+	if err := t.orderProcessor.CartViewCategoryProducts(
 		ctx,
 		info,
 		id,
@@ -102,7 +102,7 @@ func (t *TGHandler) viewCategoryProducts(ctx context.Context, info msginfo.Info,
 }
 
 func (t *TGHandler) viewCategories(ctx context.Context, info msginfo.Info) error {
-	if err := t.orderProcessor.RefreshOrder(ctx, info); err != nil {
+	if err := t.orderProcessor.CartViewCategories(ctx, info); err != nil {
 		return fmt.Errorf("refresh order: %w", err)
 	}
 
