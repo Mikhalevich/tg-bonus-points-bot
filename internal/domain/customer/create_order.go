@@ -110,7 +110,7 @@ func (c *Customer) orderProducts(ctx context.Context, cartProducts []port.CartIt
 }
 
 func (c *Customer) sendOrderQRImage(ctx context.Context, info msginfo.Info, ord order.Order) error {
-	cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(info.ChatID, ord.ID), message.Cancel())
+	cancelBtn, err := c.buttonRepository.SetButton(ctx, button.CancelOrder(info.ChatID, message.Cancel(), ord.ID))
 	if err != nil {
 		return fmt.Errorf("cancel order button: %w", err)
 	}
@@ -125,7 +125,7 @@ func (c *Customer) sendOrderQRImage(ctx context.Context, info msginfo.Info, ord 
 		info.ChatID,
 		formatOrder(&ord, c.sender.EscapeMarkdown),
 		png,
-		button.Row(cancelBtn),
+		button.InlineRow(cancelBtn),
 	); err != nil {
 		return fmt.Errorf("send png: %w", err)
 	}

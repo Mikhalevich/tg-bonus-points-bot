@@ -7,6 +7,6 @@ type InlineKeyboardButton struct {
 
 type InlineKeyboardButtonRow []InlineKeyboardButton
 
-func Row(buttons ...InlineKeyboardButton) InlineKeyboardButtonRow {
+func InlineRow(buttons ...InlineKeyboardButton) InlineKeyboardButtonRow {
 	return buttons
 }

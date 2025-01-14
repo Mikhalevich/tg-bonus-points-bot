@@ -1,8 +1,6 @@
 package button
 
 import (
-	"github.com/google/uuid"
-
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 )
 
@@ -17,12 +15,14 @@ func IDFromString(s string) ID {
 }
 
 type Button struct {
-	ID        ID
 	ChatID    msginfo.ChatID
+	Caption   string
 	Operation Operation
 	Payload   []byte
 }
 
-func generateID() ID {
-	return IDFromString(uuid.NewString())
+type ButtonRow []Button
+
+func Row(buttons ...Button) ButtonRow {
+	return buttons
 }

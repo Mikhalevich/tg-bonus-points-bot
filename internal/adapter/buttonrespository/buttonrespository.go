@@ -4,8 +4,10 @@ import (
 	"errors"
 	"time"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
+
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 )
 
 var _ port.ButtonRepository = (*ButtonRepository)(nil)
@@ -24,4 +26,8 @@ func New(client *redis.Client, ttl time.Duration) *ButtonRepository {
 
 func (r *ButtonRepository) IsNotFoundError(err error) bool {
 	return errors.Is(err, redis.Nil)
+}
+
+func generateID() string {
+	return uuid.NewString()
 }

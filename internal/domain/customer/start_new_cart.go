@@ -36,28 +36,23 @@ func (c *Customer) makeCartCategoriesButtons(
 	chatID msginfo.ChatID,
 	categories []product.Category,
 ) ([]button.InlineKeyboardButtonRow, error) {
-	buttons := make([]button.InlineKeyboardButtonRow, 0, len(categories)+1)
+	buttons := make([]button.ButtonRow, 0, len(categories)+1)
 
 	for _, v := range categories {
-		b, err := c.makeInlineKeyboardButton(ctx, button.ViewCategoryProducts(chatID, v.ID), v.Title)
-		if err != nil {
-			return nil, fmt.Errorf("category order button: %w", err)
-		}
-
-		buttons = append(buttons, button.Row(b))
+		buttons = append(buttons, button.Row(
+			button.ViewCategoryProducts(chatID, v.Title, v.ID),
+		))
 	}
 
-	cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelCart(chatID), message.Cancel())
+	buttons = append(buttons, []button.Button{
+		button.CancelCart(chatID, message.Cancel()),
+		button.ConfirmCart(chatID, message.Confirm()),
+	})
+
+	inlineKeyboardButtonRows, err := c.buttonRepository.SetButtonRows(ctx, buttons...)
 	if err != nil {
-		return nil, fmt.Errorf("cancel order button: %w", err)
+		return nil, fmt.Errorf("set button rows: %w", err)
 	}
 
-	confirmBtn, err := c.makeInlineKeyboardButton(ctx, button.ConfirmCart(chatID), message.Confirm())
-	if err != nil {
-		return nil, fmt.Errorf("confirm order button: %w", err)
-	}
-
-	buttons = append(buttons, button.Row(cancelBtn, confirmBtn))
-
-	return buttons, nil
+	return inlineKeyboardButtonRows, nil
 }
