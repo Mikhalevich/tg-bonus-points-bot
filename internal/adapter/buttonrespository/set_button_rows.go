@@ -43,7 +43,7 @@ func processButtonRows(
 			formattedNum := strconv.FormatInt(buttonNum, 10)
 
 			inlineButtonsRow = append(inlineButtonsRow, button.InlineKeyboardButton{
-				ID:      buttonID(key, formattedNum),
+				ID:      makeHmapbuttonID(key, formattedNum),
 				Caption: b.Caption,
 			})
 
@@ -61,8 +61,4 @@ func processButtonRows(
 	}
 
 	return inlineButtons, hMap, nil
-}
-
-func buttonID(key string, num string) button.ID {
-	return button.IDFromString(fmt.Sprintf("%s_%s", key, num))
 }

@@ -1,9 +1,7 @@
 package buttonrespository
 
 import (
-	"bytes"
 	"context"
-	"encoding/gob"
 	"fmt"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
@@ -25,13 +23,4 @@ func (r *ButtonRepository) SetButton(ctx context.Context, b button.Button) (butt
 		ID:      button.IDFromString(id),
 		Caption: b.Caption,
 	}, nil
-}
-
-func encodeButton(b button.Button) ([]byte, error) {
-	var buf bytes.Buffer
-	if err := gob.NewEncoder(&buf).Encode(b); err != nil {
-		return nil, fmt.Errorf("gob encode: %w", err)
-	}
-
-	return buf.Bytes(), nil
 }
