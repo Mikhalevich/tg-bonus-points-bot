@@ -7,10 +7,10 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func CancelOrder(chatID msginfo.ChatID, id order.ID) Button {
+func CancelOrder(chatID msginfo.ChatID, caption string, id order.ID) Button {
 	return Button{
-		ID:        generateID(),
 		ChatID:    chatID,
+		Caption:   caption,
 		Operation: OperationOrderCancel,
 		Payload:   []byte(id.String()),
 	}

@@ -9,18 +9,18 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
-func CancelCart(chatID msginfo.ChatID) Button {
+func CancelCart(chatID msginfo.ChatID, caption string) Button {
 	return Button{
-		ID:        generateID(),
 		ChatID:    chatID,
+		Caption:   caption,
 		Operation: OperationCartCancel,
 	}
 }
 
-func ConfirmCart(chatID msginfo.ChatID) Button {
+func ConfirmCart(chatID msginfo.ChatID, caption string) Button {
 	return Button{
-		ID:        generateID(),
 		ChatID:    chatID,
+		Caption:   caption,
 		Operation: OperationCartConfirm,
 	}
 }
@@ -30,7 +30,7 @@ type AddProductPayload struct {
 	CategoryID product.ID
 }
 
-func AddProduct(chatID msginfo.ChatID, productID, categoryID product.ID) Button {
+func AddProduct(chatID msginfo.ChatID, caption string, productID, categoryID product.ID) Button {
 	var (
 		payload = AddProductPayload{
 			ProductID:  productID,
@@ -44,8 +44,8 @@ func AddProduct(chatID msginfo.ChatID, productID, categoryID product.ID) Button 
 	gob.NewEncoder(&buf).Encode(payload)
 
 	return Button{
-		ID:        generateID(),
 		ChatID:    chatID,
+		Caption:   caption,
 		Operation: OperationCartAddProduct,
 		Payload:   buf.Bytes(),
 	}
@@ -69,10 +69,10 @@ func (b Button) ProductID() (product.ID, error) {
 	return id, nil
 }
 
-func ViewCategoryProducts(chatID msginfo.ChatID, categoryID product.ID) Button {
+func ViewCategoryProducts(chatID msginfo.ChatID, caption string, categoryID product.ID) Button {
 	return Button{
-		ID:        generateID(),
 		ChatID:    chatID,
+		Caption:   caption,
 		Operation: OperationCartViewCategoryProducts,
 		Payload:   []byte(categoryID.String()),
 	}
@@ -87,10 +87,10 @@ func (b Button) CategoryID() (product.ID, error) {
 	return id, nil
 }
 
-func ViewCategories(chatID msginfo.ChatID) Button {
+func ViewCategories(chatID msginfo.ChatID, caption string) Button {
 	return Button{
-		ID:        generateID(),
 		ChatID:    chatID,
+		Caption:   caption,
 		Operation: OperationCartViewCategories,
 	}
 }

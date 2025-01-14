@@ -7,7 +7,8 @@ import (
 )
 
 type ButtonRepository interface {
-	StoreButton(ctx context.Context, b *button.Button) error
+	SetButton(ctx context.Context, b button.Button) (button.InlineKeyboardButton, error)
 	GetButton(ctx context.Context, id button.ID) (*button.Button, error)
+	SetButtonRows(ctx context.Context, rows ...button.ButtonRow) ([]button.InlineKeyboardButtonRow, error)
 	IsNotFoundError(err error) bool
 }

@@ -43,27 +43,21 @@ func (c *Customer) makeCartProductsButtons(
 	categoryProducts []product.Product,
 	cartProducts []port.CartItem,
 ) ([]button.InlineKeyboardButtonRow, error) {
-	buttons := make([]button.InlineKeyboardButtonRow, 0, len(categoryProducts)+1)
+	buttons := make([]button.ButtonRow, 0, len(categoryProducts)+1)
 
 	for _, v := range categoryProducts {
 		title := makeProductButtonTitle(v, cartProducts)
-
-		b, err := c.makeInlineKeyboardButton(ctx, button.AddProduct(chatID, v.ID, categoryID), title)
-		if err != nil {
-			return nil, fmt.Errorf("category order button: %w", err)
-		}
-
-		buttons = append(buttons, button.Row(b))
+		buttons = append(buttons, button.Row(button.AddProduct(chatID, title, v.ID, categoryID)))
 	}
 
-	backBtn, err := c.makeInlineKeyboardButton(ctx, button.ViewCategories(chatID), message.Done())
+	buttons = append(buttons, button.Row(button.ViewCategories(chatID, message.Done())))
+
+	inlineButtons, err := c.buttonRepository.SetButtonRows(ctx, buttons...)
 	if err != nil {
-		return nil, fmt.Errorf("back from products button: %w", err)
+		return nil, fmt.Errorf("set button rows: %w", err)
 	}
 
-	buttons = append(buttons, button.Row(backBtn))
-
-	return buttons, nil
+	return inlineButtons, nil
 }
 
 func makeProductButtonTitle(p product.Product, cartProducts []port.CartItem) string {

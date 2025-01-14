@@ -33,12 +33,12 @@ func (c *Customer) GetActiveOrder(ctx context.Context, info msginfo.Info) error 
 	formattedOrder := formatOrder(activeOrder, c.sender.EscapeMarkdown)
 
 	if activeOrder.CanCancel() {
-		cancelBtn, err := c.makeInlineKeyboardButton(ctx, button.CancelOrder(info.ChatID, activeOrder.ID), message.Cancel())
+		cancelBtn, err := c.buttonRepository.SetButton(ctx, button.CancelOrder(info.ChatID, message.Cancel(), activeOrder.ID))
 		if err != nil {
 			return fmt.Errorf("make cancel order button: %w", err)
 		}
 
-		c.sender.ReplyTextMarkdown(ctx, info.ChatID, info.MessageID, formattedOrder, button.Row(cancelBtn))
+		c.sender.ReplyTextMarkdown(ctx, info.ChatID, info.MessageID, formattedOrder, button.InlineRow(cancelBtn))
 	} else {
 		c.sender.ReplyTextMarkdown(ctx, info.ChatID, info.MessageID, formattedOrder)
 	}
