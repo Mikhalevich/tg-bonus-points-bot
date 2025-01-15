@@ -54,13 +54,18 @@ func (c *Customer) makeCartCategoriesButtons(
 		buttons = append(buttons, button.Row(b))
 	}
 
-	confirmCartBtn, err := button.ConfirmCart(chatID, message.Confirm(), cartID)
+	cancelCartBtn, err := button.CartCancel(chatID, message.Cancel(), cartID)
+	if err != nil {
+		return nil, fmt.Errorf("cancel cart button: %w", err)
+	}
+
+	confirmCartBtn, err := button.CartConfirm(chatID, message.Confirm(), cartID)
 	if err != nil {
 		return nil, fmt.Errorf("confirm cart button: %w", err)
 	}
 
 	buttons = append(buttons, []button.Button{
-		button.CancelCart(chatID, message.Cancel()),
+		cancelCartBtn,
 		confirmCartBtn,
 	})
 

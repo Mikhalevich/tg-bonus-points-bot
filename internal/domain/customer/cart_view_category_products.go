@@ -55,7 +55,7 @@ func (c *Customer) makeCartProductsButtons(
 
 	for _, v := range categoryProducts {
 		title := makeProductButtonTitle(v, cartProducts)
-		btn, err := button.AddProduct(chatID, title, cartID, v.ID, categoryID)
+		btn, err := button.CartAddProduct(chatID, title, cartID, v.ID, categoryID)
 
 		if err != nil {
 			return nil, fmt.Errorf("add product button: %w", err)
