@@ -30,6 +30,10 @@ func OrderCategoryPage() string {
 	return "Select category to view products to order"
 }
 
+func OrderExpired() string {
+	return "Order expired"
+}
+
 func NoProductsForOrder() string {
 	return "No products for order"
 }

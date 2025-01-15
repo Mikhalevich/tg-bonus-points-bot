@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/cart"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/flag"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
@@ -13,6 +14,7 @@ import (
 func (c *Customer) CartViewCategories(
 	ctx context.Context,
 	info msginfo.Info,
+	cartID cart.ID,
 ) error {
 	categories, err := c.repository.GetCategoryProducts(ctx, product.Filter{
 		Products: flag.Enabled,
@@ -22,7 +24,7 @@ func (c *Customer) CartViewCategories(
 		return fmt.Errorf("get products: %w", err)
 	}
 
-	buttons, err := c.makeCartCategoriesButtons(ctx, info.ChatID, categories)
+	buttons, err := c.makeCartCategoriesButtons(ctx, info.ChatID, cartID, categories)
 	if err != nil {
 		return fmt.Errorf("make order buttons: %w", err)
 	}

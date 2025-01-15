@@ -9,13 +9,14 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/cart"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
-func (c *Customer) CreateOrder(ctx context.Context, info msginfo.Info) error {
-	cartProducts, err := c.cart.GetProducts(ctx, info.ChatID)
+func (c *Customer) CreateOrder(ctx context.Context, info msginfo.Info, cartID cart.ID) error {
+	cartProducts, err := c.cart.GetProducts(ctx, cartID)
 	if err != nil {
 		if c.cart.IsNotFoundError(err) {
 			c.sender.SendText(ctx, info.ChatID, message.NoProductsForOrder())
@@ -49,7 +50,7 @@ func (c *Customer) CreateOrder(ctx context.Context, info msginfo.Info) error {
 		return fmt.Errorf("repository create order: %w", err)
 	}
 
-	if err := c.cart.Clear(ctx, info.ChatID); err != nil {
+	if err := c.cart.Clear(ctx, info.ChatID, cartID); err != nil {
 		return fmt.Errorf("clear cart: %w", err)
 	}
 
