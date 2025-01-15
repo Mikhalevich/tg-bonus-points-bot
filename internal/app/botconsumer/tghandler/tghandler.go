@@ -19,6 +19,7 @@ type OrderProcessor interface {
 	CartViewCategories(ctx context.Context, info msginfo.Info, cartID cart.ID) error
 	CartAddProduct(ctx context.Context, info msginfo.Info,
 		cartID cart.ID, categoryID product.ID, productID product.ID) error
+	CartCancel(ctx context.Context, info msginfo.Info, cartID cart.ID) error
 	GetButton(ctx context.Context, id button.ID) (*button.Button, error)
 }
 

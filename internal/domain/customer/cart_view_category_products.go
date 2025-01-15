@@ -18,19 +18,19 @@ func (c *Customer) CartViewCategoryProducts(
 	cartID cart.ID,
 	categoryID product.ID,
 ) error {
-	categoryProducts, err := c.repository.GetProductsByCategoryID(ctx, categoryID)
-	if err != nil {
-		return fmt.Errorf("get products by category id: %w", err)
-	}
-
 	cartProducts, err := c.cart.GetProducts(ctx, cartID)
 	if err != nil {
 		if c.cart.IsNotFoundError(err) {
-			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderExpired())
+			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
 			return nil
 		}
 
 		return fmt.Errorf("get cart products: %w", err)
+	}
+
+	categoryProducts, err := c.repository.GetProductsByCategoryID(ctx, categoryID)
+	if err != nil {
+		return fmt.Errorf("get products by category id: %w", err)
 	}
 
 	buttons, err := c.makeCartProductsButtons(ctx, info.ChatID, cartID, categoryID, categoryProducts, cartProducts)
@@ -55,7 +55,7 @@ func (c *Customer) makeCartProductsButtons(
 
 	for _, v := range categoryProducts {
 		title := makeProductButtonTitle(v, cartProducts)
-		btn, err := button.AddProduct(chatID, title, cartID, v.ID, categoryID)
+		btn, err := button.CartAddProduct(chatID, title, cartID, v.ID, categoryID)
 
 		if err != nil {
 			return nil, fmt.Errorf("add product button: %w", err)
