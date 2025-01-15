@@ -4,12 +4,24 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/cart"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
+	"github.com/redis/go-redis/v9"
 )
 
-func (c *Cart) Clear(ctx context.Context, chatID msginfo.ChatID) error {
-	if err := c.client.Del(ctx, makeKey(chatID)).Err(); err != nil {
-		return fmt.Errorf("del: %w", err)
+func (c *Cart) Clear(ctx context.Context, chatID msginfo.ChatID, cartID cart.ID) error {
+	if _, err := c.client.Pipelined(ctx, func(pipeline redis.Pipeliner) error {
+		if err := c.client.Del(ctx, makeCartIDKey(chatID)).Err(); err != nil {
+			return fmt.Errorf("cart id del: %w", err)
+		}
+
+		if err := c.client.Del(ctx, makeCartProductsKey(cartID.String())).Err(); err != nil {
+			return fmt.Errorf("cart products del: %w", err)
+		}
+
+		return nil
+	}); err != nil {
+		return fmt.Errorf("pipelined: %w", err)
 	}
 
 	return nil

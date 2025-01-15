@@ -5,12 +5,12 @@ import (
 	"fmt"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/cart"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
-func (c *Cart) GetProducts(ctx context.Context, chatID msginfo.ChatID) ([]port.CartItem, error) {
-	items, err := c.client.LRange(ctx, makeKey(chatID), 0, -1).Result()
+func (c *Cart) GetProducts(ctx context.Context, id cart.ID) ([]port.CartItem, error) {
+	items, err := c.client.LRange(ctx, makeCartProductsKey(id.String()), 0, -1).Result()
 	if err != nil {
 		return nil, fmt.Errorf("lrange: %w", err)
 	}
@@ -42,6 +42,10 @@ func convertToCartItems(itemsMap map[string]int) ([]port.CartItem, error) {
 	cartItems := make([]port.CartItem, 0, len(itemsMap))
 
 	for id, count := range itemsMap {
+		if isEmptyListPlaceholder(id) {
+			continue
+		}
+
 		productID, err := product.IDFromString(id)
 		if err != nil {
 			return nil, fmt.Errorf("make id from string: %w", err)
