@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/cart"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
@@ -17,6 +18,11 @@ func (c *Customer) CartAddProduct(
 	productID product.ID,
 ) error {
 	if err := c.cart.AddProduct(ctx, cartID, productID); err != nil {
+		if c.cart.IsNotFoundError(err) {
+			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
+			return nil
+		}
+
 		return fmt.Errorf("add product to cart: %w", err)
 	}
 

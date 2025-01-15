@@ -19,11 +19,16 @@ func (c *Customer) CreateOrder(ctx context.Context, info msginfo.Info, cartID ca
 	cartProducts, err := c.cart.GetProducts(ctx, cartID)
 	if err != nil {
 		if c.cart.IsNotFoundError(err) {
-			c.sender.SendText(ctx, info.ChatID, message.NoProductsForOrder())
+			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
 			return nil
 		}
 
 		return fmt.Errorf("get cart products: %w", err)
+	}
+
+	if len(cartProducts) == 0 {
+		c.sender.SendText(ctx, info.ChatID, message.NoProductsForOrder())
+		return nil
 	}
 
 	orderProducts, err := c.orderProducts(ctx, cartProducts)
@@ -43,7 +48,7 @@ func (c *Customer) CreateOrder(ctx context.Context, info msginfo.Info, cartID ca
 
 	if err != nil {
 		if c.repository.IsAlreadyExistsError(err) {
-			c.sender.ReplyText(ctx, info.ChatID, info.MessageID, message.AlreadyHasActiveOrder())
+			c.sender.SendText(ctx, info.ChatID, message.AlreadyHasActiveOrder())
 			return nil
 		}
 

@@ -38,7 +38,9 @@ func (t *TGHandler) DefaultCallbackQuery(ctx context.Context, msg tgbot.BotMessa
 		}
 
 	case button.OperationCartCancel:
-		return fmt.Errorf("not implemented")
+		if err := t.cancelCart(ctx, info, *btn); err != nil {
+			return fmt.Errorf("cancel cart: %w", err)
+		}
 
 	case button.OperationCartConfirm:
 		if err := t.confirmCart(ctx, info, *btn); err != nil {
@@ -85,6 +87,19 @@ func (t *TGHandler) confirmCart(ctx context.Context, info msginfo.Info, btn butt
 
 	if err := t.orderProcessor.CreateOrder(ctx, info, payload.CartID); err != nil {
 		return fmt.Errorf("create order: %w", err)
+	}
+
+	return nil
+}
+
+func (t *TGHandler) cancelCart(ctx context.Context, info msginfo.Info, btn button.Button) error {
+	payload, err := button.GetPayload[button.CartCancelPayload](btn)
+	if err != nil {
+		return fmt.Errorf("invalid payload: %w", err)
+	}
+
+	if err := t.orderProcessor.CartCancel(ctx, info, payload.CartID); err != nil {
+		return fmt.Errorf("cart cancel: %w", err)
 	}
 
 	return nil
