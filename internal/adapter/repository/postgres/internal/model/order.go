@@ -5,6 +5,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/cart"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
@@ -40,7 +41,7 @@ type OrderProductFull struct {
 	UpdatedAt time.Time `db:"updated_at"`
 }
 
-func PortToOrderProducts(id order.ID, portProducts []product.ProductCount) []OrderProduct {
+func PortToOrderProducts(id order.ID, portProducts []cart.CartProduct) []OrderProduct {
 	dbProducts := make([]OrderProduct, 0, len(portProducts))
 
 	for _, v := range portProducts {
@@ -55,11 +56,11 @@ func PortToOrderProducts(id order.ID, portProducts []product.ProductCount) []Ord
 	return dbProducts
 }
 
-func toPortOrderProducts(dbProducts []OrderProductFull) []product.ProductCount {
-	portProducts := make([]product.ProductCount, 0, len(dbProducts))
+func toPortCartProducts(dbProducts []OrderProductFull) []cart.CartProduct {
+	portProducts := make([]cart.CartProduct, 0, len(dbProducts))
 
 	for _, v := range dbProducts {
-		portProducts = append(portProducts, product.ProductCount{
+		portProducts = append(portProducts, cart.CartProduct{
 			Product: product.Product{
 				ID:        product.IDFromInt(v.ProductID),
 				Title:     v.Title,
@@ -96,7 +97,7 @@ func ToPortOrder(
 		Status:           orderStatus,
 		VerificationCode: dbOrder.VerificationCode,
 		Timeline:         portTimeline,
-		Products:         toPortOrderProducts(dbOrderProducts),
+		Products:         toPortCartProducts(dbOrderProducts),
 	}, nil
 }
 

@@ -46,11 +46,6 @@ type Category struct {
 	IsEnabled bool
 }
 
-type ProductCount struct {
-	Product Product
-	Count   int
-}
-
 type CategoryProducts struct {
 	ID       ID
 	Title    string

@@ -23,7 +23,7 @@ func (c *Customer) StartNewCart(ctx context.Context, info msginfo.Info) error {
 		return fmt.Errorf("start new cart: %w", err)
 	}
 
-	buttons, err := c.makeCartCategoriesButtons(ctx, info.ChatID, cartID, categories)
+	buttons, err := c.makeCartCategoriesButtons(ctx, info.ChatID, cartID, categories, nil)
 	if err != nil {
 		return fmt.Errorf("make order buttons: %w", err)
 	}
@@ -38,6 +38,7 @@ func (c *Customer) makeCartCategoriesButtons(
 	chatID msginfo.ChatID,
 	cartID cart.ID,
 	categories []product.Category,
+	cartProducts []cart.CartProduct,
 ) ([]button.InlineKeyboardButtonRow, error) {
 	buttons := make([]button.ButtonRow, 0, len(categories)+1)
 
@@ -55,7 +56,11 @@ func (c *Customer) makeCartCategoriesButtons(
 		return nil, fmt.Errorf("cancel cart button: %w", err)
 	}
 
-	confirmCartBtn, err := button.CartConfirm(chatID, message.Confirm(), cartID)
+	confirmCartBtn, err := button.CartConfirm(
+		chatID,
+		makePriceButtonTitle(message.Confirm(), cartProducts),
+		cartID,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("confirm cart button: %w", err)
 	}
@@ -71,4 +76,20 @@ func (c *Customer) makeCartCategoriesButtons(
 	}
 
 	return inlineKeyboardButtonRows, nil
+}
+
+func makePriceButtonTitle(
+	caption string,
+	cartProducts []cart.CartProduct,
+) string {
+	price := 0
+	for _, v := range cartProducts {
+		price += v.Product.Price * v.Count
+	}
+
+	if price > 0 {
+		return fmt.Sprintf("%s [%d]", caption, price)
+	}
+
+	return caption
 }
