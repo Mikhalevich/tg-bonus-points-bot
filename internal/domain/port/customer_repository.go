@@ -28,7 +28,7 @@ type CustomerRepository interface {
 		newStatus order.Status,
 		prevStatuses ...order.Status,
 	) (*order.Order, error)
-	GetCategoryProducts(ctx context.Context, filter product.Filter) ([]product.Category, error)
+	GetCategories(ctx context.Context) ([]product.Category, error)
 	GetProductsByCategoryID(ctx context.Context, id product.ID) ([]product.Product, error)
 	GetProductsByIDs(ctx context.Context, ids []product.ID) (map[product.ID]product.Product, error)
 	IsNotFoundError(err error) bool

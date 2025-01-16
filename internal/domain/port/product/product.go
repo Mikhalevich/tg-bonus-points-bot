@@ -40,12 +40,18 @@ type Product struct {
 	UpdatedAt time.Time
 }
 
+type Category struct {
+	ID        ID
+	Title     string
+	IsEnabled bool
+}
+
 type ProductCount struct {
 	Product Product
 	Count   int
 }
 
-type Category struct {
+type CategoryProducts struct {
 	ID       ID
 	Title    string
 	Products []Product

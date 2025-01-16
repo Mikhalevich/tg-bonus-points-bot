@@ -24,6 +24,8 @@ func (p *Postgres) GetProductsByCategoryID(ctx context.Context, id product.ID) (
 		WHERE
 			pc.category_id = :category_id AND
 			p.is_enabled = :is_product_enabled
+		ORDER BY
+			p.title
 	`, map[string]any{
 		"category_id":        id.Int(),
 		"is_product_enabled": true,

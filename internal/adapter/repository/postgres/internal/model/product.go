@@ -42,6 +42,14 @@ type Category struct {
 	IsEnabled bool   `db:"is_enabled"`
 }
 
+func (c Category) ToPortCategory() product.Category {
+	return product.Category{
+		ID:        product.IDFromInt(c.ID),
+		Title:     c.Title,
+		IsEnabled: c.IsEnabled,
+	}
+}
+
 type ProductCategory struct {
 	ProductID     int       `db:"product_id"`
 	CategoryID    int       `db:"category_id"`
@@ -64,8 +72,17 @@ func (p ProductCategory) ToPortProduct() product.Product {
 	}
 }
 
-func ToPortCategory(dbProducts []ProductCategory) []product.Category {
-	categoryMap := make(map[int]product.Category)
+func ToPortCategories(dbCategories []Category) []product.Category {
+	portCategories := make([]product.Category, 0, len(dbCategories))
+	for _, v := range dbCategories {
+		portCategories = append(portCategories, v.ToPortCategory())
+	}
+
+	return portCategories
+}
+
+func ToPortCategoryProducts(dbProducts []ProductCategory) []product.CategoryProducts {
+	categoryMap := make(map[int]product.CategoryProducts)
 	for _, dbProduct := range dbProducts {
 		if portProducts, ok := categoryMap[dbProduct.CategoryID]; ok {
 			portProducts.Products = append(portProducts.Products, dbProduct.ToPortProduct())
@@ -74,14 +91,14 @@ func ToPortCategory(dbProducts []ProductCategory) []product.Category {
 			continue
 		}
 
-		categoryMap[dbProduct.CategoryID] = product.Category{
+		categoryMap[dbProduct.CategoryID] = product.CategoryProducts{
 			ID:       product.IDFromInt(dbProduct.CategoryID),
 			Title:    dbProduct.CategoryTitle,
 			Products: []product.Product{dbProduct.ToPortProduct()},
 		}
 	}
 
-	category := make([]product.Category, 0, len(categoryMap))
+	category := make([]product.CategoryProducts, 0, len(categoryMap))
 	for _, v := range categoryMap {
 		category = append(category, v)
 	}
