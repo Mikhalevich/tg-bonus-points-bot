@@ -14,12 +14,27 @@ func (c *Customer) CartViewCategories(
 	info msginfo.Info,
 	cartID cart.ID,
 ) error {
+	cartItems, err := c.cart.GetProducts(ctx, cartID)
+	if err != nil {
+		if c.cart.IsNotFoundError(err) {
+			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
+			return nil
+		}
+
+		return fmt.Errorf("cart items: %w", err)
+	}
+
+	cartProducts, err := c.cartProducts(ctx, cartItems)
+	if err != nil {
+		return fmt.Errorf("cart products: %w", err)
+	}
+
 	categories, err := c.repository.GetCategories(ctx)
 	if err != nil {
 		return fmt.Errorf("get products: %w", err)
 	}
 
-	buttons, err := c.makeCartCategoriesButtons(ctx, info.ChatID, cartID, categories)
+	buttons, err := c.makeCartCategoriesButtons(ctx, info.ChatID, cartID, categories, cartProducts)
 	if err != nil {
 		return fmt.Errorf("make order buttons: %w", err)
 	}

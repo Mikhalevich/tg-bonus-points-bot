@@ -16,7 +16,7 @@ import (
 )
 
 func (c *Customer) CreateOrder(ctx context.Context, info msginfo.Info, cartID cart.ID) error {
-	cartProducts, err := c.cart.GetProducts(ctx, cartID)
+	cartItems, err := c.cart.GetProducts(ctx, cartID)
 	if err != nil {
 		if c.cart.IsNotFoundError(err) {
 			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
@@ -26,12 +26,12 @@ func (c *Customer) CreateOrder(ctx context.Context, info msginfo.Info, cartID ca
 		return fmt.Errorf("get cart products: %w", err)
 	}
 
-	if len(cartProducts) == 0 {
+	if len(cartItems) == 0 {
 		c.sender.SendText(ctx, info.ChatID, message.NoProductsForOrder())
 		return nil
 	}
 
-	orderProducts, err := c.orderProducts(ctx, cartProducts)
+	cartProducts, err := c.cartProducts(ctx, cartItems)
 	if err != nil {
 		return fmt.Errorf("products info: %w", err)
 	}
@@ -41,7 +41,7 @@ func (c *Customer) CreateOrder(ctx context.Context, info msginfo.Info, cartID ca
 		Status:              order.StatusConfirmed,
 		StatusOperationTime: time.Now(),
 		VerificationCode:    generateVerificationCode(),
-		Products:            orderProducts,
+		Products:            cartProducts,
 	}
 
 	id, err := c.repository.CreateOrder(ctx, input)
@@ -79,7 +79,7 @@ func generateVerificationCode() string {
 	return fmt.Sprintf("%03d", rand.Intn(1000))
 }
 
-func (c *Customer) orderProducts(ctx context.Context, cartProducts []port.CartItem) ([]product.ProductCount, error) {
+func (c *Customer) cartProducts(ctx context.Context, cartProducts []port.CartItem) ([]cart.CartProduct, error) {
 	ids := make([]product.ID, 0, len(cartProducts))
 
 	for _, v := range cartProducts {
@@ -91,7 +91,7 @@ func (c *Customer) orderProducts(ctx context.Context, cartProducts []port.CartIt
 		return nil, fmt.Errorf("get products by ids: %w", err)
 	}
 
-	output := make([]product.ProductCount, 0, len(cartProducts))
+	output := make([]cart.CartProduct, 0, len(cartProducts))
 
 	for _, v := range cartProducts {
 		productInfo, ok := productMap[v.ProductID]
@@ -99,16 +99,9 @@ func (c *Customer) orderProducts(ctx context.Context, cartProducts []port.CartIt
 			return nil, fmt.Errorf("missing product id: %d", v.ProductID.Int())
 		}
 
-		output = append(output, product.ProductCount{
-			Product: product.Product{
-				ID:        v.ProductID,
-				Title:     productInfo.Title,
-				Price:     productInfo.Price,
-				IsEnabled: productInfo.IsEnabled,
-				CreatedAt: productInfo.CreatedAt,
-				UpdatedAt: productInfo.UpdatedAt,
-			},
-			Count: v.Count,
+		output = append(output, cart.CartProduct{
+			Product: productInfo,
+			Count:   v.Count,
 		})
 	}
 
