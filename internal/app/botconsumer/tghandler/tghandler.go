@@ -23,12 +23,30 @@ type OrderProcessor interface {
 	GetButton(ctx context.Context, id button.ID) (*button.Button, error)
 }
 
+type cbHandler func(ctx context.Context, info msginfo.Info, btn button.Button) error
+
 type TGHandler struct {
 	orderProcessor OrderProcessor
+	cbHandlers     map[button.Operation]cbHandler
 }
 
 func New(orderProcessor OrderProcessor) *TGHandler {
-	return &TGHandler{
+	h := &TGHandler{
 		orderProcessor: orderProcessor,
+	}
+
+	h.initCBHandlers()
+
+	return h
+}
+
+func (t *TGHandler) initCBHandlers() {
+	t.cbHandlers = map[button.Operation]cbHandler{
+		button.OperationOrderCancel:              t.cancelOrder,
+		button.OperationCartCancel:               t.cancelCart,
+		button.OperationCartConfirm:              t.confirmCart,
+		button.OperationCartViewCategories:       t.viewCategories,
+		button.OperationCartViewCategoryProducts: t.viewCategoryProducts,
+		button.OperationCartAddProduct:           t.addProduct,
 	}
 }

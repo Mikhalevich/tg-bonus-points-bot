@@ -10,7 +10,6 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/perror"
 )
 
-//nolint:cyclop
 func (t *TGHandler) DefaultCallbackQuery(ctx context.Context, msg tgbot.BotMessage, sender tgbot.MessageSender) error {
 	btn, err := t.orderProcessor.GetButton(ctx, button.IDFromString(msg.Data))
 	if err != nil {
@@ -31,48 +30,25 @@ func (t *TGHandler) DefaultCallbackQuery(ctx context.Context, msg tgbot.BotMessa
 		MessageID: msginfo.MessageIDFromInt(msg.MessageID),
 	}
 
-	switch btn.Operation {
-	case button.OperationOrderCancel:
-		if err := t.cancelOrder(ctx, info.ChatID, *btn); err != nil {
-			return fmt.Errorf("cancel order edit msg: %w", err)
-		}
+	handler, ok := t.cbHandlers[btn.Operation]
+	if !ok {
+		return fmt.Errorf("operation %s is not implented", btn.Operation)
+	}
 
-	case button.OperationCartCancel:
-		if err := t.cancelCart(ctx, info, *btn); err != nil {
-			return fmt.Errorf("cancel cart: %w", err)
-		}
-
-	case button.OperationCartConfirm:
-		if err := t.confirmCart(ctx, info, *btn); err != nil {
-			return fmt.Errorf("confirm order: %w", err)
-		}
-
-	case button.OperationCartViewCategories:
-		if err := t.viewCategories(ctx, info, *btn); err != nil {
-			return fmt.Errorf("view categories: %w", err)
-		}
-
-	case button.OperationCartViewCategoryProducts:
-		if err := t.viewCategoryProducts(ctx, info, *btn); err != nil {
-			return fmt.Errorf("view products: %w", err)
-		}
-
-	case button.OperationCartAddProduct:
-		if err := t.addProduct(ctx, info, *btn); err != nil {
-			return fmt.Errorf("add product: %w", err)
-		}
+	if err := handler(ctx, info, *btn); err != nil {
+		return fmt.Errorf("cb handler operation %s failure: %w", btn.Operation, err)
 	}
 
 	return nil
 }
 
-func (t *TGHandler) cancelOrder(ctx context.Context, chatID msginfo.ChatID, btn button.Button) error {
+func (t *TGHandler) cancelOrder(ctx context.Context, info msginfo.Info, btn button.Button) error {
 	orderID, err := btn.OrderID()
 	if err != nil {
 		return fmt.Errorf("invalid order id: %w", err)
 	}
 
-	if err := t.orderProcessor.CancelOrder(ctx, chatID, orderID); err != nil {
+	if err := t.orderProcessor.CancelOrder(ctx, info.ChatID, orderID); err != nil {
 		return fmt.Errorf("cancel order: %w", err)
 	}
 
