@@ -46,7 +46,7 @@ func convertToCartItems(itemsMap map[string]int) ([]port.CartItem, error) {
 			continue
 		}
 
-		productID, err := product.IDFromString(id)
+		productID, err := product.ProductIDFromString(id)
 		if err != nil {
 			return nil, fmt.Errorf("make id from string: %w", err)
 		}

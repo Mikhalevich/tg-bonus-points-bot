@@ -32,15 +32,16 @@ func CartConfirm(chatID msginfo.ChatID, caption string, cartID cart.ID) (Button,
 
 type CartAddProductPayload struct {
 	CartID     cart.ID
-	ProductID  product.ID
-	CategoryID product.ID
+	ProductID  product.ProductID
+	CategoryID product.CategoryID
 }
 
 func CartAddProduct(
 	chatID msginfo.ChatID,
 	caption string,
 	cartID cart.ID,
-	productID, categoryID product.ID,
+	productID product.ProductID,
+	categoryID product.CategoryID,
 ) (Button, error) {
 	return createButton(chatID, caption, OperationCartAddProduct,
 		CartAddProductPayload{
@@ -53,14 +54,14 @@ func CartAddProduct(
 
 type CartViewCategoryProductsPayload struct {
 	CartID     cart.ID
-	CategoryID product.ID
+	CategoryID product.CategoryID
 }
 
 func CartViewCategoryProducts(
 	chatID msginfo.ChatID,
 	caption string,
 	cartID cart.ID,
-	categoryID product.ID,
+	categoryID product.CategoryID,
 ) (Button, error) {
 	return createButton(chatID, caption, OperationCartViewCategoryProducts,
 		CartViewCategoryProductsPayload{

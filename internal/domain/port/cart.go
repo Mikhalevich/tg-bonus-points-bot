@@ -9,14 +9,14 @@ import (
 )
 
 type CartItem struct {
-	ProductID product.ID
+	ProductID product.ProductID
 	Count     int
 }
 
 type Cart interface {
 	StartNewCart(ctx context.Context, chatID msginfo.ChatID) (cart.ID, error)
 	GetProducts(ctx context.Context, id cart.ID) ([]CartItem, error)
-	AddProduct(ctx context.Context, id cart.ID, productID product.ID) error
+	AddProduct(ctx context.Context, id cart.ID, productID product.ProductID) error
 	Clear(ctx context.Context, chatID msginfo.ChatID, cartID cart.ID) error
 	IsNotFoundError(err error) bool
 }

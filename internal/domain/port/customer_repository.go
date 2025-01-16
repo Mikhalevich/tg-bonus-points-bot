@@ -30,8 +30,8 @@ type CustomerRepository interface {
 		prevStatuses ...order.Status,
 	) (*order.Order, error)
 	GetCategories(ctx context.Context) ([]product.Category, error)
-	GetProductsByCategoryID(ctx context.Context, id product.ID) ([]product.Product, error)
-	GetProductsByIDs(ctx context.Context, ids []product.ID) (map[product.ID]product.Product, error)
+	GetProductsByCategoryID(ctx context.Context, id product.CategoryID) ([]product.Product, error)
+	GetProductsByIDs(ctx context.Context, ids []product.ProductID) (map[product.ProductID]product.Product, error)
 	IsNotFoundError(err error) bool
 	IsNotUpdatedError(err error) bool
 	IsAlreadyExistsError(err error) bool

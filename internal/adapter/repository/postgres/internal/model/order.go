@@ -62,7 +62,7 @@ func toPortCartProducts(dbProducts []OrderProductFull) []cart.CartProduct {
 	for _, v := range dbProducts {
 		portProducts = append(portProducts, cart.CartProduct{
 			Product: product.Product{
-				ID:        product.IDFromInt(v.ProductID),
+				ID:        product.ProductIDFromInt(v.ProductID),
 				Title:     v.Title,
 				Price:     v.Price,
 				IsEnabled: v.IsEnabled,

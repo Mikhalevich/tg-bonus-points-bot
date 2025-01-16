@@ -16,7 +16,7 @@ func (c *Customer) CartViewCategoryProducts(
 	ctx context.Context,
 	info msginfo.Info,
 	cartID cart.ID,
-	categoryID product.ID,
+	categoryID product.CategoryID,
 ) error {
 	cartProducts, err := c.cart.GetProducts(ctx, cartID)
 	if err != nil {
@@ -47,7 +47,7 @@ func (c *Customer) makeCartProductsButtons(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 	cartID cart.ID,
-	categoryID product.ID,
+	categoryID product.CategoryID,
 	categoryProducts []product.Product,
 	cartProducts []port.CartItem,
 ) ([]button.InlineKeyboardButtonRow, error) {

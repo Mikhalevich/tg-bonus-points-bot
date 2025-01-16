@@ -14,8 +14,8 @@ func (c *Customer) CartAddProduct(
 	ctx context.Context,
 	info msginfo.Info,
 	cartID cart.ID,
-	categoryID product.ID,
-	productID product.ID,
+	categoryID product.CategoryID,
+	productID product.ProductID,
 ) error {
 	if err := c.cart.AddProduct(ctx, cartID, productID); err != nil {
 		if c.cart.IsNotFoundError(err) {

@@ -15,10 +15,10 @@ type OrderProcessor interface {
 	CancelOrder(ctx context.Context, chatID msginfo.ChatID, orderID order.ID) error
 	CreateOrder(ctx context.Context, info msginfo.Info, cartID cart.ID) error
 	StartNewCart(ctx context.Context, info msginfo.Info) error
-	CartViewCategoryProducts(ctx context.Context, info msginfo.Info, cartID cart.ID, categoryID product.ID) error
+	CartViewCategoryProducts(ctx context.Context, info msginfo.Info, cartID cart.ID, categoryID product.CategoryID) error
 	CartViewCategories(ctx context.Context, info msginfo.Info, cartID cart.ID) error
 	CartAddProduct(ctx context.Context, info msginfo.Info,
-		cartID cart.ID, categoryID product.ID, productID product.ID) error
+		cartID cart.ID, categoryID product.CategoryID, productID product.ProductID) error
 	CartCancel(ctx context.Context, info msginfo.Info, cartID cart.ID) error
 	GetButton(ctx context.Context, id button.ID) (*button.Button, error)
 }

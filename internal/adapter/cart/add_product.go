@@ -11,7 +11,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
-func (c *Cart) AddProduct(ctx context.Context, cartID cart.ID, productID product.ID) error {
+func (c *Cart) AddProduct(ctx context.Context, cartID cart.ID, productID product.ProductID) error {
 	exists, err := c.addProductToExistingList(ctx, makeCartProductsKey(cartID.String()), productID)
 	if err != nil {
 		return fmt.Errorf("add product to existing list: %w", err)
@@ -25,7 +25,7 @@ func (c *Cart) AddProduct(ctx context.Context, cartID cart.ID, productID product
 }
 
 // addProductToExistingList returns false is the list is not exists and true otherwise.
-func (c *Cart) addProductToExistingList(ctx context.Context, key string, id product.ID) (bool, error) {
+func (c *Cart) addProductToExistingList(ctx context.Context, key string, id product.ProductID) (bool, error) {
 	newLen, err := c.client.RPushX(ctx, key, id.String()).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
@@ -43,7 +43,7 @@ func (c *Cart) addProductToExistingList(ctx context.Context, key string, id prod
 }
 
 //nolint:unused
-func (c *Cart) addProductToNotExistingList(ctx context.Context, key string, id product.ID) error {
+func (c *Cart) addProductToNotExistingList(ctx context.Context, key string, id product.ProductID) error {
 	if _, err := c.client.Pipelined(ctx, func(pipline redis.Pipeliner) error {
 		if err := pipline.RPush(ctx, key, id.String()).Err(); err != nil {
 			return fmt.Errorf("rpush: %w", err)

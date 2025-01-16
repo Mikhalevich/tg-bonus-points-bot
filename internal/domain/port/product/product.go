@@ -2,37 +2,56 @@ package product
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/flag"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/internal/id"
 )
 
-type ID int
-
-func (id ID) Int() int {
-	return int(id)
+type ProductID struct {
+	id.IntID
 }
 
-func (id ID) String() string {
-	return strconv.FormatInt(int64(id), 10)
+type CategoryID struct {
+	id.IntID
 }
 
-func IDFromInt(id int) ID {
-	return ID(id)
+func ProductIDFromInt(i int) ProductID {
+	return ProductID{
+		IntID: id.IntIDFromInt(i),
+	}
 }
 
-func IDFromString(id string) (ID, error) {
-	intID, err := strconv.ParseInt(id, 10, 64)
+func ProductIDFromString(s string) (ProductID, error) {
+	i, err := id.IntIDFromString(s)
 	if err != nil {
-		return 0, fmt.Errorf("parse int: %w", err)
+		return ProductID{}, fmt.Errorf("int id: %w", err)
 	}
 
-	return ID(intID), nil
+	return ProductID{
+		IntID: i,
+	}, nil
+}
+
+func CategoryIDFromInt(i int) CategoryID {
+	return CategoryID{
+		IntID: id.IntIDFromInt(i),
+	}
+}
+
+func CategoryIDFromString(s string) (CategoryID, error) {
+	i, err := id.IntIDFromString(s)
+	if err != nil {
+		return CategoryID{}, fmt.Errorf("int id: %w", err)
+	}
+
+	return CategoryID{
+		IntID: i,
+	}, nil
 }
 
 type Product struct {
-	ID        ID
+	ID        ProductID
 	Title     string
 	Price     int
 	IsEnabled bool
@@ -41,13 +60,13 @@ type Product struct {
 }
 
 type Category struct {
-	ID        ID
+	ID        CategoryID
 	Title     string
 	IsEnabled bool
 }
 
 type CategoryProducts struct {
-	ID       ID
+	ID       CategoryID
 	Title    string
 	Products []Product
 }

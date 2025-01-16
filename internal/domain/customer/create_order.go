@@ -80,7 +80,7 @@ func generateVerificationCode() string {
 }
 
 func (c *Customer) cartProducts(ctx context.Context, cartProducts []port.CartItem) ([]cart.CartProduct, error) {
-	ids := make([]product.ID, 0, len(cartProducts))
+	ids := make([]product.ProductID, 0, len(cartProducts))
 
 	for _, v := range cartProducts {
 		ids = append(ids, v.ProductID)
