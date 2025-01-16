@@ -6,9 +6,7 @@ import (
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/cart"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/flag"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
 func (c *Customer) CartViewCategories(
@@ -16,10 +14,7 @@ func (c *Customer) CartViewCategories(
 	info msginfo.Info,
 	cartID cart.ID,
 ) error {
-	categories, err := c.repository.GetCategoryProducts(ctx, product.Filter{
-		Products: flag.Enabled,
-		Category: flag.Enabled,
-	})
+	categories, err := c.repository.GetCategories(ctx)
 	if err != nil {
 		return fmt.Errorf("get products: %w", err)
 	}

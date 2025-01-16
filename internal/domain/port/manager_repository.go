@@ -21,7 +21,7 @@ type ManagerRepository interface {
 		newStatus order.Status,
 		prevStatuses ...order.Status,
 	) (*order.Order, error)
-	GetCategoryProducts(ctx context.Context, filter product.Filter) ([]product.Category, error)
+	GetCategoryProducts(ctx context.Context, filter product.Filter) ([]product.CategoryProducts, error)
 	IsNotFoundError(err error) bool
 	IsNotUpdatedError(err error) bool
 }

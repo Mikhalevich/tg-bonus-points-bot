@@ -7,7 +7,7 @@ import (
 )
 
 type Products struct {
-	Category []Category `json:"category"`
+	Category []CategoryProducts `json:"category"`
 }
 
 type Product struct {
@@ -19,13 +19,13 @@ type Product struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type Category struct {
+type CategoryProducts struct {
 	Title    string    `json:"titile"`
 	Products []Product `json:"products"`
 }
 
-func ConvertFromPortProduct(portCategory []product.Category) []Category {
-	category := make([]Category, 0, len(portCategory))
+func ConvertFromPortProduct(portCategory []product.CategoryProducts) []CategoryProducts {
+	category := make([]CategoryProducts, 0, len(portCategory))
 
 	for _, v := range portCategory {
 		products := make([]Product, 0, len(v.Products))
@@ -40,7 +40,7 @@ func ConvertFromPortProduct(portCategory []product.Category) []Category {
 			})
 		}
 
-		category = append(category, Category{
+		category = append(category, CategoryProducts{
 			Title:    v.Title,
 			Products: products,
 		})

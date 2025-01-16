@@ -12,13 +12,13 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
-func (p *Postgres) GetCategoryProducts(ctx context.Context, filter product.Filter) ([]product.Category, error) {
+func (p *Postgres) GetCategoryProducts(ctx context.Context, filter product.Filter) ([]product.CategoryProducts, error) {
 	var products []model.ProductCategory
 	if err := sqlx.SelectContext(ctx, p.db, &products, buildProductsQuery(filter)); err != nil {
 		return nil, fmt.Errorf("select products: %w", err)
 	}
 
-	return model.ToPortCategory(products), nil
+	return model.ToPortCategoryProducts(products), nil
 }
 
 func buildProductsQuery(filter product.Filter) string {
