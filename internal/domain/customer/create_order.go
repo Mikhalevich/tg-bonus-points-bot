@@ -83,6 +83,10 @@ func (c *Customer) orderedProducts(
 	ctx context.Context,
 	cartProducts []cart.CartProduct,
 ) ([]order.OrderedProduct, error) {
+	if len(cartProducts) == 0 {
+		return nil, nil
+	}
+
 	ids := make([]product.ProductID, 0, len(cartProducts))
 
 	for _, v := range cartProducts {
@@ -103,8 +107,9 @@ func (c *Customer) orderedProducts(
 		}
 
 		output = append(output, order.OrderedProduct{
-			Product: productInfo,
-			Count:   v.Count,
+			Product:    productInfo,
+			CategoryID: v.CategoryID,
+			Count:      v.Count,
 		})
 	}
 

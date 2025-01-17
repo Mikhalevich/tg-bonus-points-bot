@@ -55,6 +55,7 @@ type StatusTime struct {
 }
 
 type OrderedProduct struct {
-	Product product.Product
-	Count   int
+	Product    product.Product
+	CategoryID product.CategoryID // available only for cart products.
+	Count      int
 }
