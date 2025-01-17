@@ -79,7 +79,10 @@ func generateVerificationCode() string {
 	return fmt.Sprintf("%03d", rand.Intn(1000))
 }
 
-func (c *Customer) orderedProducts(ctx context.Context, cartProducts []port.CartItem) ([]order.OrderedProduct, error) {
+func (c *Customer) orderedProducts(
+	ctx context.Context,
+	cartProducts []cart.CartProduct,
+) ([]order.OrderedProduct, error) {
 	ids := make([]product.ProductID, 0, len(cartProducts))
 
 	for _, v := range cartProducts {

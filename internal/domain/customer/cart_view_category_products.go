@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/cart"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
@@ -49,7 +48,7 @@ func (c *Customer) makeCartProductsButtons(
 	cartID cart.ID,
 	categoryID product.CategoryID,
 	categoryProducts []product.Product,
-	cartProducts []port.CartItem,
+	cartProducts []cart.CartProduct,
 ) ([]button.InlineKeyboardButtonRow, error) {
 	buttons := make([]button.ButtonRow, 0, len(categoryProducts)+1)
 
@@ -79,7 +78,7 @@ func (c *Customer) makeCartProductsButtons(
 	return inlineButtons, nil
 }
 
-func makeProductButtonTitle(p product.Product, cartProducts []port.CartItem) string {
+func makeProductButtonTitle(p product.Product, cartProducts []cart.CartProduct) string {
 	for _, v := range cartProducts {
 		if v.ProductID == p.ID {
 			return fmt.Sprintf("%s [%d]", p.Title, v.Count)

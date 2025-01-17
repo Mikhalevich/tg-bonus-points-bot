@@ -17,7 +17,11 @@ func (c *Customer) CartAddProduct(
 	categoryID product.CategoryID,
 	productID product.ProductID,
 ) error {
-	if err := c.cart.AddProduct(ctx, cartID, productID); err != nil {
+	if err := c.cart.AddProduct(ctx, cartID, cart.CartProduct{
+		ProductID:  productID,
+		CategoryID: categoryID,
+		Count:      1,
+	}); err != nil {
 		if c.cart.IsNotFoundError(err) {
 			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
 			return nil
