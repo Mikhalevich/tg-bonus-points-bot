@@ -24,7 +24,7 @@ func (c *Customer) CartViewCategories(
 		return fmt.Errorf("cart items: %w", err)
 	}
 
-	cartProducts, err := c.cartProducts(ctx, cartItems)
+	orderedProducts, err := c.orderedProducts(ctx, cartItems)
 	if err != nil {
 		return fmt.Errorf("cart products: %w", err)
 	}
@@ -34,7 +34,7 @@ func (c *Customer) CartViewCategories(
 		return fmt.Errorf("get products: %w", err)
 	}
 
-	buttons, err := c.makeCartCategoriesButtons(ctx, info.ChatID, cartID, categories, cartProducts)
+	buttons, err := c.makeCartCategoriesButtons(ctx, info.ChatID, cartID, categories, orderedProducts)
 	if err != nil {
 		return fmt.Errorf("make order buttons: %w", err)
 	}

@@ -17,7 +17,7 @@ type Product struct {
 
 func (p Product) ToPortProduct() product.Product {
 	return product.Product{
-		ID:        product.IDFromInt(p.ID),
+		ID:        product.ProductIDFromInt(p.ID),
 		Title:     p.Title,
 		Price:     p.Price,
 		IsEnabled: p.IsEnabled,
@@ -44,7 +44,7 @@ type Category struct {
 
 func (c Category) ToPortCategory() product.Category {
 	return product.Category{
-		ID:        product.IDFromInt(c.ID),
+		ID:        product.CategoryIDFromInt(c.ID),
 		Title:     c.Title,
 		IsEnabled: c.IsEnabled,
 	}
@@ -63,7 +63,7 @@ type ProductCategory struct {
 
 func (p ProductCategory) ToPortProduct() product.Product {
 	return product.Product{
-		ID:        product.IDFromInt(p.ProductID),
+		ID:        product.ProductIDFromInt(p.ProductID),
 		Title:     p.ProductTitle,
 		Price:     p.Price,
 		IsEnabled: p.IsEnabled,
@@ -92,7 +92,7 @@ func ToPortCategoryProducts(dbProducts []ProductCategory) []product.CategoryProd
 		}
 
 		categoryMap[dbProduct.CategoryID] = product.CategoryProducts{
-			ID:       product.IDFromInt(dbProduct.CategoryID),
+			ID:       product.CategoryIDFromInt(dbProduct.CategoryID),
 			Title:    dbProduct.CategoryTitle,
 			Products: []product.Product{dbProduct.ToPortProduct()},
 		}

@@ -4,15 +4,19 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
+	"github.com/redis/go-redis/v9"
+
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/cart"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
-func (c *Cart) GetProducts(ctx context.Context, id cart.ID) ([]port.CartItem, error) {
+func (c *Cart) GetProducts(ctx context.Context, id cart.ID) ([]cart.CartProduct, error) {
 	items, err := c.client.LRange(ctx, makeCartProductsKey(id.String()), 0, -1).Result()
 	if err != nil {
 		return nil, fmt.Errorf("lrange: %w", err)
+	}
+
+	if len(items) == 0 {
+		return nil, redis.Nil
 	}
 
 	cartItems, err := convertToCartItems(combineDuplicateItems(items))
@@ -38,22 +42,23 @@ func combineDuplicateItems(items []string) map[string]int {
 	return itemsMap
 }
 
-func convertToCartItems(itemsMap map[string]int) ([]port.CartItem, error) {
-	cartItems := make([]port.CartItem, 0, len(itemsMap))
+func convertToCartItems(itemsMap map[string]int) ([]cart.CartProduct, error) {
+	cartItems := make([]cart.CartProduct, 0, len(itemsMap))
 
-	for id, count := range itemsMap {
-		if isEmptyListPlaceholder(id) {
+	for encodedProduct, count := range itemsMap {
+		if isEmptyListPlaceholder(encodedProduct) {
 			continue
 		}
 
-		productID, err := product.IDFromString(id)
+		p, err := decodeCartProduct(encodedProduct)
 		if err != nil {
-			return nil, fmt.Errorf("make id from string: %w", err)
+			return nil, fmt.Errorf("decode cart product: %w", err)
 		}
 
-		cartItems = append(cartItems, port.CartItem{
-			ProductID: productID,
-			Count:     count,
+		cartItems = append(cartItems, cart.CartProduct{
+			ProductID:  p.ProductID,
+			CategoryID: p.CategoryID,
+			Count:      count,
 		})
 	}
 

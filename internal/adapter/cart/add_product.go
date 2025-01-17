@@ -1,9 +1,12 @@
 package cart
 
 import (
+	"bytes"
 	"context"
+	"encoding/gob"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/redis/go-redis/v9"
 
@@ -11,8 +14,16 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
-func (c *Cart) AddProduct(ctx context.Context, cartID cart.ID, productID product.ID) error {
-	exists, err := c.addProductToExistingList(ctx, makeCartProductsKey(cartID.String()), productID)
+func (c *Cart) AddProduct(ctx context.Context, cartID cart.ID, p cart.CartProduct) error {
+	encodedProduct, err := encodeCartProduct(cartProduct{
+		ProductID:  p.ProductID,
+		CategoryID: p.CategoryID,
+	})
+	if err != nil {
+		return fmt.Errorf("encode cart product: %w", err)
+	}
+
+	exists, err := c.addProductToExistingList(ctx, makeCartProductsKey(cartID.String()), encodedProduct)
 	if err != nil {
 		return fmt.Errorf("add product to existing list: %w", err)
 	}
@@ -24,9 +35,32 @@ func (c *Cart) AddProduct(ctx context.Context, cartID cart.ID, productID product
 	return nil
 }
 
+type cartProduct struct {
+	ProductID  product.ProductID
+	CategoryID product.CategoryID
+}
+
+func encodeCartProduct(p cartProduct) (string, error) {
+	var buf bytes.Buffer
+	if err := gob.NewEncoder(&buf).Encode(p); err != nil {
+		return "", fmt.Errorf("gob encode: %w", err)
+	}
+
+	return buf.String(), nil
+}
+
+func decodeCartProduct(s string) (cartProduct, error) {
+	var p cartProduct
+	if err := gob.NewDecoder(strings.NewReader(s)).Decode(&p); err != nil {
+		return cartProduct{}, fmt.Errorf("gob decode: %w", err)
+	}
+
+	return p, nil
+}
+
 // addProductToExistingList returns false is the list is not exists and true otherwise.
-func (c *Cart) addProductToExistingList(ctx context.Context, key string, id product.ID) (bool, error) {
-	newLen, err := c.client.RPushX(ctx, key, id.String()).Result()
+func (c *Cart) addProductToExistingList(ctx context.Context, key string, data string) (bool, error) {
+	newLen, err := c.client.RPushX(ctx, key, data).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			return false, nil
@@ -43,7 +77,7 @@ func (c *Cart) addProductToExistingList(ctx context.Context, key string, id prod
 }
 
 //nolint:unused
-func (c *Cart) addProductToNotExistingList(ctx context.Context, key string, id product.ID) error {
+func (c *Cart) addProductToNotExistingList(ctx context.Context, key string, id product.ProductID) error {
 	if _, err := c.client.Pipelined(ctx, func(pipline redis.Pipeliner) error {
 		if err := pipline.RPush(ctx, key, id.String()).Err(); err != nil {
 			return fmt.Errorf("rpush: %w", err)

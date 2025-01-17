@@ -12,8 +12,8 @@ import (
 
 func (p *Postgres) GetProductsByIDs(
 	ctx context.Context,
-	ids []product.ID,
-) (map[product.ID]product.Product, error) {
+	ids []product.ProductID,
+) (map[product.ProductID]product.Product, error) {
 	query, args, err := sqlx.In(`
 		SELECT
 			id,
@@ -36,10 +36,10 @@ func (p *Postgres) GetProductsByIDs(
 		return nil, fmt.Errorf("select context: %w", err)
 	}
 
-	output := make(map[product.ID]product.Product, len(dbProducts))
+	output := make(map[product.ProductID]product.Product, len(dbProducts))
 
 	for _, v := range dbProducts {
-		output[product.IDFromInt(v.ID)] = v.ToPortProduct()
+		output[product.ProductIDFromInt(v.ID)] = v.ToPortProduct()
 	}
 
 	return output, nil

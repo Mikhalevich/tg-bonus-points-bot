@@ -10,7 +10,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
-func (p *Postgres) GetProductsByCategoryID(ctx context.Context, id product.ID) ([]product.Product, error) {
+func (p *Postgres) GetProductsByCategoryID(ctx context.Context, id product.CategoryID) ([]product.Product, error) {
 	query, args, err := sqlx.Named(`
 		SELECT
 			p.id,
