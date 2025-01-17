@@ -8,6 +8,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/cart"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
@@ -38,7 +39,7 @@ func (c *Customer) makeCartCategoriesButtons(
 	chatID msginfo.ChatID,
 	cartID cart.ID,
 	categories []product.Category,
-	cartProducts []cart.CartProduct,
+	orderedProducts []order.OrderedProduct,
 ) ([]button.InlineKeyboardButtonRow, error) {
 	buttons := make([]button.ButtonRow, 0, len(categories)+1)
 
@@ -58,7 +59,7 @@ func (c *Customer) makeCartCategoriesButtons(
 
 	confirmCartBtn, err := button.CartConfirm(
 		chatID,
-		makePriceButtonTitle(message.Confirm(), cartProducts),
+		makePriceButtonTitle(message.Confirm(), orderedProducts),
 		cartID,
 	)
 	if err != nil {
@@ -80,10 +81,10 @@ func (c *Customer) makeCartCategoriesButtons(
 
 func makePriceButtonTitle(
 	caption string,
-	cartProducts []cart.CartProduct,
+	orderedProducts []order.OrderedProduct,
 ) string {
 	price := 0
-	for _, v := range cartProducts {
+	for _, v := range orderedProducts {
 		price += v.Product.Price * v.Count
 	}
 

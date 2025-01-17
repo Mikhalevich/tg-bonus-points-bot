@@ -15,6 +15,7 @@ func IDFromString(id string) ID {
 }
 
 type CartProduct struct {
-	Product product.Product
-	Count   int
+	ProductID  product.ProductID
+	CategoryID product.CategoryID
+	Count      int
 }

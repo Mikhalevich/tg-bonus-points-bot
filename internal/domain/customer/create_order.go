@@ -31,7 +31,7 @@ func (c *Customer) CreateOrder(ctx context.Context, info msginfo.Info, cartID ca
 		return nil
 	}
 
-	cartProducts, err := c.cartProducts(ctx, cartItems)
+	cartProducts, err := c.orderedProducts(ctx, cartItems)
 	if err != nil {
 		return fmt.Errorf("products info: %w", err)
 	}
@@ -79,7 +79,7 @@ func generateVerificationCode() string {
 	return fmt.Sprintf("%03d", rand.Intn(1000))
 }
 
-func (c *Customer) cartProducts(ctx context.Context, cartProducts []port.CartItem) ([]cart.CartProduct, error) {
+func (c *Customer) orderedProducts(ctx context.Context, cartProducts []port.CartItem) ([]order.OrderedProduct, error) {
 	ids := make([]product.ProductID, 0, len(cartProducts))
 
 	for _, v := range cartProducts {
@@ -91,7 +91,7 @@ func (c *Customer) cartProducts(ctx context.Context, cartProducts []port.CartIte
 		return nil, fmt.Errorf("get products by ids: %w", err)
 	}
 
-	output := make([]cart.CartProduct, 0, len(cartProducts))
+	output := make([]order.OrderedProduct, 0, len(cartProducts))
 
 	for _, v := range cartProducts {
 		productInfo, ok := productMap[v.ProductID]
@@ -99,7 +99,7 @@ func (c *Customer) cartProducts(ctx context.Context, cartProducts []port.CartIte
 			return nil, fmt.Errorf("missing product id: %d", v.ProductID.Int())
 		}
 
-		output = append(output, cart.CartProduct{
+		output = append(output, order.OrderedProduct{
 			Product: productInfo,
 			Count:   v.Count,
 		})

@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/cart"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
 type ID int
@@ -38,7 +38,7 @@ type Order struct {
 	Status           Status
 	VerificationCode string
 	Timeline         []StatusTime
-	Products         []cart.CartProduct
+	Products         []OrderedProduct
 }
 
 func (o Order) IsSameChat(chatID msginfo.ChatID) bool {
@@ -52,4 +52,9 @@ func (o Order) CanCancel() bool {
 type StatusTime struct {
 	Status Status
 	Time   time.Time
+}
+
+type OrderedProduct struct {
+	Product product.Product
+	Count   int
 }
