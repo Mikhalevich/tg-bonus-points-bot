@@ -29,7 +29,7 @@ func (c *Cart) StartNewCart(ctx context.Context, chatID msginfo.ChatID) (cart.ID
 	}
 
 	if _, err := c.client.Pipelined(ctx, func(pipeline redis.Pipeliner) error {
-		if cartPrevID != "" {
+		if cartPrevID.String() != "" {
 			if err := pipeline.Del(ctx, makeCartProductsKey(cartPrevID.String())).Err(); err != nil {
 				return fmt.Errorf("cart products del: %w", err)
 			}

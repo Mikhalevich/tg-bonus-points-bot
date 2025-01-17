@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/redis/go-redis/v9"
+
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/cart"
 )
 
@@ -11,6 +13,10 @@ func (c *Cart) GetProducts(ctx context.Context, id cart.ID) ([]cart.CartProduct,
 	items, err := c.client.LRange(ctx, makeCartProductsKey(id.String()), 0, -1).Result()
 	if err != nil {
 		return nil, fmt.Errorf("lrange: %w", err)
+	}
+
+	if len(items) == 0 {
+		return nil, redis.Nil
 	}
 
 	cartItems, err := convertToCartItems(combineDuplicateItems(items))
