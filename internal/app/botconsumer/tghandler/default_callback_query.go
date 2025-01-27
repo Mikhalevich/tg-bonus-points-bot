@@ -61,7 +61,7 @@ func (t *TGHandler) confirmCart(ctx context.Context, info msginfo.Info, btn butt
 		return fmt.Errorf("invalid payload: %w", err)
 	}
 
-	if err := t.orderProcessor.ConfirmOrder(ctx, info, payload.CartID); err != nil {
+	if err := t.orderProcessor.CartConfirm(ctx, info, payload.CartID); err != nil {
 		return fmt.Errorf("create order: %w", err)
 	}
 
