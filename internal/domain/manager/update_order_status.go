@@ -41,8 +41,10 @@ func calculateLegalPreviousStatuses(s order.Status) ([]order.Status, error) {
 	switch s {
 	case order.StatusWaitingPayment:
 		return nil, perror.InvalidParam("invalid order transition")
-	case order.StatusConfirmed:
+	case order.StatusPaymentInProgress:
 		return []order.Status{order.StatusWaitingPayment}, nil
+	case order.StatusConfirmed:
+		return []order.Status{order.StatusPaymentInProgress}, nil
 	case order.StatusInProgress:
 		return []order.Status{order.StatusConfirmed}, nil
 	case order.StatusReady:

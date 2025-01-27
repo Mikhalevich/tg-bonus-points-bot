@@ -3,6 +3,7 @@
 
 CREATE TYPE order_status AS ENUM (
     'waiting_payment',
+    'payment_in_progress',
     'confirmed',
     'in_progress',
     'ready',
@@ -19,7 +20,7 @@ CREATE TABLE orders(
 );
 
 CREATE INDEX orders_chat_id_status_idx ON orders(chat_id, status);
-CREATE UNIQUE INDEX orders_only_one_active_order_unique_idx ON orders(chat_id) WHERE status IN ('waiting_payment', 'confirmed', 'in_progress', 'ready');
+CREATE UNIQUE INDEX orders_only_one_active_order_unique_idx ON orders(chat_id) WHERE status IN ('waiting_payment', 'payment_in_progress', 'confirmed', 'in_progress', 'ready');
 
 CREATE TABLE order_status_timeline(
     order_id INTEGER NOT NULL,

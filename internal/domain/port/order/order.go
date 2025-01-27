@@ -46,7 +46,11 @@ func (o Order) IsSameChat(chatID msginfo.ChatID) bool {
 }
 
 func (o Order) CanCancel() bool {
-	return o.Status == StatusConfirmed
+	if o.Status == StatusConfirmed || o.Status == StatusWaitingPayment {
+		return true
+	}
+
+	return false
 }
 
 type StatusTime struct {

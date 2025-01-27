@@ -32,7 +32,7 @@ func (c *Customer) CancelOrder(ctx context.Context, chatID msginfo.ChatID, order
 	}
 
 	canceledOrder, err := c.repository.UpdateOrderStatus(ctx, orderID, time.Now(),
-		order.StatusCanceled, order.StatusConfirmed)
+		order.StatusCanceled, order.StatusWaitingPayment, order.StatusConfirmed)
 	if err != nil {
 		if c.repository.IsNotUpdatedError(err) {
 			c.sender.SendText(ctx, chatID, message.OrderWithStatusNotExists(ord.Status))

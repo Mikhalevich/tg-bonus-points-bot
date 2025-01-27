@@ -75,10 +75,10 @@ func makeOrderDescription(products []order.OrderedProduct) string {
 	positions := make([]string, 0, len(products))
 
 	for _, v := range products {
-		positions = append(positions, fmt.Sprintf("%s x%d %d", v.Product.Title, v.Count, v.Count*v.Product.Price))
+		positions = append(positions, fmt.Sprintf("%s x%d", v.Product.Title, v.Count))
 	}
 
-	return strings.Join(positions, "\n")
+	return strings.Join(positions, ", ")
 }
 
 func convertToOrder(id order.ID, chatID msginfo.ChatID, input port.CreateOrderInput) order.Order {
