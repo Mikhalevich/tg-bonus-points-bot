@@ -13,7 +13,7 @@ import (
 type OrderProcessor interface {
 	GetActiveOrder(ctx context.Context, info msginfo.Info) error
 	CancelOrder(ctx context.Context, chatID msginfo.ChatID, orderID order.ID) error
-	CreateOrder(ctx context.Context, info msginfo.Info, cartID cart.ID) error
+	ConfirmOrder(ctx context.Context, info msginfo.Info, cartID cart.ID) error
 	StartNewCart(ctx context.Context, info msginfo.Info) error
 	CartViewCategoryProducts(ctx context.Context, info msginfo.Info, cartID cart.ID, categoryID product.CategoryID) error
 	CartViewCategories(ctx context.Context, info msginfo.Info, cartID cart.ID) error

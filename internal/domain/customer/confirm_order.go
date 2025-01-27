@@ -15,7 +15,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
-func (c *Customer) CreateOrder(ctx context.Context, info msginfo.Info, cartID cart.ID) error {
+func (c *Customer) ConfirmOrder(ctx context.Context, info msginfo.Info, cartID cart.ID) error {
 	cartItems, err := c.cart.GetProducts(ctx, cartID)
 	if err != nil {
 		if c.cart.IsNotFoundError(err) {
