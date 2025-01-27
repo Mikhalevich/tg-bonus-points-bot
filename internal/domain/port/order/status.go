@@ -7,12 +7,13 @@ import (
 type Status string
 
 const (
-	StatusConfirmed  Status = "confirmed"
-	StatusInProgress Status = "in_progress"
-	StatusReady      Status = "ready"
-	StatusCompleted  Status = "completed"
-	StatusCanceled   Status = "canceled"
-	StatusRejected   Status = "rejected"
+	StatusWaitingPayment Status = "waiting_payment"
+	StatusConfirmed      Status = "confirmed"
+	StatusInProgress     Status = "in_progress"
+	StatusReady          Status = "ready"
+	StatusCompleted      Status = "completed"
+	StatusCanceled       Status = "canceled"
+	StatusRejected       Status = "rejected"
 )
 
 func (s Status) String() string {
@@ -21,6 +22,8 @@ func (s Status) String() string {
 
 func (s Status) HumanReadable() string {
 	switch s {
+	case StatusWaitingPayment:
+		return "Waiting Payment"
 	case StatusConfirmed:
 		return "Confirmed"
 	case StatusInProgress:
@@ -41,7 +44,8 @@ func (s Status) HumanReadable() string {
 func StatusFromString(s string) (Status, error) {
 	status := Status(s)
 	switch status {
-	case StatusConfirmed,
+	case StatusWaitingPayment,
+		StatusConfirmed,
 		StatusInProgress,
 		StatusReady,
 		StatusCompleted,

@@ -22,6 +22,10 @@ func OrderWithStatusNotExists(s order.Status) string {
 	return fmt.Sprintf("Order in %s status is not exists", s.HumanReadable())
 }
 
+func OrderInvoice() string {
+	return "Order Invoice"
+}
+
 func AlreadyHasActiveOrder() string {
 	return "You have active order already"
 }

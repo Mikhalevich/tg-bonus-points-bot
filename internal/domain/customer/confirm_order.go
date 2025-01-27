@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"strings"
 	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
@@ -38,14 +39,13 @@ func (c *Customer) ConfirmOrder(ctx context.Context, info msginfo.Info, cartID c
 
 	input := port.CreateOrderInput{
 		ChatID:              info.ChatID,
-		Status:              order.StatusConfirmed,
+		Status:              order.StatusWaitingPayment,
 		StatusOperationTime: time.Now(),
 		VerificationCode:    generateVerificationCode(),
 		Products:            cartProducts,
 	}
 
 	id, err := c.repository.CreateOrder(ctx, input)
-
 	if err != nil {
 		if c.repository.IsAlreadyExistsError(err) {
 			c.sender.SendText(ctx, info.ChatID, message.AlreadyHasActiveOrder())
@@ -59,19 +59,36 @@ func (c *Customer) ConfirmOrder(ctx context.Context, info msginfo.Info, cartID c
 		return fmt.Errorf("clear cart: %w", err)
 	}
 
-	if err := c.sendOrderQRImage(ctx, info, order.Order{
-		ID:               id,
-		ChatID:           info.ChatID,
-		Status:           input.Status,
-		VerificationCode: input.VerificationCode,
-		Products:         input.Products,
-	}); err != nil {
-		return fmt.Errorf("send order qr image: %w", err)
+	if err := c.sender.SendOrderInvoice(ctx, info.ChatID, message.OrderInvoice(),
+		makeOrderDescription(cartProducts),
+		convertToOrder(id, info.ChatID, input),
+	); err != nil {
+		return fmt.Errorf("send order invoice: %w", err)
 	}
 
 	c.sender.DeleteMessage(ctx, info.ChatID, info.MessageID)
 
 	return nil
+}
+
+func makeOrderDescription(products []order.OrderedProduct) string {
+	positions := make([]string, 0, len(products))
+
+	for _, v := range products {
+		positions = append(positions, fmt.Sprintf("%s x%d %d", v.Product.Title, v.Count, v.Count*v.Product.Price))
+	}
+
+	return strings.Join(positions, "\n")
+}
+
+func convertToOrder(id order.ID, chatID msginfo.ChatID, input port.CreateOrderInput) order.Order {
+	return order.Order{
+		ID:               id,
+		ChatID:           chatID,
+		Status:           input.Status,
+		VerificationCode: input.VerificationCode,
+		Products:         input.Products,
+	}
 }
 
 func generateVerificationCode() string {
@@ -116,6 +133,7 @@ func (c *Customer) orderedProducts(
 	return output, nil
 }
 
+//nolint:unused
 func (c *Customer) sendOrderQRImage(ctx context.Context, info msginfo.Info, ord order.Order) error {
 	cancelBtn, err := c.buttonRepository.SetButton(ctx, button.CancelOrder(info.ChatID, message.Cancel(), ord.ID))
 	if err != nil {

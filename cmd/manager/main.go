@@ -45,7 +45,7 @@ func runService(cfg config.ManagerHTTPService, log logger.Logger) error {
 	if err := infra.StartManagerService(
 		ctx,
 		cfg.HTTPPort,
-		cfg.Bot.Token,
+		cfg.Bot,
 		cfg.Postgres,
 		log.WithField("service_name", "http_manager"),
 	); err != nil {

@@ -5,6 +5,7 @@ import (
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
 type MessageSender interface {
@@ -21,4 +22,12 @@ type MessageSender interface {
 		text string, rows ...button.InlineKeyboardButtonRow,
 	)
 	DeleteMessage(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID)
+	SendOrderInvoice(
+		ctx context.Context,
+		chatID msginfo.ChatID,
+		title string,
+		description string,
+		ord order.Order,
+		rows ...button.InlineKeyboardButtonRow,
+	) error
 }

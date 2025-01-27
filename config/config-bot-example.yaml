@@ -4,6 +4,7 @@ tracing:
   service_name: "bonus-points-bot"
 bot:
   token: "bonus-points-bot-token"
+  payment_token: "payment_bot_token"
 postgres:
   connection: "host=postgres port=5432 user=bot password=bot dbname=bot sslmode=disable"
 button_redis:

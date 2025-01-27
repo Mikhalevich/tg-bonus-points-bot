@@ -50,13 +50,13 @@ func SetupLogger(lvl string) (logger.Logger, error) {
 
 func StartBot(
 	ctx context.Context,
-	botAPItoken string,
+	botCfg config.Bot,
 	postgresCfg config.Postgres,
 	cartRedisCfg config.CartRedis,
 	buttonRedisCfg config.ButtonRedis,
 	logger logger.Logger,
 ) error {
-	b, err := bot.New(botAPItoken, bot.WithSkipGetMe())
+	b, err := bot.New(botCfg.Token, bot.WithSkipGetMe())
 	if err != nil {
 		return fmt.Errorf("creating bot: %w", err)
 	}
@@ -78,7 +78,7 @@ func StartBot(
 	}
 
 	var (
-		sender            = messagesender.New(b)
+		sender            = messagesender.New(b, botCfg.PaymentToken)
 		qrGenerator       = qrcodegenerator.New()
 		customerProcessor = customer.New(sender, qrGenerator, pg, cartRedis, buttonRepository)
 	)
@@ -157,11 +157,11 @@ func MakePostgres(cfg config.Postgres) (*postgres.Postgres, func(), error) {
 func StartManagerService(
 	ctx context.Context,
 	httpPort int,
-	botAPItoken string,
+	botCfg config.Bot,
 	postgresCfg config.Postgres,
 	logger logger.Logger,
 ) error {
-	b, err := bot.New(botAPItoken, bot.WithSkipGetMe())
+	b, err := bot.New(botCfg.Token, bot.WithSkipGetMe())
 	if err != nil {
 		return fmt.Errorf("creating bot: %w", err)
 	}
@@ -173,7 +173,7 @@ func StartManagerService(
 	defer cleanup()
 
 	var (
-		sender           = messagesender.New(b)
+		sender           = messagesender.New(b, botCfg.PaymentToken)
 		managerProcessor = manager.New(sender, pg)
 	)
 
