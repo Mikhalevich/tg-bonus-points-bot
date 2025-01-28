@@ -2,7 +2,6 @@ package customer
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -11,7 +10,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (c *Customer) CancelOrder(ctx context.Context, chatID msginfo.ChatID, orderID order.ID) error {
+func (c *Customer) OrderCancel(ctx context.Context, chatID msginfo.ChatID, orderID order.ID) error {
 	ord, err := c.repository.GetOrderByID(ctx, orderID)
 	if err != nil {
 		if c.repository.IsNotFoundError(err) {
@@ -22,16 +21,12 @@ func (c *Customer) CancelOrder(ctx context.Context, chatID msginfo.ChatID, order
 		return fmt.Errorf("get order by id: %w", err)
 	}
 
-	if !ord.IsSameChat(chatID) {
-		return errors.New("chat order is different")
-	}
-
 	if !ord.CanCancel() {
 		c.sender.SendText(ctx, chatID, message.OrderStatus(ord.Status))
 		return nil
 	}
 
-	canceledOrder, err := c.repository.UpdateOrderStatus(ctx, orderID, time.Now(),
+	canceledOrder, err := c.repository.UpdateOrderStatusByChatAndID(ctx, orderID, chatID, time.Now(),
 		order.StatusCanceled, order.StatusWaitingPayment, order.StatusConfirmed)
 	if err != nil {
 		if c.repository.IsNotUpdatedError(err) {

@@ -48,7 +48,7 @@ func (t *TGHandler) cancelOrder(ctx context.Context, info msginfo.Info, btn butt
 		return fmt.Errorf("invalid order id: %w", err)
 	}
 
-	if err := t.orderProcessor.CancelOrder(ctx, info.ChatID, orderID); err != nil {
+	if err := t.orderProcessor.OrderCancel(ctx, info.ChatID, orderID); err != nil {
 		return fmt.Errorf("cancel order: %w", err)
 	}
 

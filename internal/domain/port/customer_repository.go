@@ -21,9 +21,10 @@ type CustomerRepository interface {
 	CreateOrder(ctx context.Context, coi CreateOrderInput) (order.ID, error)
 	GetOrderByChatIDAndStatus(ctx context.Context, id msginfo.ChatID, statuses ...order.Status) (*order.Order, error)
 	GetOrderByID(ctx context.Context, id order.ID) (*order.Order, error)
-	UpdateOrderStatus(
+	UpdateOrderStatusByChatAndID(
 		ctx context.Context,
-		id order.ID,
+		orderID order.ID,
+		chatID msginfo.ChatID,
 		operationTime time.Time,
 		newStatus order.Status,
 		prevStatuses ...order.Status,
