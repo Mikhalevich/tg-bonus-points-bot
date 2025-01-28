@@ -10,6 +10,10 @@ func OrderNotExists() string {
 	return "Order not exists"
 }
 
+func OrderTotalPriceIncorrect() string {
+	return "Order price incorrect"
+}
+
 func OrderStatus(s order.Status) string {
 	return fmt.Sprintf("Order in %s status", s.HumanReadable())
 }

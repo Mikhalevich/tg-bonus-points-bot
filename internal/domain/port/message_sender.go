@@ -30,4 +30,5 @@ type MessageSender interface {
 		ord order.Order,
 		rows ...button.InlineKeyboardButtonRow,
 	) error
+	AnswerOrderPayment(ctx context.Context, paymentID string, ok bool, errorMsg string) error
 }

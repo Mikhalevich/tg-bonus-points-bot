@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
@@ -15,17 +16,52 @@ func (c *Customer) OrderSetPaymentInProgress(
 	currency string,
 	totalAmount int,
 ) error {
+	res, err := c.setOrderInProgress(ctx, orderID, totalAmount)
+	if err != nil {
+		return fmt.Errorf("set order in progress: %w", err)
+	}
+
+	if err := c.sender.AnswerOrderPayment(ctx, paymentID, res.OK, res.ErrorMsg); err != nil {
+		return fmt.Errorf("answer order payment: %w", err)
+	}
+
+	return nil
+}
+
+type answerOrderPaymentResult struct {
+	OK       bool
+	ErrorMsg string
+}
+
+func (c *Customer) setOrderInProgress(
+	ctx context.Context,
+	orderID order.ID,
+	totalAmount int,
+) (*answerOrderPaymentResult, error) {
 	ord, err := c.repository.GetOrderByID(ctx, orderID)
 	if err != nil {
-		return fmt.Errorf("get order by id: %w", err)
+		if c.repository.IsNotFoundError(err) {
+			return &answerOrderPaymentResult{
+				OK:       false,
+				ErrorMsg: message.OrderNotExists(),
+			}, nil
+		}
+
+		return nil, fmt.Errorf("get order by id: %w", err)
 	}
 
 	if ord.Status != order.StatusWaitingPayment {
-		return fmt.Errorf("invalid order status expected: %s actual: %s", order.StatusWaitingPayment, ord.Status)
+		return &answerOrderPaymentResult{
+			OK:       false,
+			ErrorMsg: message.OrderStatus(ord.Status),
+		}, nil
 	}
 
 	if ord.TotalPrice() != totalAmount {
-		return fmt.Errorf("invalid total amount")
+		return &answerOrderPaymentResult{
+			OK:       false,
+			ErrorMsg: message.OrderTotalPriceIncorrect(),
+		}, nil
 	}
 
 	if _, err := c.repository.UpdateOrderStatus(
@@ -35,8 +71,10 @@ func (c *Customer) OrderSetPaymentInProgress(
 		order.StatusPaymentInProgress,
 		order.StatusWaitingPayment,
 	); err != nil {
-		return fmt.Errorf("update order status: %w", err)
+		return nil, fmt.Errorf("update order status: %w", err)
 	}
 
-	return nil
+	return &answerOrderPaymentResult{
+		OK: true,
+	}, nil
 }
