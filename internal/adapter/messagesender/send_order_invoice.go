@@ -27,7 +27,7 @@ func (m *messageSender) SendOrderInvoice(
 		Payload:       ord.ID.String(),
 		ProviderToken: m.paymentToken,
 		Currency:      "BYN",
-		Prices:        convertProductsToLabeledPrices(ord.Products),
+		Prices:        makeLabeledPrices(ord.Products),
 		ReplyMarkup:   makeButtonsMarkup(rows...),
 	}); err != nil {
 		return fmt.Errorf("send invoice: %w", err)
@@ -36,7 +36,7 @@ func (m *messageSender) SendOrderInvoice(
 	return nil
 }
 
-func convertProductsToLabeledPrices(products []order.OrderedProduct) []models.LabeledPrice {
+func makeLabeledPrices(products []order.OrderedProduct) []models.LabeledPrice {
 	prices := make([]models.LabeledPrice, 0, len(products))
 
 	for _, v := range products {

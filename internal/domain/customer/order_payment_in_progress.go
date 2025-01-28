@@ -9,7 +9,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (c *Customer) OrderSetPaymentInProgress(
+func (c *Customer) OrderPaymentInProgress(
 	ctx context.Context,
 	paymentID string,
 	orderID order.ID,

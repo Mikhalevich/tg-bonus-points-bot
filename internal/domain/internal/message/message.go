@@ -61,3 +61,7 @@ func Done() string {
 func Confirm() string {
 	return "Confirm"
 }
+
+func Pay() string {
+	return "Pay"
+}

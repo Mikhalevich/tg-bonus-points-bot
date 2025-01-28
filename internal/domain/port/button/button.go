@@ -23,6 +23,7 @@ type Button struct {
 	Caption   string
 	Operation Operation
 	Payload   []byte
+	Pay       bool
 }
 
 type ButtonRow []Button

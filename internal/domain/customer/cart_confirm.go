@@ -59,9 +59,17 @@ func (c *Customer) CartConfirm(ctx context.Context, info msginfo.Info, cartID ca
 		return fmt.Errorf("clear cart: %w", err)
 	}
 
+	ord := convertToOrder(id, info.ChatID, input)
+	buttons, err := c.makeInvoiceButtons(ctx, info.ChatID, ord)
+
+	if err != nil {
+		return fmt.Errorf("cancel order button: %w", err)
+	}
+
 	if err := c.sender.SendOrderInvoice(ctx, info.ChatID, message.OrderInvoice(),
 		makeOrderDescription(cartProducts),
-		convertToOrder(id, info.ChatID, input),
+		ord,
+		buttons...,
 	); err != nil {
 		return fmt.Errorf("send order invoice: %w", err)
 	}
@@ -69,6 +77,24 @@ func (c *Customer) CartConfirm(ctx context.Context, info msginfo.Info, cartID ca
 	c.sender.DeleteMessage(ctx, info.ChatID, info.MessageID)
 
 	return nil
+}
+
+func (c *Customer) makeInvoiceButtons(
+	ctx context.Context,
+	chatID msginfo.ChatID,
+	ord order.Order,
+) ([]button.InlineKeyboardButtonRow, error) {
+	payBtn := button.Pay(fmt.Sprintf("%s, %d", message.Pay(), ord.TotalPrice()))
+
+	cancelBtn, err := c.buttonRepository.SetButton(ctx, button.CancelOrder(chatID, message.Cancel(), ord.ID))
+	if err != nil {
+		return nil, fmt.Errorf("cancel order button: %w", err)
+	}
+
+	return []button.InlineKeyboardButtonRow{
+		button.InlineRow(payBtn),
+		button.InlineRow(cancelBtn),
+	}, nil
 }
 
 func makeOrderDescription(products []order.OrderedProduct) string {
@@ -131,29 +157,4 @@ func (c *Customer) orderedProducts(
 	}
 
 	return output, nil
-}
-
-//nolint:unused
-func (c *Customer) sendOrderQRImage(ctx context.Context, info msginfo.Info, ord order.Order) error {
-	cancelBtn, err := c.buttonRepository.SetButton(ctx, button.CancelOrder(info.ChatID, message.Cancel(), ord.ID))
-	if err != nil {
-		return fmt.Errorf("cancel order button: %w", err)
-	}
-
-	png, err := c.qrCode.GeneratePNG(ord.ID.String())
-	if err != nil {
-		return fmt.Errorf("qrcode generate png: %w", err)
-	}
-
-	if err := c.sender.SendPNGMarkdown(
-		ctx,
-		info.ChatID,
-		formatOrder(&ord, c.sender.EscapeMarkdown),
-		png,
-		button.InlineRow(cancelBtn),
-	); err != nil {
-		return fmt.Errorf("send png: %w", err)
-	}
-
-	return nil
 }
