@@ -59,6 +59,11 @@ func (t *TGBot) addCommand(command string, description string, handler Handler) 
 	)
 }
 
+func (t *TGBot) AddDefaultHandler(h Handler) {
+	h = t.applyMiddleware(h)
+	t.defaultHandlerFn = h
+}
+
 func (t *TGBot) AddDefaultTextHandler(h Handler) {
 	t.bot.RegisterHandler(
 		bot.HandlerTypeMessageText,

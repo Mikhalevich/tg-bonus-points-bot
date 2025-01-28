@@ -85,7 +85,7 @@ func StartBot(
 
 	if err := botconsumer.Start(
 		ctx,
-		b,
+		botCfg.Token,
 		logger,
 		customerProcessor,
 	); err != nil {

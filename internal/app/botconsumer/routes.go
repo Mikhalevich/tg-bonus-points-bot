@@ -11,6 +11,6 @@ func makeRoutes(tbot *tgbot.TGBot, h *tghandler.TGHandler) {
 	tbot.AddMenuCommand("/order", "make order", h.Order)
 	tbot.AddMenuCommand("/get_active_order", "retrieve active order", h.GetActiveOrder)
 
-	tbot.AddDefaultTextHandler(h.DefaultText)
+	tbot.AddDefaultHandler(h.DefaultHandler)
 	tbot.AddDefaultCallbackQueryHander(h.DefaultCallbackQuery)
 }

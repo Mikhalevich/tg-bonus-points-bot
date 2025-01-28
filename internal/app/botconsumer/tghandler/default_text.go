@@ -8,7 +8,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (t *TGHandler) DefaultText(ctx context.Context, msg tgbot.BotMessage, sender tgbot.MessageSender) error {
+func (t *TGHandler) DefaultHandler(ctx context.Context, msg tgbot.BotMessage, sender tgbot.MessageSender) error {
 	if msg.Payment.IsCheckout {
 		if err := t.processCheckoutPayment(ctx, msg.Payment); err != nil {
 			return fmt.Errorf("process payment: %w", err)
