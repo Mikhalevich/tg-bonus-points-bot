@@ -24,8 +24,9 @@ type OrderProcessor interface {
 
 	GetActiveOrder(ctx context.Context, info msginfo.Info) error
 	OrderCancel(ctx context.Context, chatID msginfo.ChatID, orderID order.ID) error
-	OrderSetPaymentInProgress(ctx context.Context, chatID msginfo.ChatID, orderID order.ID) error
-	OrderPaymentConfirmed(ctx context.Context, chatID msginfo.ChatID, orderID order.ID) error
+	OrderSetPaymentInProgress(ctx context.Context, paymentID string, orderID order.ID,
+		currency string, totalAmount int) error
+	OrderPaymentConfirmed(ctx context.Context, orderID order.ID, currency string, totalAmount int) error
 }
 
 type cbHandler func(ctx context.Context, info msginfo.Info, btn button.Button) error

@@ -49,6 +49,16 @@ func (o Order) CanCancel() bool {
 	return false
 }
 
+func (o Order) TotalPrice() int {
+	total := 0
+
+	for _, v := range o.Products {
+		total += v.Count * v.Product.Price
+	}
+
+	return total
+}
+
 type StatusTime struct {
 	Status Status
 	Time   time.Time
