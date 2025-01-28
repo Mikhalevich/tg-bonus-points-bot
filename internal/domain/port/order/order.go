@@ -41,12 +41,22 @@ type Order struct {
 	Products         []OrderedProduct
 }
 
-func (o Order) IsSameChat(chatID msginfo.ChatID) bool {
-	return o.ChatID == chatID
+func (o Order) CanCancel() bool {
+	if o.Status == StatusConfirmed || o.Status == StatusWaitingPayment {
+		return true
+	}
+
+	return false
 }
 
-func (o Order) CanCancel() bool {
-	return o.Status == StatusConfirmed
+func (o Order) TotalPrice() int {
+	total := 0
+
+	for _, v := range o.Products {
+		total += v.Count * v.Product.Price
+	}
+
+	return total
 }
 
 type StatusTime struct {

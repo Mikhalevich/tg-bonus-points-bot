@@ -17,12 +17,14 @@ import (
 var _ port.MessageSender = (*messageSender)(nil)
 
 type messageSender struct {
-	bot *bot.Bot
+	bot          *bot.Bot
+	paymentToken string
 }
 
-func New(bot *bot.Bot) *messageSender {
+func New(bot *bot.Bot, paymentToken string) *messageSender {
 	return &messageSender{
-		bot: bot,
+		bot:          bot,
+		paymentToken: paymentToken,
 	}
 }
 
@@ -62,6 +64,7 @@ func makeButtonsMarkup(rows ...button.InlineKeyboardButtonRow) models.ReplyMarku
 			buttonRow = append(buttonRow, models.InlineKeyboardButton{
 				Text:         b.Caption,
 				CallbackData: b.ID.String(),
+				Pay:          b.Pay,
 			})
 		}
 

@@ -7,7 +7,7 @@ import (
 	"github.com/go-telegram/bot"
 )
 
-func (t *TGBot) SetMyCommands(ctx context.Context) error {
+func (t *TGBot) setMyCommands(ctx context.Context) error {
 	if len(t.commands) == 0 {
 		return nil
 	}

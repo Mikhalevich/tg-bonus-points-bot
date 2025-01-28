@@ -10,6 +10,10 @@ func OrderNotExists() string {
 	return "Order not exists"
 }
 
+func OrderTotalPriceIncorrect() string {
+	return "Order price incorrect"
+}
+
 func OrderStatus(s order.Status) string {
 	return fmt.Sprintf("Order in %s status", s.HumanReadable())
 }
@@ -20,6 +24,10 @@ func OrderStatusChanged(s order.Status) string {
 
 func OrderWithStatusNotExists(s order.Status) string {
 	return fmt.Sprintf("Order in %s status is not exists", s.HumanReadable())
+}
+
+func OrderInvoice() string {
+	return "Order Invoice"
 }
 
 func AlreadyHasActiveOrder() string {
@@ -52,4 +60,8 @@ func Done() string {
 
 func Confirm() string {
 	return "Confirm"
+}
+
+func Pay() string {
+	return "Pay"
 }

@@ -22,7 +22,8 @@ type ManagerHTTPService struct {
 }
 
 type Bot struct {
-	Token string `yaml:"token" required:"true"`
+	Token        string `yaml:"token" required:"true"`
+	PaymentToken string `yaml:"payment_token" required:"true"`
 }
 
 type Tracing struct {

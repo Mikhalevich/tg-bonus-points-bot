@@ -10,17 +10,24 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
+//nolint:interfacebloat
 type OrderProcessor interface {
-	GetActiveOrder(ctx context.Context, info msginfo.Info) error
-	CancelOrder(ctx context.Context, chatID msginfo.ChatID, orderID order.ID) error
-	CreateOrder(ctx context.Context, info msginfo.Info, cartID cart.ID) error
 	StartNewCart(ctx context.Context, info msginfo.Info) error
 	CartViewCategoryProducts(ctx context.Context, info msginfo.Info, cartID cart.ID, categoryID product.CategoryID) error
 	CartViewCategories(ctx context.Context, info msginfo.Info, cartID cart.ID) error
 	CartAddProduct(ctx context.Context, info msginfo.Info,
 		cartID cart.ID, categoryID product.CategoryID, productID product.ProductID) error
 	CartCancel(ctx context.Context, info msginfo.Info, cartID cart.ID) error
+	CartConfirm(ctx context.Context, info msginfo.Info, cartID cart.ID) error
+
 	GetButton(ctx context.Context, id button.ID) (*button.Button, error)
+
+	GetActiveOrder(ctx context.Context, info msginfo.Info) error
+	OrderCancel(ctx context.Context, chatID msginfo.ChatID, orderID order.ID) error
+	OrderPaymentInProgress(ctx context.Context, paymentID string, orderID order.ID,
+		currency string, totalAmount int) error
+	OrderPaymentConfirmed(ctx context.Context, chatID msginfo.ChatID, orderID order.ID,
+		currency string, totalAmount int) error
 }
 
 type cbHandler func(ctx context.Context, info msginfo.Info, btn button.Button) error

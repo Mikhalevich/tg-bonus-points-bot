@@ -10,13 +10,23 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/tracing"
 )
 
+type Payment struct {
+	IsSuccessful   bool
+	IsCheckout     bool
+	ID             string
+	InvoicePayload string
+	Currency       string
+	TotalAmount    int
+}
+
 type BotMessage struct {
 	MessageID int
 	ChatID    int64
 	// for text message
 	Text string
 	// for callback query
-	Data string
+	Data    string
+	Payment Payment
 }
 
 type MessageSender interface {
@@ -47,6 +57,11 @@ func (t *TGBot) addCommand(command string, description string, handler Handler) 
 		bot.MatchTypeExact,
 		t.wrapHandler(command, handler),
 	)
+}
+
+func (t *TGBot) AddDefaultHandler(h Handler) {
+	h = t.applyMiddleware(h)
+	t.defaultHandlerFn = h
 }
 
 func (t *TGBot) AddDefaultTextHandler(h Handler) {
@@ -98,11 +113,22 @@ func (t *TGBot) wrapHandler(pattern string, h Handler) bot.HandlerFunc {
 
 func makeMsgFromUpdate(u *models.Update) BotMessage {
 	if u.Message != nil {
-		return BotMessage{
+		msg := BotMessage{
 			MessageID: u.Message.ID,
 			ChatID:    u.Message.Chat.ID,
 			Text:      u.Message.Text,
 		}
+
+		if u.Message.SuccessfulPayment != nil {
+			msg.Payment = Payment{
+				IsSuccessful:   true,
+				InvoicePayload: u.Message.SuccessfulPayment.InvoicePayload,
+				Currency:       u.Message.SuccessfulPayment.Currency,
+				TotalAmount:    u.Message.SuccessfulPayment.TotalAmount,
+			}
+		}
+
+		return msg
 	}
 
 	if u.CallbackQuery != nil {
@@ -120,6 +146,18 @@ func makeMsgFromUpdate(u *models.Update) BotMessage {
 				ChatID:    u.CallbackQuery.Message.InaccessibleMessage.Chat.ID,
 				Data:      u.CallbackQuery.Data,
 			}
+		}
+	}
+
+	if u.PreCheckoutQuery != nil {
+		return BotMessage{
+			Payment: Payment{
+				IsCheckout:     true,
+				ID:             u.PreCheckoutQuery.ID,
+				InvoicePayload: u.PreCheckoutQuery.InvoicePayload,
+				Currency:       u.PreCheckoutQuery.Currency,
+				TotalAmount:    u.PreCheckoutQuery.TotalAmount,
+			},
 		}
 	}
 

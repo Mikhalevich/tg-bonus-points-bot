@@ -16,6 +16,8 @@ func (c *Customer) GetActiveOrder(ctx context.Context, info msginfo.Info) error 
 	activeOrder, err := c.repository.GetOrderByChatIDAndStatus(
 		ctx,
 		info.ChatID,
+		order.StatusWaitingPayment,
+		order.StatusPaymentInProgress,
 		order.StatusConfirmed,
 		order.StatusInProgress,
 		order.StatusReady,
