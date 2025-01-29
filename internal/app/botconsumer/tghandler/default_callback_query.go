@@ -61,7 +61,7 @@ func (t *TGHandler) confirmCart(ctx context.Context, info msginfo.Info, btn butt
 		return fmt.Errorf("invalid payload: %w", err)
 	}
 
-	if err := t.orderProcessor.CartConfirm(ctx, info, payload.CartID); err != nil {
+	if err := t.orderProcessor.CartConfirm(ctx, info, payload.CartID, payload.CurrencyID); err != nil {
 		return fmt.Errorf("create order: %w", err)
 	}
 
@@ -87,7 +87,13 @@ func (t *TGHandler) viewCategoryProducts(ctx context.Context, info msginfo.Info,
 		return fmt.Errorf("invalid payload: %w", err)
 	}
 
-	if err := t.orderProcessor.CartViewCategoryProducts(ctx, info, payload.CartID, payload.CategoryID); err != nil {
+	if err := t.orderProcessor.CartViewCategoryProducts(
+		ctx,
+		info,
+		payload.CartID,
+		payload.CategoryID,
+		payload.CurrencyID,
+	); err != nil {
 		return fmt.Errorf("view category products: %w", err)
 	}
 
@@ -100,7 +106,7 @@ func (t *TGHandler) viewCategories(ctx context.Context, info msginfo.Info, btn b
 		return fmt.Errorf("invalid payload: %w", err)
 	}
 
-	if err := t.orderProcessor.CartViewCategories(ctx, info, payload.CartID); err != nil {
+	if err := t.orderProcessor.CartViewCategories(ctx, info, payload.CartID, payload.CurrencyID); err != nil {
 		return fmt.Errorf("cart view categories: %w", err)
 	}
 
@@ -119,6 +125,7 @@ func (t *TGHandler) addProduct(ctx context.Context, info msginfo.Info, btn butto
 		payload.CartID,
 		payload.CategoryID,
 		payload.ProductID,
+		payload.CurrencyID,
 	); err != nil {
 		return fmt.Errorf("cart add product: %w", err)
 	}

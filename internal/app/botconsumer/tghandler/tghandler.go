@@ -5,6 +5,7 @@ import (
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/cart"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
@@ -13,12 +14,13 @@ import (
 //nolint:interfacebloat
 type OrderProcessor interface {
 	StartNewCart(ctx context.Context, info msginfo.Info) error
-	CartViewCategoryProducts(ctx context.Context, info msginfo.Info, cartID cart.ID, categoryID product.CategoryID) error
-	CartViewCategories(ctx context.Context, info msginfo.Info, cartID cart.ID) error
-	CartAddProduct(ctx context.Context, info msginfo.Info,
-		cartID cart.ID, categoryID product.CategoryID, productID product.ProductID) error
+	CartViewCategoryProducts(ctx context.Context, info msginfo.Info, cartID cart.ID, categoryID product.CategoryID,
+		currencyID currency.ID) error
+	CartViewCategories(ctx context.Context, info msginfo.Info, cartID cart.ID, currencyID currency.ID) error
+	CartAddProduct(ctx context.Context, info msginfo.Info, cartID cart.ID, categoryID product.CategoryID,
+		productID product.ProductID, currencyID currency.ID) error
 	CartCancel(ctx context.Context, info msginfo.Info, cartID cart.ID) error
-	CartConfirm(ctx context.Context, info msginfo.Info, cartID cart.ID) error
+	CartConfirm(ctx context.Context, info msginfo.Info, cartID cart.ID, currencyID currency.ID) error
 
 	GetButton(ctx context.Context, id button.ID) (*button.Button, error)
 

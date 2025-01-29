@@ -27,7 +27,7 @@ type MessageSender interface {
 		chatID msginfo.ChatID,
 		title string,
 		description string,
-		ord order.Order,
+		ord *order.Order,
 		rows ...button.InlineKeyboardButtonRow,
 	) error
 	AnswerOrderPayment(ctx context.Context, paymentID string, ok bool, errorMsg string) error

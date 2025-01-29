@@ -7,18 +7,20 @@ import (
 )
 
 type Product struct {
-	ID        int       `db:"id"`
-	Title     string    `db:"title"`
-	Price     int       `db:"price"`
-	IsEnabled bool      `db:"is_enabled"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	ID         int       `db:"id"`
+	Title      string    `db:"title"`
+	CurrencyID int       `db:"currency_id"`
+	Price      int       `db:"price"`
+	IsEnabled  bool      `db:"is_enabled"`
+	CreatedAt  time.Time `db:"created_at"`
+	UpdatedAt  time.Time `db:"updated_at"`
 }
 
-func (p Product) ToPortProduct() product.Product {
+func (p Product) ToPortProduct(cur Currency) product.Product {
 	return product.Product{
 		ID:        product.ProductIDFromInt(p.ID),
 		Title:     p.Title,
+		Currency:  cur.ToPortCurrency(),
 		Price:     p.Price,
 		IsEnabled: p.IsEnabled,
 		CreatedAt: p.CreatedAt,
@@ -26,11 +28,11 @@ func (p Product) ToPortProduct() product.Product {
 	}
 }
 
-func ToPortProducts(dbProducts []Product) []product.Product {
+func ToPortProducts(dbProducts []Product, cur Currency) []product.Product {
 	portProducts := make([]product.Product, 0, len(dbProducts))
 
 	for _, p := range dbProducts {
-		portProducts = append(portProducts, p.ToPortProduct())
+		portProducts = append(portProducts, p.ToPortProduct(cur))
 	}
 
 	return portProducts

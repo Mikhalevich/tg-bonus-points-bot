@@ -15,6 +15,7 @@ type Order struct {
 	ChatID           int64  `db:"chat_id"`
 	Status           string `db:"status"`
 	VerificationCode string `db:"verification_code"`
+	CurrencyID       int    `db:"currency_id"`
 }
 
 type OrderTimeline struct {

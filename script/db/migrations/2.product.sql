@@ -4,10 +4,17 @@
 CREATE TABLE product(
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     title TEXT NOT NULL,
-    price INTEGER NOT NULL,
     is_enabled BOOLEAN NOT NULL,
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE product_price(
+    product_id INTEGER NOT NULL,
+    currency_id INTEGER NOT NULL,
+    price INTEGER NOT NULL,
+
+    CONSTRAINT product_price_pk PRIMARY KEY(product_id, currency_id)
 );
 
 CREATE TABLE category(
@@ -25,10 +32,23 @@ CREATE TABLE product_category(
     CONSTRAINT category_id_fk FOREIGN KEY(category_id) REFERENCES category(id)
 );
 
-INSERT INTO product(title, price, is_enabled, created_at, updated_at) VALUES('latte', 100, TRUE, NOW(), NOW());
-INSERT INTO product(title, price, is_enabled, created_at, updated_at) VALUES('americano', 50, TRUE, NOW(), NOW());
-INSERT INTO product(title, price, is_enabled, created_at, updated_at) VALUES('cappuccino', 70, FALSE, NOW(), NOW());
-INSERT INTO product(title, price, is_enabled, created_at, updated_at) VALUES('chips', 200, TRUE, NOW(), NOW());
+INSERT INTO currency(code, exp, decimal_sep, min_amount, max_amount, is_enabled) VALUES('BYN', 2, ',', 0, 0, TRUE);
+INSERT INTO currency(code, exp, decimal_sep, min_amount, max_amount, is_enabled) VALUES('USD', 2, ',', 0, 0, TRUE);
+
+INSERT INTO product(title, is_enabled, created_at, updated_at) VALUES('latte', TRUE, NOW(), NOW());
+INSERT INTO product(title, is_enabled, created_at, updated_at) VALUES('americano', TRUE, NOW(), NOW());
+INSERT INTO product(title, is_enabled, created_at, updated_at) VALUES('cappuccino', FALSE, NOW(), NOW());
+INSERT INTO product(title, is_enabled, created_at, updated_at) VALUES('chips', TRUE, NOW(), NOW());
+
+INSERT INTO product_price(product_id, currency_id, price) VALUES(1, 1, 200);
+INSERT INTO product_price(product_id, currency_id, price) VALUES(2, 1, 100);
+INSERT INTO product_price(product_id, currency_id, price) VALUES(3, 1, 140);
+INSERT INTO product_price(product_id, currency_id, price) VALUES(4, 1, 400);
+
+INSERT INTO product_price(product_id, currency_id, price) VALUES(1, 2, 100);
+INSERT INTO product_price(product_id, currency_id, price) VALUES(2, 2, 50);
+INSERT INTO product_price(product_id, currency_id, price) VALUES(3, 2, 70);
+INSERT INTO product_price(product_id, currency_id, price) VALUES(4, 2, 200);
 
 INSERT INTO category(title, is_enabled) VALUES('coffee', TRUE);
 INSERT INTO category(title, is_enabled) VALUES('food', TRUE);
