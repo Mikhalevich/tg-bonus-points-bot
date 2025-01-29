@@ -17,11 +17,12 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
-var (
-	stubForCurrencyID = currency.IDFromInt(2)
-)
-
-func (c *Customer) CartConfirm(ctx context.Context, info msginfo.Info, cartID cart.ID) error {
+func (c *Customer) CartConfirm(
+	ctx context.Context,
+	info msginfo.Info,
+	cartID cart.ID,
+	currencyID currency.ID,
+) error {
 	cartItems, err := c.cart.GetProducts(ctx, cartID)
 	if err != nil {
 		if c.cart.IsNotFoundError(err) {
@@ -37,12 +38,12 @@ func (c *Customer) CartConfirm(ctx context.Context, info msginfo.Info, cartID ca
 		return nil
 	}
 
-	cartProducts, err := c.orderedProducts(ctx, cartItems)
+	cartProducts, err := c.orderedProducts(ctx, cartItems, currencyID)
 	if err != nil {
 		return fmt.Errorf("products info: %w", err)
 	}
 
-	input := makeCreateOrderInput(info.ChatID, cartProducts)
+	input := makeCreateOrderInput(info.ChatID, cartProducts, currencyID)
 
 	createdOrder, err := c.repository.CreateOrder(ctx, input)
 	if err != nil {
@@ -77,14 +78,18 @@ func (c *Customer) CartConfirm(ctx context.Context, info msginfo.Info, cartID ca
 	return nil
 }
 
-func makeCreateOrderInput(chatID msginfo.ChatID, cartProducts []order.OrderedProduct) port.CreateOrderInput {
+func makeCreateOrderInput(
+	chatID msginfo.ChatID,
+	cartProducts []order.OrderedProduct,
+	currencyID currency.ID,
+) port.CreateOrderInput {
 	return port.CreateOrderInput{
 		ChatID:              chatID,
 		Status:              order.StatusWaitingPayment,
 		StatusOperationTime: time.Now(),
 		VerificationCode:    generateVerificationCode(),
 		Products:            cartProducts,
-		CurrencyID:          stubForCurrencyID,
+		CurrencyID:          currencyID,
 	}
 }
 
@@ -124,6 +129,7 @@ func generateVerificationCode() string {
 func (c *Customer) orderedProducts(
 	ctx context.Context,
 	cartProducts []cart.CartProduct,
+	currencyID currency.ID,
 ) ([]order.OrderedProduct, error) {
 	if len(cartProducts) == 0 {
 		return nil, nil
@@ -135,7 +141,7 @@ func (c *Customer) orderedProducts(
 		ids = append(ids, v.ProductID)
 	}
 
-	productMap, err := c.repository.GetProductsByIDs(ctx, ids, stubForCurrencyID)
+	productMap, err := c.repository.GetProductsByIDs(ctx, ids, currencyID)
 	if err != nil {
 		return nil, fmt.Errorf("get products by ids: %w", err)
 	}

@@ -6,6 +6,7 @@ import (
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/cart"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
@@ -16,6 +17,7 @@ func (c *Customer) CartAddProduct(
 	cartID cart.ID,
 	categoryID product.CategoryID,
 	productID product.ProductID,
+	currencyID currency.ID,
 ) error {
 	if err := c.cart.AddProduct(ctx, cartID, cart.CartProduct{
 		ProductID:  productID,
@@ -30,7 +32,7 @@ func (c *Customer) CartAddProduct(
 		return fmt.Errorf("add product to cart: %w", err)
 	}
 
-	if err := c.CartViewCategoryProducts(ctx, info, cartID, categoryID); err != nil {
+	if err := c.CartViewCategoryProducts(ctx, info, cartID, categoryID, currencyID); err != nil {
 		return fmt.Errorf("view category products: %w", err)
 	}
 
