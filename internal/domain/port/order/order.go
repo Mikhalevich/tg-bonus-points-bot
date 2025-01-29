@@ -61,6 +61,10 @@ func (o Order) TotalPrice() int {
 	return total
 }
 
+func (o Order) TotalPriceHumanReadable() string {
+	return o.Currency.FormatPrice(o.TotalPrice())
+}
+
 type StatusTime struct {
 	Status Status
 	Time   time.Time

@@ -16,7 +16,7 @@ func (p *Postgres) GetProductsByIDs(
 	ids []product.ProductID,
 	currencyID currency.ID,
 ) (map[product.ProductID]product.Product, error) {
-	cur, err := currencyByID(ctx, p.db, currencyID)
+	cur, err := selectCurrencyByID(ctx, p.db, currencyID)
 	if err != nil {
 		return nil, fmt.Errorf("currency by id: %w", err)
 	}

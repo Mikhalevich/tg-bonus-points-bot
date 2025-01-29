@@ -18,7 +18,7 @@ func (p *Postgres) GetProductsByCategoryID(
 	categoryID product.CategoryID,
 	currencyID currency.ID,
 ) ([]product.Product, error) {
-	cur, err := currencyByID(ctx, p.db, currencyID)
+	cur, err := selectCurrencyByID(ctx, p.db, currencyID)
 	if err != nil {
 		return nil, fmt.Errorf("currency by id: %w", err)
 	}
@@ -59,7 +59,7 @@ func (p *Postgres) GetProductsByCategoryID(
 	return model.ToPortProducts(products, cur), nil
 }
 
-func currencyByID(ctx context.Context, tx sqlx.ExtContext, id currency.ID) (model.Currency, error) {
+func selectCurrencyByID(ctx context.Context, tx sqlx.ExtContext, id currency.ID) (model.Currency, error) {
 	query, args, err := sqlx.Named(`
 		SELECT
 			id,

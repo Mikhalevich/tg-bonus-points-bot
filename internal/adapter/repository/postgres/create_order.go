@@ -9,17 +9,15 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/internal/model"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/internal/transaction"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (p *Postgres) CreateOrder(ctx context.Context, coi port.CreateOrderInput) (order.ID, error) {
-	var (
-		orderID order.ID
-		err     error
-	)
+func (p *Postgres) CreateOrder(ctx context.Context, coi port.CreateOrderInput) (*order.Order, error) {
+	var orderResult order.Order
 
 	if err := transaction.Transaction(ctx, p.db, true, func(ctx context.Context, tx sqlx.ExtContext) error {
-		orderID, err = p.insertOrder(ctx, tx, model.Order{
+		orderID, err := p.insertOrder(ctx, tx, model.Order{
 			ChatID:           coi.ChatID.Int64(),
 			Status:           coi.Status.String(),
 			VerificationCode: coi.VerificationCode,
@@ -42,12 +40,30 @@ func (p *Postgres) CreateOrder(ctx context.Context, coi port.CreateOrderInput) (
 			return fmt.Errorf("insert order timeline: %w", err)
 		}
 
+		cur, err := selectCurrencyByID(ctx, tx, coi.CurrencyID)
+		if err != nil {
+			return fmt.Errorf("currency by id: %w", err)
+		}
+
+		orderResult = convertToOrder(orderID, coi, cur.ToPortCurrency())
+
 		return nil
 	}); err != nil {
-		return 0, fmt.Errorf("transaction: %w", err)
+		return nil, fmt.Errorf("transaction: %w", err)
 	}
 
-	return orderID, nil
+	return &orderResult, nil
+}
+
+func convertToOrder(id order.ID, input port.CreateOrderInput, cur currency.Currency) order.Order {
+	return order.Order{
+		ID:               id,
+		ChatID:           input.ChatID,
+		Status:           input.Status,
+		VerificationCode: input.VerificationCode,
+		Currency:         cur,
+		Products:         input.Products,
+	}
 }
 
 func (p *Postgres) insertOrder(ctx context.Context, ext sqlx.ExtContext, dbOrder model.Order) (order.ID, error) {

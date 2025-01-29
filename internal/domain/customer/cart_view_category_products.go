@@ -81,9 +81,17 @@ func (c *Customer) makeCartProductsButtons(
 func makeProductButtonTitle(p product.Product, cartProducts []cart.CartProduct) string {
 	for _, v := range cartProducts {
 		if v.ProductID == p.ID {
-			return fmt.Sprintf("%s [%d]", p.Title, v.Count)
+			return fmt.Sprintf("%s %s [x%d %s]",
+				p.Title,
+				p.Currency.FormatPrice(p.Price),
+				v.Count,
+				p.Currency.FormatPrice(p.Price*v.Count),
+			)
 		}
 	}
 
-	return p.Title
+	return fmt.Sprintf("%s %s",
+		p.Title,
+		p.Currency.FormatPrice(p.Price),
+	)
 }

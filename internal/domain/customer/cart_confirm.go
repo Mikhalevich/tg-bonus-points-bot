@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	stubForCurrencyID = currency.IDFromInt(1)
+	stubForCurrencyID = currency.IDFromInt(2)
 )
 
 func (c *Customer) CartConfirm(ctx context.Context, info msginfo.Info, cartID cart.ID) error {
@@ -44,7 +44,7 @@ func (c *Customer) CartConfirm(ctx context.Context, info msginfo.Info, cartID ca
 
 	input := makeCreateOrderInput(info.ChatID, cartProducts)
 
-	id, err := c.repository.CreateOrder(ctx, input)
+	createdOrder, err := c.repository.CreateOrder(ctx, input)
 	if err != nil {
 		if c.repository.IsAlreadyExistsError(err) {
 			c.sender.SendText(ctx, info.ChatID, message.AlreadyHasActiveOrder())
@@ -58,8 +58,7 @@ func (c *Customer) CartConfirm(ctx context.Context, info msginfo.Info, cartID ca
 		return fmt.Errorf("clear cart: %w", err)
 	}
 
-	ord := convertToOrder(id, info.ChatID, input)
-	buttons, err := c.makeInvoiceButtons(ctx, info.ChatID, ord)
+	buttons, err := c.makeInvoiceButtons(ctx, info.ChatID, createdOrder)
 
 	if err != nil {
 		return fmt.Errorf("cancel order button: %w", err)
@@ -67,7 +66,7 @@ func (c *Customer) CartConfirm(ctx context.Context, info msginfo.Info, cartID ca
 
 	if err := c.sender.SendOrderInvoice(ctx, info.ChatID, message.OrderInvoice(),
 		makeOrderDescription(cartProducts),
-		ord,
+		createdOrder,
 		buttons...,
 	); err != nil {
 		return fmt.Errorf("send order invoice: %w", err)
@@ -92,9 +91,9 @@ func makeCreateOrderInput(chatID msginfo.ChatID, cartProducts []order.OrderedPro
 func (c *Customer) makeInvoiceButtons(
 	ctx context.Context,
 	chatID msginfo.ChatID,
-	ord order.Order,
+	ord *order.Order,
 ) ([]button.InlineKeyboardButtonRow, error) {
-	payBtn := button.Pay(fmt.Sprintf("%s, %d", message.Pay(), ord.TotalPrice()))
+	payBtn := button.Pay(fmt.Sprintf("%s, %s", message.Pay(), ord.TotalPriceHumanReadable()))
 
 	cancelBtn, err := c.buttonRepository.SetButton(ctx, button.CancelOrder(chatID, message.Cancel(), ord.ID))
 	if err != nil {
@@ -115,16 +114,6 @@ func makeOrderDescription(products []order.OrderedProduct) string {
 	}
 
 	return strings.Join(positions, ", ")
-}
-
-func convertToOrder(id order.ID, chatID msginfo.ChatID, input port.CreateOrderInput) order.Order {
-	return order.Order{
-		ID:               id,
-		ChatID:           chatID,
-		Status:           input.Status,
-		VerificationCode: input.VerificationCode,
-		Products:         input.Products,
-	}
 }
 
 func generateVerificationCode() string {

@@ -6,7 +6,9 @@ import (
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/cart"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
 func (c *Customer) CartViewCategories(
@@ -34,7 +36,14 @@ func (c *Customer) CartViewCategories(
 		return fmt.Errorf("get products: %w", err)
 	}
 
-	buttons, err := c.makeCartCategoriesButtons(ctx, info.ChatID, cartID, categories, orderedProducts)
+	buttons, err := c.makeCartCategoriesButtons(
+		ctx,
+		info.ChatID,
+		cartID,
+		categories,
+		orderedProducts,
+		currencyFromProducts(orderedProducts),
+	)
 	if err != nil {
 		return fmt.Errorf("make order buttons: %w", err)
 	}
@@ -42,4 +51,12 @@ func (c *Customer) CartViewCategories(
 	c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderCategoryPage(), buttons...)
 
 	return nil
+}
+
+func currencyFromProducts(products []order.OrderedProduct) currency.Currency {
+	if len(products) == 0 {
+		return currency.Currency{}
+	}
+
+	return products[0].Product.Currency
 }

@@ -21,7 +21,7 @@ type CreateOrderInput struct {
 
 //nolint:interfacebloat
 type CustomerRepository interface {
-	CreateOrder(ctx context.Context, coi CreateOrderInput) (order.ID, error)
+	CreateOrder(ctx context.Context, coi CreateOrderInput) (*order.Order, error)
 	GetOrderByChatIDAndStatus(ctx context.Context, id msginfo.ChatID, statuses ...order.Status) (*order.Order, error)
 	GetOrderByID(ctx context.Context, id order.ID) (*order.Order, error)
 	UpdateOrderStatusByChatAndID(

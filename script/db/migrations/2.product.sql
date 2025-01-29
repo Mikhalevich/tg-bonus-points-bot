@@ -40,15 +40,15 @@ INSERT INTO product(title, is_enabled, created_at, updated_at) VALUES('americano
 INSERT INTO product(title, is_enabled, created_at, updated_at) VALUES('cappuccino', FALSE, NOW(), NOW());
 INSERT INTO product(title, is_enabled, created_at, updated_at) VALUES('chips', TRUE, NOW(), NOW());
 
-INSERT INTO product_price(product_id, currency_id, price) VALUES(1, 1, 100);
-INSERT INTO product_price(product_id, currency_id, price) VALUES(2, 1, 50);
-INSERT INTO product_price(product_id, currency_id, price) VALUES(3, 1, 70);
-INSERT INTO product_price(product_id, currency_id, price) VALUES(4, 1, 200);
+INSERT INTO product_price(product_id, currency_id, price) VALUES(1, 1, 200);
+INSERT INTO product_price(product_id, currency_id, price) VALUES(2, 1, 100);
+INSERT INTO product_price(product_id, currency_id, price) VALUES(3, 1, 140);
+INSERT INTO product_price(product_id, currency_id, price) VALUES(4, 1, 400);
 
-INSERT INTO product_price(product_id, currency_id, price) VALUES(1, 2, 10);
-INSERT INTO product_price(product_id, currency_id, price) VALUES(2, 2, 5);
-INSERT INTO product_price(product_id, currency_id, price) VALUES(3, 2, 7);
-INSERT INTO product_price(product_id, currency_id, price) VALUES(4, 2, 20);
+INSERT INTO product_price(product_id, currency_id, price) VALUES(1, 2, 100);
+INSERT INTO product_price(product_id, currency_id, price) VALUES(2, 2, 50);
+INSERT INTO product_price(product_id, currency_id, price) VALUES(3, 2, 70);
+INSERT INTO product_price(product_id, currency_id, price) VALUES(4, 2, 200);
 
 INSERT INTO category(title, is_enabled) VALUES('coffee', TRUE);
 INSERT INTO category(title, is_enabled) VALUES('food', TRUE);
