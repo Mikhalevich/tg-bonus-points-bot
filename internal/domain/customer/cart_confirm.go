@@ -11,9 +11,14 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/cart"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
+)
+
+var (
+	stubForCurrencyID = currency.IDFromInt(1)
 )
 
 func (c *Customer) CartConfirm(ctx context.Context, info msginfo.Info, cartID cart.ID) error {
@@ -37,13 +42,7 @@ func (c *Customer) CartConfirm(ctx context.Context, info msginfo.Info, cartID ca
 		return fmt.Errorf("products info: %w", err)
 	}
 
-	input := port.CreateOrderInput{
-		ChatID:              info.ChatID,
-		Status:              order.StatusWaitingPayment,
-		StatusOperationTime: time.Now(),
-		VerificationCode:    generateVerificationCode(),
-		Products:            cartProducts,
-	}
+	input := makeCreateOrderInput(info.ChatID, cartProducts)
 
 	id, err := c.repository.CreateOrder(ctx, input)
 	if err != nil {
@@ -77,6 +76,17 @@ func (c *Customer) CartConfirm(ctx context.Context, info msginfo.Info, cartID ca
 	c.sender.DeleteMessage(ctx, info.ChatID, info.MessageID)
 
 	return nil
+}
+
+func makeCreateOrderInput(chatID msginfo.ChatID, cartProducts []order.OrderedProduct) port.CreateOrderInput {
+	return port.CreateOrderInput{
+		ChatID:              chatID,
+		Status:              order.StatusWaitingPayment,
+		StatusOperationTime: time.Now(),
+		VerificationCode:    generateVerificationCode(),
+		Products:            cartProducts,
+		CurrencyID:          stubForCurrencyID,
+	}
 }
 
 func (c *Customer) makeInvoiceButtons(
@@ -136,7 +146,7 @@ func (c *Customer) orderedProducts(
 		ids = append(ids, v.ProductID)
 	}
 
-	productMap, err := c.repository.GetProductsByIDs(ctx, ids)
+	productMap, err := c.repository.GetProductsByIDs(ctx, ids, stubForCurrencyID)
 	if err != nil {
 		return nil, fmt.Errorf("get products by ids: %w", err)
 	}

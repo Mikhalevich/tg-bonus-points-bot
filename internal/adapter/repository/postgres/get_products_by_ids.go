@@ -7,25 +7,35 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/internal/model"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
 func (p *Postgres) GetProductsByIDs(
 	ctx context.Context,
 	ids []product.ProductID,
+	currencyID currency.ID,
 ) (map[product.ProductID]product.Product, error) {
+	cur, err := currencyByID(ctx, p.db, currencyID)
+	if err != nil {
+		return nil, fmt.Errorf("currency by id: %w", err)
+	}
+
 	query, args, err := sqlx.In(`
 		SELECT
-			id,
-			title,
-			price,
-			is_enabled,
-			created_at,
-			updated_at
+			p.id,
+			p.title,
+			pp.currency_id,
+			pp.price,
+			p.is_enabled,
+			p.created_at,
+			p.updated_at
 		FROM
-			product
-		WHERE id IN(?)
-	`, ids)
+			product p INNER JOIN product_price pp ON p.id = pp.product_id
+		WHERE
+			p.id IN(?) AND
+			pp.currency_id = ?
+	`, ids, currencyID.Int())
 
 	if err != nil {
 		return nil, fmt.Errorf("sqlx in: %w", err)
@@ -39,7 +49,7 @@ func (p *Postgres) GetProductsByIDs(
 	output := make(map[product.ProductID]product.Product, len(dbProducts))
 
 	for _, v := range dbProducts {
-		output[product.ProductIDFromInt(v.ID)] = v.ToPortProduct()
+		output[product.ProductIDFromInt(v.ID)] = v.ToPortProduct(cur)
 	}
 
 	return output, nil

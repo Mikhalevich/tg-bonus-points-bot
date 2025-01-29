@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
@@ -37,6 +38,7 @@ type Order struct {
 	ChatID           msginfo.ChatID
 	Status           Status
 	VerificationCode string
+	Currency         currency.Currency
 	Timeline         []StatusTime
 	Products         []OrderedProduct
 }

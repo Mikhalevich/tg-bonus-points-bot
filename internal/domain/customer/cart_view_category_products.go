@@ -27,7 +27,7 @@ func (c *Customer) CartViewCategoryProducts(
 		return fmt.Errorf("get cart products: %w", err)
 	}
 
-	categoryProducts, err := c.repository.GetProductsByCategoryID(ctx, categoryID)
+	categoryProducts, err := c.repository.GetProductsByCategoryID(ctx, categoryID, stubForCurrencyID)
 	if err != nil {
 		return fmt.Errorf("get products by category id: %w", err)
 	}

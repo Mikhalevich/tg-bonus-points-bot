@@ -23,6 +23,7 @@ func (p *Postgres) CreateOrder(ctx context.Context, coi port.CreateOrderInput) (
 			ChatID:           coi.ChatID.Int64(),
 			Status:           coi.Status.String(),
 			VerificationCode: coi.VerificationCode,
+			CurrencyID:       coi.CurrencyID.Int(),
 		})
 
 		if err != nil {
@@ -54,11 +55,13 @@ func (p *Postgres) insertOrder(ctx context.Context, ext sqlx.ExtContext, dbOrder
 		INSERT INTO orders(
 			chat_id,
 			status,
-			verification_code
+			verification_code,
+			currency_id
 		) VALUES (
 			:chat_id,
 			:status,
-			:verification_code
+			:verification_code,
+			:currency_id
 		)
 		RETURNING id
 	`, dbOrder)

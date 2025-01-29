@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/flag"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/internal/id"
 )
@@ -53,6 +54,7 @@ func CategoryIDFromString(s string) (CategoryID, error) {
 type Product struct {
 	ID        ProductID
 	Title     string
+	Currency  currency.Currency
 	Price     int
 	IsEnabled bool
 	CreatedAt time.Time
