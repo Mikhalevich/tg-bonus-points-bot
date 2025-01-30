@@ -50,6 +50,7 @@ type CustomerRepository interface {
 		ids []product.ProductID,
 		currencyID currency.ID,
 	) (map[product.ProductID]product.Product, error)
+	GetCurrencyByID(ctx context.Context, id currency.ID) (*currency.Currency, error)
 	IsNotFoundError(err error) bool
 	IsNotUpdatedError(err error) bool
 	IsAlreadyExistsError(err error) bool

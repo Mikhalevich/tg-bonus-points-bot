@@ -40,12 +40,12 @@ func (p *Postgres) CreateOrder(ctx context.Context, coi port.CreateOrderInput) (
 			return fmt.Errorf("insert order timeline: %w", err)
 		}
 
-		cur, err := selectCurrencyByID(ctx, tx, coi.CurrencyID)
+		curr, err := selectCurrencyByID(ctx, tx, coi.CurrencyID)
 		if err != nil {
 			return fmt.Errorf("currency by id: %w", err)
 		}
 
-		orderResult = convertToOrder(orderID, coi, cur.ToPortCurrency())
+		orderResult = convertToOrder(orderID, coi, curr.ToPortCurrency())
 
 		return nil
 	}); err != nil {
@@ -55,13 +55,13 @@ func (p *Postgres) CreateOrder(ctx context.Context, coi port.CreateOrderInput) (
 	return &orderResult, nil
 }
 
-func convertToOrder(id order.ID, input port.CreateOrderInput, cur currency.Currency) order.Order {
+func convertToOrder(id order.ID, input port.CreateOrderInput, curr *currency.Currency) order.Order {
 	return order.Order{
 		ID:               id,
 		ChatID:           input.ChatID,
 		Status:           input.Status,
 		VerificationCode: input.VerificationCode,
-		Currency:         cur,
+		Currency:         *curr,
 		Products:         input.Products,
 	}
 }
