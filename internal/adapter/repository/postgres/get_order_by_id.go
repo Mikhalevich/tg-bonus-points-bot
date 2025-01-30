@@ -43,7 +43,8 @@ func selectOrderByID(ctx context.Context, ext sqlx.ExtContext, id order.ID) (*mo
 			id,
 			chat_id,
 			status,
-			verification_code
+			verification_code,
+			currency_id
 		FROM
 			orders
 		WHERE

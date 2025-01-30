@@ -21,7 +21,7 @@ func (p *Postgres) UpdateOrderStatusForMinID(
 ) (*order.Order, error) {
 	var (
 		dbOrder       *model.Order
-		orderProducts []model.OrderProductFull
+		orderProducts []model.OrderProduct
 		timeline      []model.OrderTimeline
 		err           error
 	)

@@ -41,10 +41,15 @@ func (c *Customer) sendOrderQRImage(ctx context.Context, chatID msginfo.ChatID, 
 		return fmt.Errorf("qrcode generate png: %w", err)
 	}
 
+	productsInfo, err := c.repository.GetProductsByIDs(ctx, ord.ProductIDs(), ord.CurrencyID)
+	if err != nil {
+		return fmt.Errorf("get products by ids: %w", err)
+	}
+
 	if err := c.sender.SendPNGMarkdown(
 		ctx,
 		chatID,
-		formatOrder(ord, c.sender.EscapeMarkdown),
+		formatOrder(ord, productsInfo, c.sender.EscapeMarkdown),
 		png,
 	); err != nil {
 		return fmt.Errorf("send png: %w", err)

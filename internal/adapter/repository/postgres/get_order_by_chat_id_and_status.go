@@ -102,20 +102,17 @@ func selectOrderTimeline(ctx context.Context, ext sqlx.ExtContext, orderID int) 
 	return orderTimeline, nil
 }
 
-func selectOrderProducts(ctx context.Context, ext sqlx.ExtContext, id int) ([]model.OrderProductFull, error) {
+func selectOrderProducts(ctx context.Context, ext sqlx.ExtContext, id int) ([]model.OrderProduct, error) {
 	query, args, err := sqlx.Named(`
 		SELECT
-			op.product_id,
-			op.count,
-			op.price,
-			p.title,
-			p.is_enabled,
-			p.created_at,
-			p.updated_at
+			order_id,
+			product_id,
+			count,
+			price
 		FROM
-			order_products op INNER JOIN product p ON op.product_id = p.id
+			order_products
 		WHERE
-			op.order_id = :order_id
+			order_id = :order_id
 	`, map[string]any{
 		"order_id": id,
 	})
@@ -124,7 +121,7 @@ func selectOrderProducts(ctx context.Context, ext sqlx.ExtContext, id int) ([]mo
 		return nil, fmt.Errorf("named: %w", err)
 	}
 
-	var orderProducts []model.OrderProductFull
+	var orderProducts []model.OrderProduct
 	if err := sqlx.SelectContext(ctx, ext, &orderProducts, ext.Rebind(query), args...); err != nil {
 		return nil, fmt.Errorf("select context: %w", err)
 	}

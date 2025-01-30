@@ -29,7 +29,7 @@ func (c *Customer) CartViewCategories(
 		return fmt.Errorf("cart items: %w", err)
 	}
 
-	orderedProducts, err := c.orderedProducts(ctx, cartItems, currencyID)
+	orderedProducts, _, err := c.makeOrderedProducts(ctx, cartItems, currencyID)
 	if err != nil {
 		return fmt.Errorf("cart products: %w", err)
 	}
@@ -122,7 +122,7 @@ func makeViewCategoryButtonTitle(
 
 	for _, v := range orderedProducts {
 		if category.ID == v.CategoryID {
-			price += v.Product.Price * v.Count
+			price += v.Price * v.Count
 			count += v.Count
 		}
 	}
@@ -140,7 +140,7 @@ func makePriceButtonTitle(
 ) string {
 	price := 0
 	for _, v := range orderedProducts {
-		price += v.Product.Price * v.Count
+		price += v.Price * v.Count
 	}
 
 	if price > 0 {
