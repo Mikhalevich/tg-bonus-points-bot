@@ -3,6 +3,7 @@ package model
 import (
 	"time"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
@@ -16,11 +17,11 @@ type Product struct {
 	UpdatedAt  time.Time `db:"updated_at"`
 }
 
-func (p Product) ToPortProduct(curr *Currency) product.Product {
+func (p Product) ToPortProduct() product.Product {
 	return product.Product{
 		ID:        product.ProductIDFromInt(p.ID),
 		Title:     p.Title,
-		Currency:  *curr.ToPortCurrency(),
+		Currency:  currency.IDFromInt(p.CurrencyID),
 		Price:     p.Price,
 		IsEnabled: p.IsEnabled,
 		CreatedAt: p.CreatedAt,
@@ -28,11 +29,11 @@ func (p Product) ToPortProduct(curr *Currency) product.Product {
 	}
 }
 
-func ToPortProducts(dbProducts []Product, curr *Currency) []product.Product {
+func ToPortProducts(dbProducts []Product) []product.Product {
 	portProducts := make([]product.Product, 0, len(dbProducts))
 
 	for _, p := range dbProducts {
-		portProducts = append(portProducts, p.ToPortProduct(curr))
+		portProducts = append(portProducts, p.ToPortProduct())
 	}
 
 	return portProducts

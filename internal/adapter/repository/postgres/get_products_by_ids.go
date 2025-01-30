@@ -16,11 +16,6 @@ func (p *Postgres) GetProductsByIDs(
 	ids []product.ProductID,
 	currencyID currency.ID,
 ) (map[product.ProductID]product.Product, error) {
-	curr, err := selectCurrencyByID(ctx, p.db, currencyID)
-	if err != nil {
-		return nil, fmt.Errorf("currency by id: %w", err)
-	}
-
 	query, args, err := sqlx.In(`
 		SELECT
 			p.id,
@@ -49,7 +44,7 @@ func (p *Postgres) GetProductsByIDs(
 	output := make(map[product.ProductID]product.Product, len(dbProducts))
 
 	for _, v := range dbProducts {
-		output[product.ProductIDFromInt(v.ID)] = v.ToPortProduct(curr)
+		output[product.ProductIDFromInt(v.ID)] = v.ToPortProduct()
 	}
 
 	return output, nil
