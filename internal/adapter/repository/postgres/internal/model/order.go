@@ -31,45 +31,29 @@ type OrderProduct struct {
 	Price     int `db:"price"`
 }
 
-type OrderProductFull struct {
-	ProductID int       `db:"product_id"`
-	Count     int       `db:"count"`
-	Price     int       `db:"price"`
-	Title     string    `db:"title"`
-	IsEnabled bool      `db:"is_enabled"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
-}
-
 func PortToOrderProducts(id order.ID, portProducts []order.OrderedProduct) []OrderProduct {
 	dbProducts := make([]OrderProduct, 0, len(portProducts))
 
 	for _, v := range portProducts {
 		dbProducts = append(dbProducts, OrderProduct{
 			OrderID:   id.Int(),
-			ProductID: v.Product.ID.Int(),
+			ProductID: v.ProductID.Int(),
 			Count:     v.Count,
-			Price:     v.Product.Price,
+			Price:     v.Price,
 		})
 	}
 
 	return dbProducts
 }
 
-func toPortCartProducts(dbProducts []OrderProductFull) []order.OrderedProduct {
+func toPortCartProducts(dbProducts []OrderProduct) []order.OrderedProduct {
 	portProducts := make([]order.OrderedProduct, 0, len(dbProducts))
 
 	for _, v := range dbProducts {
 		portProducts = append(portProducts, order.OrderedProduct{
-			Product: product.Product{
-				ID:        product.ProductIDFromInt(v.ProductID),
-				Title:     v.Title,
-				Price:     v.Price,
-				IsEnabled: v.IsEnabled,
-				CreatedAt: v.CreatedAt,
-				UpdatedAt: v.UpdatedAt,
-			},
-			Count: v.Count,
+			ProductID: product.ProductIDFromInt(v.ProductID),
+			Count:     v.Count,
+			Price:     v.Price,
 		})
 	}
 
@@ -78,7 +62,7 @@ func toPortCartProducts(dbProducts []OrderProductFull) []order.OrderedProduct {
 
 func ToPortOrder(
 	dbOrder *Order,
-	dbOrderProducts []OrderProductFull,
+	dbOrderProducts []OrderProduct,
 	dbTimeline []OrderTimeline,
 ) (*order.Order, error) {
 	orderStatus, err := order.StatusFromString(dbOrder.Status)

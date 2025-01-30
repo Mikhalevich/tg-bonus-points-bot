@@ -23,7 +23,7 @@ func (p *Postgres) UpdateOrderStatus(
 ) (*order.Order, error) {
 	var (
 		dbOrder       *model.Order
-		orderProducts []model.OrderProductFull
+		orderProducts []model.OrderProduct
 		orderTimeline []model.OrderTimeline
 		err           error
 	)

@@ -39,12 +39,12 @@ func (c *Customer) CartConfirm(
 		return nil
 	}
 
-	cartProducts, err := c.orderedProducts(ctx, cartItems, currencyID)
+	orderedProducts, productsInfo, err := c.makeOrderedProducts(ctx, cartItems, currencyID)
 	if err != nil {
 		return fmt.Errorf("products info: %w", err)
 	}
 
-	input := makeCreateOrderInput(info.ChatID, cartProducts, currencyID)
+	input := makeCreateOrderInput(info.ChatID, orderedProducts, currencyID)
 
 	createdOrder, err := c.repository.CreateOrder(ctx, input)
 	if err != nil {
@@ -72,8 +72,9 @@ func (c *Customer) CartConfirm(
 	}
 
 	if err := c.sender.SendOrderInvoice(ctx, info.ChatID, message.OrderInvoice(),
-		makeOrderDescription(cartProducts),
+		makeOrderDescription(orderedProducts, productsInfo),
 		createdOrder,
+		productsInfo,
 		curr.Code,
 		buttons...,
 	); err != nil {
@@ -87,7 +88,7 @@ func (c *Customer) CartConfirm(
 
 func makeCreateOrderInput(
 	chatID msginfo.ChatID,
-	cartProducts []order.OrderedProduct,
+	orderedProducts []order.OrderedProduct,
 	currencyID currency.ID,
 ) port.CreateOrderInput {
 	return port.CreateOrderInput{
@@ -95,7 +96,7 @@ func makeCreateOrderInput(
 		Status:              order.StatusWaitingPayment,
 		StatusOperationTime: time.Now(),
 		VerificationCode:    generateVerificationCode(),
-		Products:            cartProducts,
+		Products:            orderedProducts,
 		CurrencyID:          currencyID,
 	}
 }
@@ -119,11 +120,14 @@ func (c *Customer) makeInvoiceButtons(
 	}, nil
 }
 
-func makeOrderDescription(products []order.OrderedProduct) string {
-	positions := make([]string, 0, len(products))
+func makeOrderDescription(
+	orderedProducts []order.OrderedProduct,
+	productsInfo map[product.ProductID]product.Product,
+) string {
+	positions := make([]string, 0, len(orderedProducts))
 
-	for _, v := range products {
-		positions = append(positions, fmt.Sprintf("%s x%d", v.Product.Title, v.Count))
+	for _, v := range orderedProducts {
+		positions = append(positions, fmt.Sprintf("%s x%d", productsInfo[v.ProductID].Title, v.Count))
 	}
 
 	return strings.Join(positions, ", ")
@@ -134,13 +138,13 @@ func generateVerificationCode() string {
 	return fmt.Sprintf("%03d", rand.Intn(1000))
 }
 
-func (c *Customer) orderedProducts(
+func (c *Customer) makeOrderedProducts(
 	ctx context.Context,
 	cartProducts []cart.CartProduct,
 	currencyID currency.ID,
-) ([]order.OrderedProduct, error) {
+) ([]order.OrderedProduct, map[product.ProductID]product.Product, error) {
 	if len(cartProducts) == 0 {
-		return nil, nil
+		return nil, nil, nil
 	}
 
 	ids := make([]product.ProductID, 0, len(cartProducts))
@@ -151,7 +155,7 @@ func (c *Customer) orderedProducts(
 
 	productMap, err := c.repository.GetProductsByIDs(ctx, ids, currencyID)
 	if err != nil {
-		return nil, fmt.Errorf("get products by ids: %w", err)
+		return nil, nil, fmt.Errorf("get products by ids: %w", err)
 	}
 
 	output := make([]order.OrderedProduct, 0, len(cartProducts))
@@ -159,15 +163,16 @@ func (c *Customer) orderedProducts(
 	for _, v := range cartProducts {
 		productInfo, ok := productMap[v.ProductID]
 		if !ok {
-			return nil, fmt.Errorf("missing product id: %d", v.ProductID.Int())
+			return nil, nil, fmt.Errorf("missing product id: %d", v.ProductID.Int())
 		}
 
 		output = append(output, order.OrderedProduct{
-			Product:    productInfo,
+			ProductID:  v.ProductID,
 			CategoryID: v.CategoryID,
 			Count:      v.Count,
+			Price:      productInfo.Price,
 		})
 	}
 
-	return output, nil
+	return output, productMap, nil
 }

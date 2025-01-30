@@ -43,7 +43,7 @@ type Order struct {
 	Products         []OrderedProduct
 }
 
-func (o Order) CanCancel() bool {
+func (o *Order) CanCancel() bool {
 	if o.Status == StatusConfirmed || o.Status == StatusWaitingPayment {
 		return true
 	}
@@ -51,14 +51,23 @@ func (o Order) CanCancel() bool {
 	return false
 }
 
-func (o Order) TotalPrice() int {
+func (o *Order) TotalPrice() int {
 	total := 0
 
 	for _, v := range o.Products {
-		total += v.Count * v.Product.Price
+		total += v.Count * v.Price
 	}
 
 	return total
+}
+
+func (o *Order) ProductIDs() []product.ProductID {
+	ids := make([]product.ProductID, 0, len(o.Products))
+	for _, v := range o.Products {
+		ids = append(ids, v.ProductID)
+	}
+
+	return ids
 }
 
 type StatusTime struct {
@@ -67,7 +76,8 @@ type StatusTime struct {
 }
 
 type OrderedProduct struct {
-	Product    product.Product
+	ProductID  product.ProductID
 	CategoryID product.CategoryID // available only for cart products.
 	Count      int
+	Price      int
 }
