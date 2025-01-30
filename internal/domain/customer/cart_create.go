@@ -13,7 +13,7 @@ var (
 	stubForCurrencyID = currency.IDFromInt(1)
 )
 
-func (c *Customer) StartNewCart(ctx context.Context, info msginfo.Info) error {
+func (c *Customer) CartCreate(ctx context.Context, info msginfo.Info) error {
 	categories, err := c.repository.GetCategories(ctx)
 
 	if err != nil {
