@@ -39,13 +39,18 @@ func (c *Customer) CartViewCategories(
 		return fmt.Errorf("get products: %w", err)
 	}
 
+	curr, err := c.repository.GetCurrencyByID(ctx, currencyID)
+	if err != nil {
+		return fmt.Errorf("get currency by id: %w", err)
+	}
+
 	buttons, err := c.makeCartCategoriesButtons(
 		ctx,
 		info.ChatID,
 		cartID,
 		categories,
 		orderedProducts,
-		orderedProductsCurrency(orderedProducts, currencyID),
+		curr,
 	)
 	if err != nil {
 		return fmt.Errorf("make order buttons: %w", err)
@@ -103,16 +108,6 @@ func (c *Customer) makeCartCategoriesButtons(
 	}
 
 	return inlineKeyboardButtonRows, nil
-}
-
-func orderedProductsCurrency(products []order.OrderedProduct, currencyID currency.ID) *currency.Currency {
-	if len(products) == 0 {
-		return &currency.Currency{
-			ID: currencyID,
-		}
-	}
-
-	return &products[0].Product.Currency
 }
 
 func makeViewCategoryButtonTitle(
