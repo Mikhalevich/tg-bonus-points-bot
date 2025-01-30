@@ -54,7 +54,7 @@ func CategoryIDFromString(s string) (CategoryID, error) {
 type Product struct {
 	ID        ProductID
 	Title     string
-	Currency  currency.Currency
+	Currency  currency.ID
 	Price     int
 	IsEnabled bool
 	CreatedAt time.Time
