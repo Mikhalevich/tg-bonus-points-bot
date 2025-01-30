@@ -52,13 +52,13 @@ func CategoryIDFromString(s string) (CategoryID, error) {
 }
 
 type Product struct {
-	ID        ProductID
-	Title     string
-	Currency  currency.ID
-	Price     int
-	IsEnabled bool
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID         ProductID
+	Title      string
+	CurrencyID currency.ID
+	Price      int
+	IsEnabled  bool
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }
 
 type Category struct {

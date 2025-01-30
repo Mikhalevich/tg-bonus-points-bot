@@ -28,6 +28,7 @@ type MessageSender interface {
 		title string,
 		description string,
 		ord *order.Order,
+		currency string,
 		rows ...button.InlineKeyboardButtonRow,
 	) error
 	AnswerOrderPayment(ctx context.Context, paymentID string, ok bool, errorMsg string) error

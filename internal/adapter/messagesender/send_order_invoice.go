@@ -18,6 +18,7 @@ func (m *messageSender) SendOrderInvoice(
 	title string,
 	description string,
 	ord *order.Order,
+	currency string,
 	rows ...button.InlineKeyboardButtonRow,
 ) error {
 	if _, err := m.bot.SendInvoice(ctx, &bot.SendInvoiceParams{
@@ -26,7 +27,7 @@ func (m *messageSender) SendOrderInvoice(
 		Description:   description,
 		Payload:       ord.ID.String(),
 		ProviderToken: m.paymentToken,
-		Currency:      ord.Currency.Code,
+		Currency:      currency,
 		Prices:        makeLabeledPrices(ord.Products),
 		ReplyMarkup:   makeButtonsMarkup(rows...),
 	}); err != nil {

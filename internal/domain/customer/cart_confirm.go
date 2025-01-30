@@ -17,6 +17,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
+//nolint:funlen,cyclop
 func (c *Customer) CartConfirm(
 	ctx context.Context,
 	info msginfo.Info,
@@ -59,7 +60,12 @@ func (c *Customer) CartConfirm(
 		return fmt.Errorf("clear cart: %w", err)
 	}
 
-	buttons, err := c.makeInvoiceButtons(ctx, info.ChatID, createdOrder)
+	curr, err := c.repository.GetCurrencyByID(ctx, currencyID)
+	if err != nil {
+		return fmt.Errorf("get currency by id: %w", err)
+	}
+
+	buttons, err := c.makeInvoiceButtons(ctx, info.ChatID, createdOrder, curr)
 
 	if err != nil {
 		return fmt.Errorf("cancel order button: %w", err)
@@ -68,6 +74,7 @@ func (c *Customer) CartConfirm(
 	if err := c.sender.SendOrderInvoice(ctx, info.ChatID, message.OrderInvoice(),
 		makeOrderDescription(cartProducts),
 		createdOrder,
+		curr.Code,
 		buttons...,
 	); err != nil {
 		return fmt.Errorf("send order invoice: %w", err)
@@ -97,8 +104,9 @@ func (c *Customer) makeInvoiceButtons(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 	ord *order.Order,
+	curr *currency.Currency,
 ) ([]button.InlineKeyboardButtonRow, error) {
-	payBtn := button.Pay(fmt.Sprintf("%s, %s", message.Pay(), ord.TotalPriceHumanReadable()))
+	payBtn := button.Pay(fmt.Sprintf("%s, %s", message.Pay(), curr.FormatPrice(ord.TotalPrice())))
 
 	cancelBtn, err := c.buttonRepository.SetButton(ctx, button.CancelOrder(chatID, message.Cancel(), ord.ID))
 	if err != nil {

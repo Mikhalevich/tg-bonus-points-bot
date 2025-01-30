@@ -38,7 +38,7 @@ type Order struct {
 	ChatID           msginfo.ChatID
 	Status           Status
 	VerificationCode string
-	Currency         currency.Currency
+	CurrencyID       currency.ID
 	Timeline         []StatusTime
 	Products         []OrderedProduct
 }
@@ -59,10 +59,6 @@ func (o Order) TotalPrice() int {
 	}
 
 	return total
-}
-
-func (o Order) TotalPriceHumanReadable() string {
-	return o.Currency.FormatPrice(o.TotalPrice())
 }
 
 type StatusTime struct {

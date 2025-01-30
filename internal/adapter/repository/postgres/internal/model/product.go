@@ -19,13 +19,13 @@ type Product struct {
 
 func (p Product) ToPortProduct() product.Product {
 	return product.Product{
-		ID:        product.ProductIDFromInt(p.ID),
-		Title:     p.Title,
-		Currency:  currency.IDFromInt(p.CurrencyID),
-		Price:     p.Price,
-		IsEnabled: p.IsEnabled,
-		CreatedAt: p.CreatedAt,
-		UpdatedAt: p.UpdatedAt,
+		ID:         product.ProductIDFromInt(p.ID),
+		Title:      p.Title,
+		CurrencyID: currency.IDFromInt(p.CurrencyID),
+		Price:      p.Price,
+		IsEnabled:  p.IsEnabled,
+		CreatedAt:  p.CreatedAt,
+		UpdatedAt:  p.UpdatedAt,
 	}
 }
 
