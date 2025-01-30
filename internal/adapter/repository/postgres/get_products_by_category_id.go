@@ -2,8 +2,6 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -18,7 +16,7 @@ func (p *Postgres) GetProductsByCategoryID(
 	categoryID product.CategoryID,
 	currencyID currency.ID,
 ) ([]product.Product, error) {
-	cur, err := selectCurrencyByID(ctx, p.db, currencyID)
+	curr, err := selectCurrencyByID(ctx, p.db, currencyID)
 	if err != nil {
 		return nil, fmt.Errorf("currency by id: %w", err)
 	}
@@ -56,39 +54,5 @@ func (p *Postgres) GetProductsByCategoryID(
 		return nil, fmt.Errorf("select products: %w", err)
 	}
 
-	return model.ToPortProducts(products, cur), nil
-}
-
-func selectCurrencyByID(ctx context.Context, tx sqlx.ExtContext, id currency.ID) (model.Currency, error) {
-	query, args, err := sqlx.Named(`
-		SELECT
-			id,
-			code,
-			exp,
-			decimal_sep,
-			min_amount,
-			max_amount,
-			is_enabled
-		FROM
-			currency
-		WHERE
-			id = :id
-	`, map[string]any{
-		"id": id.Int(),
-	})
-
-	if err != nil {
-		return model.Currency{}, fmt.Errorf("sqlx named: %w", err)
-	}
-
-	var cur model.Currency
-	if err := sqlx.GetContext(ctx, tx, &cur, tx.Rebind(query), args...); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return model.Currency{}, errNotFound
-		}
-
-		return model.Currency{}, fmt.Errorf("get context: %w", err)
-	}
-
-	return cur, nil
+	return model.ToPortProducts(products, curr), nil
 }

@@ -13,7 +13,7 @@ var (
 	stubForCurrencyID = currency.IDFromInt(1)
 )
 
-func (c *Customer) StartNewCart(ctx context.Context, info msginfo.Info) error {
+func (c *Customer) CartCreate(ctx context.Context, info msginfo.Info) error {
 	categories, err := c.repository.GetCategories(ctx)
 
 	if err != nil {
@@ -25,15 +25,18 @@ func (c *Customer) StartNewCart(ctx context.Context, info msginfo.Info) error {
 		return fmt.Errorf("start new cart: %w", err)
 	}
 
+	curr, err := c.repository.GetCurrencyByID(ctx, stubForCurrencyID)
+	if err != nil {
+		return fmt.Errorf("get currency by id: %w", err)
+	}
+
 	buttons, err := c.makeCartCategoriesButtons(
 		ctx,
 		info.ChatID,
 		cartID,
 		categories,
 		nil,
-		currency.Currency{
-			ID: stubForCurrencyID,
-		},
+		curr,
 	)
 	if err != nil {
 		return fmt.Errorf("make order buttons: %w", err)

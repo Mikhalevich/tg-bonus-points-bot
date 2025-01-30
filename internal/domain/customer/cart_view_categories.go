@@ -39,13 +39,18 @@ func (c *Customer) CartViewCategories(
 		return fmt.Errorf("get products: %w", err)
 	}
 
+	curr, err := c.repository.GetCurrencyByID(ctx, currencyID)
+	if err != nil {
+		return fmt.Errorf("get currency by id: %w", err)
+	}
+
 	buttons, err := c.makeCartCategoriesButtons(
 		ctx,
 		info.ChatID,
 		cartID,
 		categories,
 		orderedProducts,
-		orderedProductsCurrency(orderedProducts, currencyID),
+		curr,
 	)
 	if err != nil {
 		return fmt.Errorf("make order buttons: %w", err)
@@ -62,14 +67,14 @@ func (c *Customer) makeCartCategoriesButtons(
 	cartID cart.ID,
 	categories []product.Category,
 	orderedProducts []order.OrderedProduct,
-	cur currency.Currency,
+	curr *currency.Currency,
 ) ([]button.InlineKeyboardButtonRow, error) {
 	buttons := make([]button.ButtonRow, 0, len(categories)+1)
 
 	for _, v := range categories {
-		title := makeViewCategoryButtonTitle(v, orderedProducts, cur)
+		title := makeViewCategoryButtonTitle(v, orderedProducts, curr)
 
-		b, err := button.CartViewCategoryProducts(chatID, title, cartID, v.ID, cur.ID)
+		b, err := button.CartViewCategoryProducts(chatID, title, cartID, v.ID, curr.ID)
 		if err != nil {
 			return nil, fmt.Errorf("create cart view button: %w", err)
 		}
@@ -84,9 +89,9 @@ func (c *Customer) makeCartCategoriesButtons(
 
 	confirmCartBtn, err := button.CartConfirm(
 		chatID,
-		makePriceButtonTitle(orderedProducts, cur),
+		makePriceButtonTitle(orderedProducts, curr),
 		cartID,
-		cur.ID,
+		curr.ID,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("confirm cart button: %w", err)
@@ -105,20 +110,10 @@ func (c *Customer) makeCartCategoriesButtons(
 	return inlineKeyboardButtonRows, nil
 }
 
-func orderedProductsCurrency(products []order.OrderedProduct, currencyID currency.ID) currency.Currency {
-	if len(products) == 0 {
-		return currency.Currency{
-			ID: currencyID,
-		}
-	}
-
-	return products[0].Product.Currency
-}
-
 func makeViewCategoryButtonTitle(
 	category product.Category,
 	orderedProducts []order.OrderedProduct,
-	cur currency.Currency,
+	curr *currency.Currency,
 ) string {
 	var (
 		count int
@@ -133,7 +128,7 @@ func makeViewCategoryButtonTitle(
 	}
 
 	if count > 0 {
-		return fmt.Sprintf("%s [x%d %s]", category.Title, count, cur.FormatPrice(price))
+		return fmt.Sprintf("%s [x%d %s]", category.Title, count, curr.FormatPrice(price))
 	}
 
 	return category.Title
@@ -141,7 +136,7 @@ func makeViewCategoryButtonTitle(
 
 func makePriceButtonTitle(
 	orderedProducts []order.OrderedProduct,
-	cur currency.Currency,
+	curr *currency.Currency,
 ) string {
 	price := 0
 	for _, v := range orderedProducts {
@@ -149,7 +144,7 @@ func makePriceButtonTitle(
 	}
 
 	if price > 0 {
-		return fmt.Sprintf("%s [%s]", message.Confirm(), cur.FormatPrice(price))
+		return fmt.Sprintf("%s [%s]", message.Confirm(), curr.FormatPrice(price))
 	}
 
 	return message.Confirm()

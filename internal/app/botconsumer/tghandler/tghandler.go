@@ -13,7 +13,7 @@ import (
 
 //nolint:interfacebloat
 type OrderProcessor interface {
-	StartNewCart(ctx context.Context, info msginfo.Info) error
+	CartCreate(ctx context.Context, info msginfo.Info) error
 	CartViewCategoryProducts(ctx context.Context, info msginfo.Info, cartID cart.ID, categoryID product.CategoryID,
 		currencyID currency.ID) error
 	CartViewCategories(ctx context.Context, info msginfo.Info, cartID cart.ID, currencyID currency.ID) error

@@ -16,11 +16,11 @@ type Product struct {
 	UpdatedAt  time.Time `db:"updated_at"`
 }
 
-func (p Product) ToPortProduct(cur Currency) product.Product {
+func (p Product) ToPortProduct(curr *Currency) product.Product {
 	return product.Product{
 		ID:        product.ProductIDFromInt(p.ID),
 		Title:     p.Title,
-		Currency:  cur.ToPortCurrency(),
+		Currency:  *curr.ToPortCurrency(),
 		Price:     p.Price,
 		IsEnabled: p.IsEnabled,
 		CreatedAt: p.CreatedAt,
@@ -28,11 +28,11 @@ func (p Product) ToPortProduct(cur Currency) product.Product {
 	}
 }
 
-func ToPortProducts(dbProducts []Product, cur Currency) []product.Product {
+func ToPortProducts(dbProducts []Product, curr *Currency) []product.Product {
 	portProducts := make([]product.Product, 0, len(dbProducts))
 
 	for _, p := range dbProducts {
-		portProducts = append(portProducts, p.ToPortProduct(cur))
+		portProducts = append(portProducts, p.ToPortProduct(curr))
 	}
 
 	return portProducts

@@ -25,7 +25,7 @@ type Currency struct {
 	IsEnabled  bool
 }
 
-func (c Currency) FormatPrice(price int) string {
+func (c *Currency) FormatPrice(price int) string {
 	if c.Exp == 0 {
 		return fmt.Sprintf("%d %s", price, c.Code)
 	}
