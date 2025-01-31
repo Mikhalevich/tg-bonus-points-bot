@@ -52,7 +52,8 @@ func selectOrderByChatIDAndStatus(
 			id,
 			chat_id,
 			status,
-			verification_code
+			verification_code,
+			currency_id
 		FROM
 			orders
 		WHERE
