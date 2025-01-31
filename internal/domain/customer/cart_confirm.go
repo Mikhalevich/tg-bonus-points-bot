@@ -17,7 +17,6 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
-//nolint:funlen,cyclop
 func (c *Customer) CartConfirm(
 	ctx context.Context,
 	info msginfo.Info,
@@ -60,19 +59,35 @@ func (c *Customer) CartConfirm(
 		return fmt.Errorf("clear cart: %w", err)
 	}
 
+	if err := c.sendOrderInvoice(ctx, info.ChatID, currencyID, createdOrder, productsInfo); err != nil {
+		return fmt.Errorf("send order invoice: %w", err)
+	}
+
+	c.sender.DeleteMessage(ctx, info.ChatID, info.MessageID)
+
+	return nil
+}
+
+func (c *Customer) sendOrderInvoice(
+	ctx context.Context,
+	chatID msginfo.ChatID,
+	currencyID currency.ID,
+	createdOrder *order.Order,
+	productsInfo map[product.ProductID]product.Product,
+) error {
 	curr, err := c.repository.GetCurrencyByID(ctx, currencyID)
 	if err != nil {
 		return fmt.Errorf("get currency by id: %w", err)
 	}
 
-	buttons, err := c.makeInvoiceButtons(ctx, info.ChatID, createdOrder, curr)
+	buttons, err := c.makeInvoiceButtons(ctx, chatID, createdOrder, curr)
 
 	if err != nil {
 		return fmt.Errorf("cancel order button: %w", err)
 	}
 
-	if err := c.sender.SendOrderInvoice(ctx, info.ChatID, message.OrderInvoice(),
-		makeOrderDescription(orderedProducts, productsInfo),
+	if err := c.sender.SendOrderInvoice(ctx, chatID, message.OrderInvoice(),
+		makeOrderDescription(createdOrder.Products, productsInfo),
 		createdOrder,
 		productsInfo,
 		curr.Code,
@@ -80,8 +95,6 @@ func (c *Customer) CartConfirm(
 	); err != nil {
 		return fmt.Errorf("send order invoice: %w", err)
 	}
-
-	c.sender.DeleteMessage(ctx, info.ChatID, info.MessageID)
 
 	return nil
 }
