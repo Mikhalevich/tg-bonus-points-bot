@@ -5,6 +5,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
@@ -80,6 +81,7 @@ func ToPortOrder(
 		ChatID:           msginfo.ChatIDFromInt(dbOrder.ChatID),
 		Status:           orderStatus,
 		VerificationCode: dbOrder.VerificationCode,
+		CurrencyID:       currency.IDFromInt(dbOrder.CurrencyID),
 		Timeline:         portTimeline,
 		Products:         toPortCartProducts(dbOrderProducts),
 	}, nil
