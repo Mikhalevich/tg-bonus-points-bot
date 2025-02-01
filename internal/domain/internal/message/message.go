@@ -22,6 +22,10 @@ func OrderStatusChanged(s order.Status) string {
 	return fmt.Sprintf("Order status changed to %s", s.HumanReadable())
 }
 
+func OrderCanceled() string {
+	return "Order canceled"
+}
+
 func OrderWithStatusNotExists(s order.Status) string {
 	return fmt.Sprintf("Order in %s status is not exists", s.HumanReadable())
 }

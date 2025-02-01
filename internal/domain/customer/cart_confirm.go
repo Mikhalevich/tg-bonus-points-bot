@@ -122,14 +122,19 @@ func (c *Customer) makeInvoiceButtons(
 ) ([]button.InlineKeyboardButtonRow, error) {
 	payBtn := button.Pay(fmt.Sprintf("%s, %s", message.Pay(), curr.FormatPrice(ord.TotalPrice())))
 
-	cancelBtn, err := c.buttonRepository.SetButton(ctx, button.CancelOrder(chatID, message.Cancel(), ord.ID))
+	cancelBtn, err := button.CancelOrder(chatID, message.Cancel(), ord.ID, false)
+	if err != nil {
+		return nil, fmt.Errorf("cancel order button: %w", err)
+	}
+
+	inlineCancelBtn, err := c.buttonRepository.SetButton(ctx, cancelBtn)
 	if err != nil {
 		return nil, fmt.Errorf("cancel order button: %w", err)
 	}
 
 	return []button.InlineKeyboardButtonRow{
 		button.InlineRow(payBtn),
-		button.InlineRow(cancelBtn),
+		button.InlineRow(inlineCancelBtn),
 	}, nil
 }
 

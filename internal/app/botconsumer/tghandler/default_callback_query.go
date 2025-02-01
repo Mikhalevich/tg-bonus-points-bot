@@ -43,12 +43,18 @@ func (t *TGHandler) DefaultCallbackQuery(ctx context.Context, msg tgbot.BotMessa
 }
 
 func (t *TGHandler) cancelOrder(ctx context.Context, info msginfo.Info, btn button.Button) error {
-	orderID, err := btn.OrderID()
+	payload, err := button.GetPayload[button.CancelOrderPayload](btn)
 	if err != nil {
-		return fmt.Errorf("invalid order id: %w", err)
+		return fmt.Errorf("invalid payload: %w", err)
 	}
 
-	if err := t.orderProcessor.OrderCancel(ctx, info.ChatID, orderID); err != nil {
+	if err := t.orderProcessor.OrderCancel(
+		ctx,
+		info.ChatID,
+		info.MessageID,
+		payload.OrderID,
+		payload.IsTextMessage,
+	); err != nil {
 		return fmt.Errorf("cancel order: %w", err)
 	}
 
