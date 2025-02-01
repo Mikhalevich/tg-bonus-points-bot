@@ -25,7 +25,8 @@ type OrderProcessor interface {
 	GetButton(ctx context.Context, id button.ID) (*button.Button, error)
 
 	GetActiveOrder(ctx context.Context, info msginfo.Info) error
-	OrderCancel(ctx context.Context, chatID msginfo.ChatID, orderID order.ID) error
+	OrderCancel(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID,
+		orderID order.ID, isTextMsg bool) error
 	OrderPaymentInProgress(ctx context.Context, paymentID string, orderID order.ID,
 		currency string, totalAmount int) error
 	OrderPaymentConfirmed(ctx context.Context, chatID msginfo.ChatID, orderID order.ID,

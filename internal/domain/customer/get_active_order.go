@@ -38,18 +38,38 @@ func (c *Customer) GetActiveOrder(ctx context.Context, info msginfo.Info) error 
 		return fmt.Errorf("get products by ids: %w", err)
 	}
 
+	if err := c.replyCancelOrderMessage(ctx, info.ChatID, info.MessageID, activeOrder, productsInfo); err != nil {
+		return fmt.Errorf("cancel order reply: %w", err)
+	}
+
+	return nil
+}
+
+func (c *Customer) replyCancelOrderMessage(
+	ctx context.Context,
+	chatID msginfo.ChatID,
+	messageID msginfo.MessageID,
+	activeOrder *order.Order,
+	productsInfo map[product.ProductID]product.Product,
+) error {
 	formattedOrder := formatOrder(activeOrder, productsInfo, c.sender.EscapeMarkdown)
 
-	if activeOrder.CanCancel() {
-		cancelBtn, err := c.buttonRepository.SetButton(ctx, button.CancelOrder(info.ChatID, message.Cancel(), activeOrder.ID))
-		if err != nil {
-			return fmt.Errorf("make cancel order button: %w", err)
-		}
-
-		c.sender.ReplyTextMarkdown(ctx, info.ChatID, info.MessageID, formattedOrder, button.InlineRow(cancelBtn))
-	} else {
-		c.sender.ReplyTextMarkdown(ctx, info.ChatID, info.MessageID, formattedOrder)
+	if !activeOrder.CanCancel() {
+		c.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder)
+		return nil
 	}
+
+	cancelBtn, err := button.CancelOrder(chatID, message.Cancel(), activeOrder.ID, true)
+	if err != nil {
+		return fmt.Errorf("cancel order button: %w", err)
+	}
+
+	inlineCancelBtn, err := c.buttonRepository.SetButton(ctx, cancelBtn)
+	if err != nil {
+		return fmt.Errorf("make cancel order button: %w", err)
+	}
+
+	c.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder, button.InlineRow(inlineCancelBtn))
 
 	return nil
 }
