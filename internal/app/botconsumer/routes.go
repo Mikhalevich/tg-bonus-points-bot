@@ -8,8 +8,8 @@ import (
 func makeRoutes(tbot *tgbot.TGBot, h *tghandler.TGHandler) {
 	tbot.AddTextCommand("/start", h.Start)
 
-	tbot.AddMenuCommand("/order", "make order", h.Order)
-	tbot.AddMenuCommand("/get_active_order", "retrieve active order", h.GetActiveOrder)
+	tbot.AddMenuCommand("/order", "order food", h.Order)
+	tbot.AddMenuCommand("/order_info", "information about active order", h.GetActiveOrder)
 
 	tbot.AddDefaultHandler(h.DefaultHandler)
 	tbot.AddDefaultCallbackQueryHander(h.DefaultCallbackQuery)
