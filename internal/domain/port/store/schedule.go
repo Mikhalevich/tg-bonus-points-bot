@@ -64,6 +64,26 @@ func (s Schedule) IsActive(t time.Time) bool {
 	return false
 }
 
+func (s Schedule) NextWorkingTime(t time.Time) time.Time {
+	if s.IsActive(t) {
+		return t
+	}
+
+	for t = t.AddDate(0, 0, 1); ; t = t.AddDate(0, 0, 1) {
+		weekDay := Weekday(t.Weekday())
+
+		for _, v := range s.Days {
+			if v.Weekday == weekDay {
+				return time.Date(
+					t.Year(), t.Month(), t.Day(),
+					v.StartTime.Hour(), v.StartTime.Minute(), v.StartTime.Second(),
+					0, v.StartTime.Location(),
+				)
+			}
+		}
+	}
+}
+
 func isTimeBetween(t time.Time, start time.Time, end time.Time) bool {
 	var (
 		tSecs     = timeUTCSecs(t)

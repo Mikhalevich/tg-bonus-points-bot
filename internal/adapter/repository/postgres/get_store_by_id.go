@@ -6,9 +6,10 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/jmoiron/sqlx"
+
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/internal/model"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/store"
-	"github.com/jmoiron/sqlx"
 )
 
 func (p *Postgres) GetStoreByID(ctx context.Context, id store.ID) (*store.Store, error) {

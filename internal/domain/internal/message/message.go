@@ -2,6 +2,7 @@ package message
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
@@ -34,8 +35,10 @@ func OrderInvoice() string {
 	return "Order Invoice"
 }
 
-func OrderIsNotAvailable() string {
-	return "Order is not available"
+func StoreClosed(currentTime, openTime time.Time) string {
+	return fmt.Sprintf("Closed. Will be opened after %s at %s",
+		openTime.Sub(currentTime).Truncate(time.Minute).String(),
+		openTime.Format("Monday 15:04 MST"))
 }
 
 func AlreadyHasActiveOrder() string {

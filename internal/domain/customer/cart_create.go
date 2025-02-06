@@ -20,8 +20,11 @@ func (c *Customer) CartCreate(ctx context.Context, info msginfo.Info) error {
 		return fmt.Errorf("get store by id: %w", err)
 	}
 
-	if !storeInfo.Schedule.IsActive(time.Now()) {
-		c.sender.ReplyText(ctx, info.ChatID, info.MessageID, message.OrderIsNotAvailable())
+	currentTime := time.Now()
+
+	if !storeInfo.Schedule.IsActive(currentTime) {
+		c.sender.ReplyText(ctx, info.ChatID, info.MessageID,
+			message.StoreClosed(currentTime, storeInfo.Schedule.NextWorkingTime(currentTime)))
 		return nil
 	}
 
