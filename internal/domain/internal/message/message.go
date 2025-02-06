@@ -34,6 +34,10 @@ func OrderInvoice() string {
 	return "Order Invoice"
 }
 
+func OrderIsNotAvailable() string {
+	return "Order is not available"
+}
+
 func AlreadyHasActiveOrder() string {
 	return "You have active order already"
 }

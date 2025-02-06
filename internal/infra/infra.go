@@ -80,7 +80,7 @@ func StartBot(
 	var (
 		sender            = messagesender.New(b, botCfg.PaymentToken)
 		qrGenerator       = qrcodegenerator.New()
-		customerProcessor = customer.New(sender, qrGenerator, pg, cartRedis, buttonRepository)
+		customerProcessor = customer.New(sender, qrGenerator, pg, pg, cartRedis, buttonRepository)
 	)
 
 	if err := botconsumer.Start(

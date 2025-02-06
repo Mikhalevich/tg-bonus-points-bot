@@ -11,6 +11,7 @@ import (
 var (
 	_ port.CustomerRepository = (*Postgres)(nil)
 	_ port.ManagerRepository  = (*Postgres)(nil)
+	_ port.StoreInfo          = (*Postgres)(nil)
 )
 
 type Driver interface {

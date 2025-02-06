@@ -3,17 +3,28 @@ package customer
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/store"
 )
 
 var (
-	stubForCurrencyID = currency.IDFromInt(1)
+	stubForStoreID = store.IDFromInt(1)
 )
 
 func (c *Customer) CartCreate(ctx context.Context, info msginfo.Info) error {
+	storeInfo, err := c.storeInfo.GetStoreByID(ctx, stubForStoreID)
+	if err != nil {
+		return fmt.Errorf("get store by id: %w", err)
+	}
+
+	if !storeInfo.Schedule.IsActive(time.Now()) {
+		c.sender.ReplyText(ctx, info.ChatID, info.MessageID, message.OrderIsNotAvailable())
+		return nil
+	}
+
 	categories, err := c.repository.GetCategories(ctx)
 
 	if err != nil {
@@ -25,7 +36,7 @@ func (c *Customer) CartCreate(ctx context.Context, info msginfo.Info) error {
 		return fmt.Errorf("start new cart: %w", err)
 	}
 
-	curr, err := c.repository.GetCurrencyByID(ctx, stubForCurrencyID)
+	curr, err := c.repository.GetCurrencyByID(ctx, storeInfo.DefaultCurrencyID)
 	if err != nil {
 		return fmt.Errorf("get currency by id: %w", err)
 	}
