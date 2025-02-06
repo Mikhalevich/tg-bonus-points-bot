@@ -5,12 +5,12 @@ import (
 	"fmt"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/store"
 )
 
 var (
-	stubForCurrencyID = currency.IDFromInt(1)
+	stubForStoreID = store.IDFromInt(1)
 )
 
 func (c *Customer) CartCreate(ctx context.Context, info msginfo.Info) error {
@@ -25,7 +25,12 @@ func (c *Customer) CartCreate(ctx context.Context, info msginfo.Info) error {
 		return fmt.Errorf("start new cart: %w", err)
 	}
 
-	curr, err := c.repository.GetCurrencyByID(ctx, stubForCurrencyID)
+	storeInfo, err := c.storeInfo.GetStoreByID(ctx, stubForStoreID)
+	if err != nil {
+		return fmt.Errorf("get store by id: %w", err)
+	}
+
+	curr, err := c.repository.GetCurrencyByID(ctx, storeInfo.DefaultCurrencyID)
 	if err != nil {
 		return fmt.Errorf("get currency by id: %w", err)
 	}

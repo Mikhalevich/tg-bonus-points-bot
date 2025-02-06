@@ -8,6 +8,7 @@ type Customer struct {
 	sender           port.MessageSender
 	qrCode           port.QRCodeGenerator
 	repository       port.CustomerRepository
+	storeInfo        port.StoreInfo
 	cart             port.Cart
 	buttonRepository port.ButtonRepository
 }
@@ -16,6 +17,7 @@ func New(
 	sender port.MessageSender,
 	qrCode port.QRCodeGenerator,
 	repository port.CustomerRepository,
+	storeInfo port.StoreInfo,
 	cart port.Cart,
 	buttonRepository port.ButtonRepository,
 ) *Customer {
@@ -23,6 +25,7 @@ func New(
 		sender:           sender,
 		qrCode:           qrCode,
 		repository:       repository,
+		storeInfo:        storeInfo,
 		cart:             cart,
 		buttonRepository: buttonRepository,
 	}
