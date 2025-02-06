@@ -19,4 +19,5 @@ type Store struct {
 	ID                ID
 	Description       string
 	DefaultCurrencyID currency.ID
+	Schedule          Schedule
 }

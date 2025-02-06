@@ -3,6 +3,7 @@ package customer
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
@@ -14,6 +15,16 @@ var (
 )
 
 func (c *Customer) CartCreate(ctx context.Context, info msginfo.Info) error {
+	storeInfo, err := c.storeInfo.GetStoreByID(ctx, stubForStoreID)
+	if err != nil {
+		return fmt.Errorf("get store by id: %w", err)
+	}
+
+	if !storeInfo.Schedule.IsActive(time.Now()) {
+		c.sender.ReplyText(ctx, info.ChatID, info.MessageID, message.OrderIsNotAvailable())
+		return nil
+	}
+
 	categories, err := c.repository.GetCategories(ctx)
 
 	if err != nil {
@@ -23,11 +34,6 @@ func (c *Customer) CartCreate(ctx context.Context, info msginfo.Info) error {
 	cartID, err := c.cart.StartNewCart(ctx, info.ChatID)
 	if err != nil {
 		return fmt.Errorf("start new cart: %w", err)
-	}
-
-	storeInfo, err := c.storeInfo.GetStoreByID(ctx, stubForStoreID)
-	if err != nil {
-		return fmt.Errorf("get store by id: %w", err)
 	}
 
 	curr, err := c.repository.GetCurrencyByID(ctx, storeInfo.DefaultCurrencyID)
