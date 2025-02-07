@@ -17,12 +17,23 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
+//nolint:cyclop
 func (c *Customer) CartConfirm(
 	ctx context.Context,
 	info msginfo.Info,
 	cartID cart.ID,
 	currencyID currency.ID,
 ) error {
+	storeInfo, err := c.storeInfoByID(ctx, stubForStoreID)
+	if err != nil {
+		return fmt.Errorf("check for active: %w", err)
+	}
+
+	if !storeInfo.IsActive {
+		c.sender.SendText(ctx, info.ChatID, storeInfo.ClosedStoreMessage)
+		return nil
+	}
+
 	cartItems, err := c.cart.GetProducts(ctx, cartID)
 	if err != nil {
 		if c.cart.IsNotFoundError(err) {
@@ -43,9 +54,7 @@ func (c *Customer) CartConfirm(
 		return fmt.Errorf("products info: %w", err)
 	}
 
-	input := makeCreateOrderInput(info.ChatID, orderedProducts, currencyID)
-
-	createdOrder, err := c.repository.CreateOrder(ctx, input)
+	createdOrder, err := c.repository.CreateOrder(ctx, makeCreateOrderInput(info.ChatID, orderedProducts, currencyID))
 	if err != nil {
 		if c.repository.IsAlreadyExistsError(err) {
 			c.sender.SendText(ctx, info.ChatID, message.AlreadyHasActiveOrder())

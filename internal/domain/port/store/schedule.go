@@ -52,7 +52,7 @@ type Schedule struct {
 	Days []DaySchedule
 }
 
-func (s Schedule) IsActive(t time.Time) bool {
+func (s Schedule) isActive(t time.Time) bool {
 	currentDay := Weekday(t.Weekday())
 
 	for _, v := range s.Days {
@@ -64,9 +64,9 @@ func (s Schedule) IsActive(t time.Time) bool {
 	return false
 }
 
-func (s Schedule) NextWorkingTime(t time.Time) time.Time {
-	if s.IsActive(t) {
-		return t
+func (s Schedule) NextWorkingTime(t time.Time) (time.Time, bool) {
+	if s.isActive(t) {
+		return t, true
 	}
 
 	for t = t.AddDate(0, 0, 1); ; t = t.AddDate(0, 0, 1) {
@@ -77,8 +77,8 @@ func (s Schedule) NextWorkingTime(t time.Time) time.Time {
 				return time.Date(
 					t.Year(), t.Month(), t.Day(),
 					v.StartTime.Hour(), v.StartTime.Minute(), v.StartTime.Second(),
-					0, v.StartTime.Location(),
-				)
+					0, t.Location(),
+				), false
 			}
 		}
 	}

@@ -16,6 +16,19 @@ func (c *Customer) OrderPaymentInProgress(
 	currency string,
 	totalAmount int,
 ) error {
+	storeInfo, err := c.storeInfoByID(ctx, stubForStoreID)
+	if err != nil {
+		return fmt.Errorf("check for active: %w", err)
+	}
+
+	if !storeInfo.IsActive {
+		if err := c.sender.AnswerOrderPayment(ctx, paymentID, false, storeInfo.ClosedStoreMessage); err != nil {
+			return fmt.Errorf("answer payment for store is closed: %w", err)
+		}
+
+		return nil
+	}
+
 	res, err := c.setOrderInProgress(ctx, orderID, totalAmount)
 	if err != nil {
 		return fmt.Errorf("set order in progress: %w", err)
