@@ -15,13 +15,13 @@ var (
 )
 
 func (c *Customer) CartCreate(ctx context.Context, info msginfo.Info) error {
-	storeInfo, err := c.storeInfo.GetStoreByID(ctx, stubForStoreID)
+	storeInfo, err := c.storeInfoByID(ctx, stubForStoreID)
 	if err != nil {
-		return fmt.Errorf("get store by id: %w", err)
+		return fmt.Errorf("check for active: %w", err)
 	}
 
-	if !storeInfo.Schedule.IsActive(time.Now()) {
-		c.sender.ReplyText(ctx, info.ChatID, info.MessageID, message.OrderIsNotAvailable())
+	if !storeInfo.IsActive {
+		c.sender.SendText(ctx, info.ChatID, storeInfo.ClosedStoreMessage)
 		return nil
 	}
 
@@ -36,7 +36,7 @@ func (c *Customer) CartCreate(ctx context.Context, info msginfo.Info) error {
 		return fmt.Errorf("start new cart: %w", err)
 	}
 
-	curr, err := c.repository.GetCurrencyByID(ctx, storeInfo.DefaultCurrencyID)
+	curr, err := c.repository.GetCurrencyByID(ctx, storeInfo.Store.DefaultCurrencyID)
 	if err != nil {
 		return fmt.Errorf("get currency by id: %w", err)
 	}
@@ -56,4 +56,33 @@ func (c *Customer) CartCreate(ctx context.Context, info msginfo.Info) error {
 	c.sender.ReplyText(ctx, info.ChatID, info.MessageID, message.OrderCategoryPage(), buttons...)
 
 	return nil
+}
+
+type storeInfo struct {
+	Store              *store.Store
+	IsActive           bool
+	ClosedStoreMessage string
+}
+
+func (c *Customer) storeInfoByID(ctx context.Context, storeID store.ID) (*storeInfo, error) {
+	s, err := c.storeInfo.GetStoreByID(ctx, storeID)
+	if err != nil {
+		return nil, fmt.Errorf("get store by id: %w", err)
+	}
+
+	currentTime := time.Now()
+
+	nextWorkingTime, isActive := s.Schedule.NextWorkingTime(currentTime)
+	if !isActive {
+		return &storeInfo{
+			Store:              s,
+			IsActive:           false,
+			ClosedStoreMessage: message.StoreClosed(currentTime, nextWorkingTime),
+		}, nil
+	}
+
+	return &storeInfo{
+		Store:    s,
+		IsActive: true,
+	}, nil
 }
