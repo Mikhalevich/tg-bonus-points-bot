@@ -22,7 +22,6 @@ func (c *Customer) CartCreate(ctx context.Context, info msginfo.Info) error {
 	}
 
 	categories, err := c.repository.GetCategories(ctx)
-
 	if err != nil {
 		return fmt.Errorf("get products: %w", err)
 	}
