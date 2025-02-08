@@ -10,6 +10,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/perror"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
@@ -19,19 +20,14 @@ func (c *Customer) CartViewCategories(
 	cartID cart.ID,
 	currencyID currency.ID,
 ) error {
-	cartItems, err := c.cart.GetProducts(ctx, cartID)
+	orderedProducts, _, err := c.orderedProductsFromCart(ctx, cartID, currencyID)
 	if err != nil {
-		if c.cart.IsNotFoundError(err) {
+		if perror.IsType(err, perror.TypeNotFound) {
 			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
 			return nil
 		}
 
-		return fmt.Errorf("cart items: %w", err)
-	}
-
-	orderedProducts, _, err := c.makeOrderedProducts(ctx, cartItems, currencyID)
-	if err != nil {
-		return fmt.Errorf("cart products: %w", err)
+		return fmt.Errorf("ordered products from cart: %w", err)
 	}
 
 	categories, err := c.repository.GetCategories(ctx)

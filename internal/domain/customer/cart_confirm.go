@@ -14,10 +14,10 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/perror"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
-//nolint:cyclop
 func (c *Customer) CartConfirm(
 	ctx context.Context,
 	info msginfo.Info,
@@ -34,24 +34,19 @@ func (c *Customer) CartConfirm(
 		return nil
 	}
 
-	cartItems, err := c.cart.GetProducts(ctx, cartID)
+	orderedProducts, productsInfo, err := c.orderedProductsFromCart(ctx, cartID, currencyID)
 	if err != nil {
-		if c.cart.IsNotFoundError(err) {
+		if perror.IsType(err, perror.TypeNotFound) {
 			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
 			return nil
 		}
 
-		return fmt.Errorf("get cart products: %w", err)
+		return fmt.Errorf("ordered products from cart: %w", err)
 	}
 
-	if len(cartItems) == 0 {
+	if len(orderedProducts) == 0 {
 		c.sender.SendText(ctx, info.ChatID, message.NoProductsForOrder())
 		return nil
-	}
-
-	orderedProducts, productsInfo, err := c.makeOrderedProducts(ctx, cartItems, currencyID)
-	if err != nil {
-		return fmt.Errorf("products info: %w", err)
 	}
 
 	createdOrder, err := c.repository.CreateOrder(ctx, makeCreateOrderInput(info.ChatID, orderedProducts, currencyID))
@@ -165,22 +160,30 @@ func generateVerificationCode() string {
 	return fmt.Sprintf("%03d", rand.Intn(1000))
 }
 
-func (c *Customer) makeOrderedProducts(
+func (c *Customer) orderedProductsFromCart(
 	ctx context.Context,
-	cartProducts []cart.CartProduct,
+	cartID cart.ID,
 	currencyID currency.ID,
 ) ([]order.OrderedProduct, map[product.ProductID]product.Product, error) {
+	cartProducts, err := c.cart.GetProducts(ctx, cartID)
+	if err != nil {
+		if c.cart.IsNotFoundError(err) {
+			return nil, nil, perror.NotFound("cart not found")
+		}
+
+		return nil, nil, fmt.Errorf("get cart products: %w", err)
+	}
+
 	if len(cartProducts) == 0 {
 		return nil, nil, nil
 	}
 
-	ids := make([]product.ProductID, 0, len(cartProducts))
-
+	productIDs := make([]product.ProductID, 0, len(cartProducts))
 	for _, v := range cartProducts {
-		ids = append(ids, v.ProductID)
+		productIDs = append(productIDs, v.ProductID)
 	}
 
-	productMap, err := c.repository.GetProductsByIDs(ctx, ids, currencyID)
+	productsInfo, err := c.repository.GetProductsByIDs(ctx, productIDs, currencyID)
 	if err != nil {
 		return nil, nil, fmt.Errorf("get products by ids: %w", err)
 	}
@@ -188,7 +191,7 @@ func (c *Customer) makeOrderedProducts(
 	output := make([]order.OrderedProduct, 0, len(cartProducts))
 
 	for _, v := range cartProducts {
-		productInfo, ok := productMap[v.ProductID]
+		productInfo, ok := productsInfo[v.ProductID]
 		if !ok {
 			return nil, nil, fmt.Errorf("missing product id: %d", v.ProductID.Int())
 		}
@@ -201,5 +204,5 @@ func (c *Customer) makeOrderedProducts(
 		})
 	}
 
-	return output, productMap, nil
+	return output, productsInfo, nil
 }
