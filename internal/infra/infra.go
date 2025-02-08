@@ -50,6 +50,7 @@ func SetupLogger(lvl string) (logger.Logger, error) {
 
 func StartBot(
 	ctx context.Context,
+	storeID int,
 	botCfg config.Bot,
 	postgresCfg config.Postgres,
 	cartRedisCfg config.CartRedis,
@@ -80,7 +81,7 @@ func StartBot(
 	var (
 		sender            = messagesender.New(b, botCfg.PaymentToken)
 		qrGenerator       = qrcodegenerator.New()
-		customerProcessor = customer.New(sender, qrGenerator, pg, pg, cartRedis, buttonRepository)
+		customerProcessor = customer.New(storeID, sender, qrGenerator, pg, pg, cartRedis, buttonRepository)
 	)
 
 	if err := botconsumer.Start(
