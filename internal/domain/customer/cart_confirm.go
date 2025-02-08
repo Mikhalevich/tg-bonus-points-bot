@@ -24,7 +24,7 @@ func (c *Customer) CartConfirm(
 	cartID cart.ID,
 	currencyID currency.ID,
 ) error {
-	storeInfo, err := c.storeInfoByID(ctx, stubForStoreID)
+	storeInfo, err := c.storeInfoByID(ctx, c.storeID)
 	if err != nil {
 		return fmt.Errorf("check for active: %w", err)
 	}

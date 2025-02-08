@@ -2,9 +2,11 @@ package customer
 
 import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/store"
 )
 
 type Customer struct {
+	storeID          store.ID
 	sender           port.MessageSender
 	qrCode           port.QRCodeGenerator
 	repository       port.CustomerRepository
@@ -14,6 +16,7 @@ type Customer struct {
 }
 
 func New(
+	storeID int,
 	sender port.MessageSender,
 	qrCode port.QRCodeGenerator,
 	repository port.CustomerRepository,
@@ -22,6 +25,7 @@ func New(
 	buttonRepository port.ButtonRepository,
 ) *Customer {
 	return &Customer{
+		storeID:          store.IDFromInt(storeID),
 		sender:           sender,
 		qrCode:           qrCode,
 		repository:       repository,

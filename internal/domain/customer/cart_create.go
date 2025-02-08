@@ -10,12 +10,8 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/store"
 )
 
-var (
-	stubForStoreID = store.IDFromInt(1)
-)
-
 func (c *Customer) CartCreate(ctx context.Context, info msginfo.Info) error {
-	storeInfo, err := c.storeInfoByID(ctx, stubForStoreID)
+	storeInfo, err := c.storeInfoByID(ctx, c.storeID)
 	if err != nil {
 		return fmt.Errorf("check for active: %w", err)
 	}

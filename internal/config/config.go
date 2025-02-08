@@ -11,6 +11,7 @@ type ConsumerBot struct {
 	Postgres    Postgres    `yaml:"postgres" required:"true"`
 	ButtonRedis ButtonRedis `yaml:"button_redis" required:"true"`
 	CartRedis   CartRedis   `yaml:"cart_redis" required:"true"`
+	StoreID     int         `yaml:"store_id" required:"true"`
 }
 
 type ManagerHTTPService struct {

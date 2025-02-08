@@ -16,7 +16,7 @@ func (c *Customer) OrderPaymentInProgress(
 	currency string,
 	totalAmount int,
 ) error {
-	storeInfo, err := c.storeInfoByID(ctx, stubForStoreID)
+	storeInfo, err := c.storeInfoByID(ctx, c.storeID)
 	if err != nil {
 		return fmt.Errorf("check for active: %w", err)
 	}

@@ -17,3 +17,4 @@ cart_redis:
   pwd: "redis123"
   db: 2
   ttl: 1h
+store_id: 1

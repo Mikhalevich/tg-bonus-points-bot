@@ -44,6 +44,7 @@ func runService(cfg config.ConsumerBot, log logger.Logger) error {
 
 	if err := infra.StartBot(
 		ctx,
+		cfg.StoreID,
 		cfg.Bot,
 		cfg.Postgres,
 		cfg.CartRedis,
