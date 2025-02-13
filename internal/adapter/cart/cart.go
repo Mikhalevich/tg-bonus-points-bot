@@ -4,8 +4,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 	"github.com/redis/go-redis/v9"
+
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 )
 
 var _ port.Cart = (*Cart)(nil)

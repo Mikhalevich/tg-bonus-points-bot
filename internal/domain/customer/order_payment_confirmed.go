@@ -17,15 +17,22 @@ func (c *Customer) OrderPaymentConfirmed(
 	currency string,
 	totalAmount int,
 ) error {
+	now := time.Now()
+
+	position, err := c.dailyPosition.Position(ctx, now)
+	if err != nil {
+		return fmt.Errorf("daily position: %w", err)
+	}
+
 	ord, err := c.repository.UpdateOrderByChatAndID(
 		ctx,
 		orderID,
 		chatID,
 		port.UpdateOrderData{
 			Status:              order.StatusConfirmed,
-			StatusOperationTime: time.Now(),
+			StatusOperationTime: now,
 			VerificationCode:    generateVerificationCode(),
-			DailyPosition:       777,
+			DailyPosition:       position,
 		},
 		order.StatusPaymentInProgress,
 	)
