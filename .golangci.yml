@@ -91,7 +91,6 @@ linters:
     - sqlclosecheck
     - staticcheck
     - stylecheck
-    - tenv
     - testableexamples
     - testifylint
     - thelper
@@ -114,7 +113,6 @@ linters:
     - depguard
     - exhaustruct
     - nlreturn
-    - gomnd
     - ireturn
     - perfsprint
     - tagliatelle
