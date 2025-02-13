@@ -19,7 +19,7 @@ func (p *Postgres) CreateOrder(ctx context.Context, coi port.CreateOrderInput) (
 		orderID, err := p.insertOrder(ctx, tx, model.Order{
 			ChatID:           coi.ChatID.Int64(),
 			Status:           coi.Status.String(),
-			VerificationCode: coi.VerificationCode,
+			VerificationCode: model.NullString(coi.VerificationCode),
 			CurrencyID:       coi.CurrencyID.Int(),
 		})
 

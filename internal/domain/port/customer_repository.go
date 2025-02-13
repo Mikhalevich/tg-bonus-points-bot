@@ -19,11 +19,25 @@ type CreateOrderInput struct {
 	CurrencyID          currency.ID
 }
 
+type UpdateOrderData struct {
+	Status              order.Status
+	StatusOperationTime time.Time
+	VerificationCode    string
+	DailyPosition       int
+}
+
 //nolint:interfacebloat
 type CustomerRepository interface {
 	CreateOrder(ctx context.Context, coi CreateOrderInput) (*order.Order, error)
 	GetOrderByChatIDAndStatus(ctx context.Context, id msginfo.ChatID, statuses ...order.Status) (*order.Order, error)
 	GetOrderByID(ctx context.Context, id order.ID) (*order.Order, error)
+	UpdateOrderByChatAndID(
+		ctx context.Context,
+		orderID order.ID,
+		chatID msginfo.ChatID,
+		data UpdateOrderData,
+		prevStatuses ...order.Status,
+	) (*order.Order, error)
 	UpdateOrderStatusByChatAndID(
 		ctx context.Context,
 		orderID order.ID,

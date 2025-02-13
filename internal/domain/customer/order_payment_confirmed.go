@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
@@ -16,12 +17,16 @@ func (c *Customer) OrderPaymentConfirmed(
 	currency string,
 	totalAmount int,
 ) error {
-	ord, err := c.repository.UpdateOrderStatusByChatAndID(
+	ord, err := c.repository.UpdateOrderByChatAndID(
 		ctx,
 		orderID,
 		chatID,
-		time.Now(),
-		order.StatusConfirmed,
+		port.UpdateOrderData{
+			Status:              order.StatusConfirmed,
+			StatusOperationTime: time.Now(),
+			VerificationCode:    generateVerificationCode(),
+			DailyPosition:       777,
+		},
 		order.StatusPaymentInProgress,
 	)
 	if err != nil {
