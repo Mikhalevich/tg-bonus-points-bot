@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	"fmt"
 	"sort"
 	"time"
@@ -12,11 +13,12 @@ import (
 )
 
 type Order struct {
-	ID               int    `db:"id"`
-	ChatID           int64  `db:"chat_id"`
-	Status           string `db:"status"`
-	VerificationCode string `db:"verification_code"`
-	CurrencyID       int    `db:"currency_id"`
+	ID               int            `db:"id"`
+	ChatID           int64          `db:"chat_id"`
+	Status           string         `db:"status"`
+	VerificationCode sql.NullString `db:"verification_code"`
+	CurrencyID       int            `db:"currency_id"`
+	DailyPosition    sql.NullInt32  `db:"daily_position"`
 }
 
 type OrderTimeline struct {
@@ -80,8 +82,9 @@ func ToPortOrder(
 		ID:               order.IDFromInt(dbOrder.ID),
 		ChatID:           msginfo.ChatIDFromInt(dbOrder.ChatID),
 		Status:           orderStatus,
-		VerificationCode: dbOrder.VerificationCode,
+		VerificationCode: dbOrder.VerificationCode.String,
 		CurrencyID:       currency.IDFromInt(dbOrder.CurrencyID),
+		DailyPosition:    int(dbOrder.DailyPosition.Int32),
 		Timeline:         portTimeline,
 		Products:         toPortCartProducts(dbOrderProducts),
 	}, nil

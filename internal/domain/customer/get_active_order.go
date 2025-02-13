@@ -83,6 +83,7 @@ func formatOrder(
 		fmt.Sprintf("order id: *%s*", escaper(ord.ID.String())),
 		fmt.Sprintf("status: *%s*", ord.Status.HumanReadable()),
 		fmt.Sprintf("verification code: *%s*", escaper(ord.VerificationCode)),
+		fmt.Sprintf("daily position: *%d*", ord.DailyPosition),
 	}
 
 	for _, t := range ord.Timeline {

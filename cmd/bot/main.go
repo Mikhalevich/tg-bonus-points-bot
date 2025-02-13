@@ -48,6 +48,7 @@ func runService(cfg config.ConsumerBot, log logger.Logger) error {
 		cfg.Bot,
 		cfg.Postgres,
 		cfg.CartRedis,
+		cfg.DailyPositionRedis,
 		cfg.ButtonRedis,
 		log.WithField("bot_name", "schedule"),
 	); err != nil {

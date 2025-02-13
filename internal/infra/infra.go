@@ -13,6 +13,7 @@ import (
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/buttonrespository"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/cart"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/dailypositiongenerator"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/messagesender"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/qrcodegenerator"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres"
@@ -54,6 +55,7 @@ func StartBot(
 	botCfg config.Bot,
 	postgresCfg config.Postgres,
 	cartRedisCfg config.CartRedis,
+	dailyPositionCfg config.DailyPositionRedis,
 	buttonRedisCfg config.ButtonRedis,
 	logger logger.Logger,
 ) error {
@@ -73,6 +75,11 @@ func StartBot(
 		return fmt.Errorf("make redis cart: %w", err)
 	}
 
+	dailyPosition, err := MakeRedisDailyPositionGenerator(ctx, dailyPositionCfg)
+	if err != nil {
+		return fmt.Errorf("make redis daily position generator: %w", err)
+	}
+
 	buttonRepository, err := MakeRedisButtonRepository(ctx, buttonRedisCfg)
 	if err != nil {
 		return fmt.Errorf("make redis button repository: %w", err)
@@ -81,7 +88,7 @@ func StartBot(
 	var (
 		sender            = messagesender.New(b, botCfg.PaymentToken)
 		qrGenerator       = qrcodegenerator.New()
-		customerProcessor = customer.New(storeID, sender, qrGenerator, pg, pg, cartRedis, buttonRepository)
+		customerProcessor = customer.New(storeID, sender, qrGenerator, pg, pg, cartRedis, buttonRepository, dailyPosition)
 	)
 
 	if err := botconsumer.Start(
@@ -130,6 +137,27 @@ func MakeRedisCart(ctx context.Context, cfg config.CartRedis) (port.Cart, error)
 	}
 
 	return cart.New(rdb, cfg.TTL), nil
+}
+
+func MakeRedisDailyPositionGenerator(
+	ctx context.Context,
+	cfg config.DailyPositionRedis,
+) (port.DailyPositionGenerator, error) {
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     cfg.Addr,
+		Password: cfg.Pwd,
+		DB:       cfg.DB,
+	})
+
+	if err := redisotel.InstrumentTracing(rdb); err != nil {
+		return nil, fmt.Errorf("redis instrument tracing: %w", err)
+	}
+
+	if err := rdb.Ping(ctx).Err(); err != nil {
+		return nil, fmt.Errorf("redis ping: %w", err)
+	}
+
+	return dailypositiongenerator.New(rdb, cfg.TTL), nil
 }
 
 func MakePostgres(cfg config.Postgres) (*postgres.Postgres, func(), error) {

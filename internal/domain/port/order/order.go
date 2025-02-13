@@ -39,6 +39,7 @@ type Order struct {
 	Status           Status
 	VerificationCode string
 	CurrencyID       currency.ID
+	DailyPosition    int
 	Timeline         []StatusTime
 	Products         []OrderedProduct
 }

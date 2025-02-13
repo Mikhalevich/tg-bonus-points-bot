@@ -28,8 +28,9 @@ CREATE TABLE orders(
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     chat_id BIGINT NOT NULL,
     status order_status NOT NULL,
-    verification_code TEXT NOT NULL,
+    verification_code TEXT,
     currency_id INTEGER NOT NULL,
+    daily_position INTEGER,
 
     CONSTRAINT orders_currency_id_fk FOREIGN KEY(currency_id) REFERENCES currency(id)
 );
