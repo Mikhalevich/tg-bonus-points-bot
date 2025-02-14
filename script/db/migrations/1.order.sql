@@ -31,6 +31,8 @@ CREATE TABLE orders(
     verification_code TEXT,
     currency_id INTEGER NOT NULL,
     daily_position INTEGER,
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL,
 
     CONSTRAINT orders_currency_id_fk FOREIGN KEY(currency_id) REFERENCES currency(id)
 );

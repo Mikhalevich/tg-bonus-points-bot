@@ -28,7 +28,7 @@ func (p *Postgres) UpdateOrderStatusForMinID(
 
 	if err := transaction.Transaction(ctx, p.db, true,
 		func(ctx context.Context, tx sqlx.ExtContext) error {
-			dbOrder, err = updateOrderStatusForMinID(ctx, tx, newStatus, prevStatus)
+			dbOrder, err = updateOrderStatusForMinID(ctx, tx, operationTime, newStatus, prevStatus)
 			if err != nil {
 				return fmt.Errorf("update order status for min id: %w", err)
 			}
@@ -68,12 +68,14 @@ func (p *Postgres) UpdateOrderStatusForMinID(
 func updateOrderStatusForMinID(
 	ctx context.Context,
 	ext sqlx.ExtContext,
+	operationTime time.Time,
 	newStatus order.Status,
 	prevStatus order.Status,
 ) (*model.Order, error) {
 	query, args, err := sqlx.Named(`
 		UPDATE orders SET
-			status = :new_status
+			status = :new_status,
+			updated_at = :updated_at
 		WHERE id = (
 				SELECT MIN(id)
 				FROM orders
@@ -82,6 +84,7 @@ func updateOrderStatusForMinID(
 		RETURNING *
 		`, map[string]any{
 		"new_status":      newStatus,
+		"updated_at":      operationTime,
 		"previous_status": prevStatus,
 	})
 

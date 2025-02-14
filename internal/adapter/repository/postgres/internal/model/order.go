@@ -19,6 +19,8 @@ type Order struct {
 	VerificationCode sql.NullString `db:"verification_code"`
 	CurrencyID       int            `db:"currency_id"`
 	DailyPosition    sql.NullInt32  `db:"daily_position"`
+	CreatedAt        time.Time      `db:"created_at"`
+	UpdatedAt        time.Time      `db:"updated_at"`
 }
 
 type OrderTimeline struct {
@@ -85,6 +87,8 @@ func ToPortOrder(
 		VerificationCode: dbOrder.VerificationCode.String,
 		CurrencyID:       currency.IDFromInt(dbOrder.CurrencyID),
 		DailyPosition:    int(dbOrder.DailyPosition.Int32),
+		CreatedAt:        dbOrder.CreatedAt,
+		UpdatedAt:        dbOrder.UpdatedAt,
 		Timeline:         portTimeline,
 		Products:         toPortCartProducts(dbOrderProducts),
 	}, nil

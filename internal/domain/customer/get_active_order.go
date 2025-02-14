@@ -84,6 +84,8 @@ func formatOrder(
 		fmt.Sprintf("status: *%s*", ord.Status.HumanReadable()),
 		fmt.Sprintf("verification code: *%s*", escaper(ord.VerificationCode)),
 		fmt.Sprintf("daily position: *%d*", ord.DailyPosition),
+		fmt.Sprintf("created\\_at: *%s*", escaper(ord.CreatedAt.Format(time.RFC3339))),
+		fmt.Sprintf("updated\\_at: *%s*", escaper(ord.UpdatedAt.Format(time.RFC3339))),
 	}
 
 	for _, t := range ord.Timeline {

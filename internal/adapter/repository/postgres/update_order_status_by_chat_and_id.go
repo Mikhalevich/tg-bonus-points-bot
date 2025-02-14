@@ -32,7 +32,7 @@ func (p *Postgres) UpdateOrderStatusByChatAndID(
 
 	if err := transaction.Transaction(ctx, p.db, true,
 		func(ctx context.Context, tx sqlx.ExtContext) error {
-			dbOrder, err = updateOrderStatusByChatAndID(ctx, tx, orderID, chatID, newStatus, prevStatuses...)
+			dbOrder, err = updateOrderStatusByChatAndID(ctx, tx, orderID, chatID, operationTime, newStatus, prevStatuses...)
 			if err != nil {
 				return fmt.Errorf("update order status: %w", err)
 			}
@@ -74,12 +74,14 @@ func updateOrderStatusByChatAndID(
 	ext sqlx.ExtContext,
 	orderID order.ID,
 	chatID msginfo.ChatID,
+	operationTime time.Time,
 	newStatus order.Status,
 	prevStatuses ...order.Status,
 ) (*model.Order, error) {
 	query, args, err := sqlx.Named(`
 		UPDATE orders SET
-			status = :status
+			status = :status,
+			updated_at = :updated_at
 		WHERE
 			id = :id AND
 			chat_id = :chat_id AND
@@ -87,9 +89,10 @@ func updateOrderStatusByChatAndID(
 		RETURNING *
 		`,
 		map[string]any{
-			"status":  newStatus,
-			"id":      orderID.Int(),
-			"chat_id": chatID.Int64(),
+			"status":     newStatus,
+			"updated_at": operationTime,
+			"id":         orderID.Int(),
+			"chat_id":    chatID.Int64(),
 		})
 
 	if err != nil {

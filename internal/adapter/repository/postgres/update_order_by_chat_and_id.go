@@ -80,7 +80,8 @@ func updateOrderDataByChatAndID(
 		UPDATE orders SET
 			status = :status,
 			verification_code = :verification_code,
-			daily_position = :daily_position
+			daily_position = :daily_position,
+			updated_at = :updated_at
 		WHERE
 			id = :id AND
 			chat_id = :chat_id AND
@@ -92,6 +93,7 @@ func updateOrderDataByChatAndID(
 			"verification_code": model.NullString(data.VerificationCode),
 			//nolint:gosec
 			"daily_position": model.NullIntPositive(int32(data.DailyPosition)),
+			"updated_at":     data.StatusOperationTime,
 			"id":             orderID.Int(),
 			"chat_id":        chatID.Int64(),
 		})
