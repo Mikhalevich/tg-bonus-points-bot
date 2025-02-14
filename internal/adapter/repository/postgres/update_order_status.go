@@ -30,7 +30,7 @@ func (p *Postgres) UpdateOrderStatus(
 
 	if err := transaction.Transaction(ctx, p.db, true,
 		func(ctx context.Context, tx sqlx.ExtContext) error {
-			dbOrder, err = updateOrderStatus(ctx, tx, id, newStatus, prevStatuses...)
+			dbOrder, err = updateOrderStatus(ctx, tx, id, operationTime, newStatus, prevStatuses...)
 			if err != nil {
 				return fmt.Errorf("update order status: %w", err)
 			}
@@ -71,20 +71,23 @@ func updateOrderStatus(
 	ctx context.Context,
 	ext sqlx.ExtContext,
 	id order.ID,
+	operationTime time.Time,
 	newStatus order.Status,
 	prevStatuses ...order.Status,
 ) (*model.Order, error) {
 	query, args, err := sqlx.Named(`
 		UPDATE orders SET
-			status = :status
+			status = :status,
+			updated_at = :updated_at
 		WHERE
 			id = :id AND
 			status IN (?)
 		RETURNING *
 		`,
 		map[string]any{
-			"status": newStatus,
-			"id":     id.Int(),
+			"status":     newStatus,
+			"updated_at": operationTime,
+			"id":         id.Int(),
 		})
 
 	if err != nil {

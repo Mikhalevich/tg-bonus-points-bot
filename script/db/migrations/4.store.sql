@@ -9,6 +9,8 @@ CREATE TABLE store(
     CONSTRAINT store_default_currency_id_fk FOREIGN KEY(default_currency_id) REFERENCES currency(id)
 );
 
+CREATE INDEX store_default_currency_id_idx ON store(default_currency_id);
+
 CREATE TYPE day_of_week AS ENUM (
     'Monday',
     'Tuesday',
@@ -37,7 +39,7 @@ INSERT INTO store(description, default_currency_id) VALUES('test description', 1
 INSERT INTO store_schedule(store_id, day_of_week, start_time, end_time) VALUES(1, 'Monday', '2025-02-07 08:00:00+03'::timestamptz, '2025-02-07 18:00:00+03'::timestamptz);
 INSERT INTO store_schedule(store_id, day_of_week, start_time, end_time) VALUES(1, 'Tuesday', '2025-02-07 08:00:00+03'::timestamptz, '2025-02-07 18:00:00+03'::timestamptz);
 INSERT INTO store_schedule(store_id, day_of_week, start_time, end_time) VALUES(1, 'Wednesday', '2025-02-07 08:00:00+03'::timestamptz, '2025-02-07 18:00:00+03'::timestamptz);
-INSERT INTO store_schedule(store_id, day_of_week, start_time, end_time) VALUES(1, 'Thursday', '2025-02-07 08:00:00+03'::timestamptz, '2025-02-07 23:00:00+03'::timestamptz);
+INSERT INTO store_schedule(store_id, day_of_week, start_time, end_time) VALUES(1, 'Thursday', '2025-02-07 08:00:00+03'::timestamptz, '2025-02-07 18:00:00+03'::timestamptz);
 INSERT INTO store_schedule(store_id, day_of_week, start_time, end_time) VALUES(1, 'Friday', '2025-02-07 08:00:00+03'::timestamptz, '2025-02-07 18:00:00+03'::timestamptz);
 
 INSERT INTO product(title, is_enabled, created_at, updated_at) VALUES('latte', TRUE, NOW(), NOW());

@@ -21,6 +21,8 @@ func (p *Postgres) CreateOrder(ctx context.Context, coi port.CreateOrderInput) (
 			Status:           coi.Status.String(),
 			VerificationCode: model.NullString(coi.VerificationCode),
 			CurrencyID:       coi.CurrencyID.Int(),
+			CreatedAt:        coi.StatusOperationTime,
+			UpdatedAt:        coi.StatusOperationTime,
 		})
 
 		if err != nil {
@@ -66,12 +68,16 @@ func (p *Postgres) insertOrder(ctx context.Context, ext sqlx.ExtContext, dbOrder
 			chat_id,
 			status,
 			verification_code,
-			currency_id
+			currency_id,
+			created_at,
+			updated_at
 		) VALUES (
 			:chat_id,
 			:status,
 			:verification_code,
-			:currency_id
+			:currency_id,
+			:created_at,
+			:updated_at
 		)
 		RETURNING id
 	`, dbOrder)
