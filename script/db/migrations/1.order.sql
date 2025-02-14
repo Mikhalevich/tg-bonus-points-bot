@@ -37,6 +37,7 @@ CREATE TABLE orders(
     CONSTRAINT orders_currency_id_fk FOREIGN KEY(currency_id) REFERENCES currency(id)
 );
 
+CREATE INDEX orders_currency_id_idx ON orders(currency_id);
 CREATE INDEX orders_chat_id_status_idx ON orders(chat_id, status);
 CREATE UNIQUE INDEX orders_only_one_active_order_unique_idx ON orders(chat_id) WHERE status IN ('waiting_payment', 'payment_in_progress', 'confirmed', 'in_progress', 'ready');
 

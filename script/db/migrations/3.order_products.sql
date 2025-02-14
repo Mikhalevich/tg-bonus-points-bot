@@ -12,10 +12,7 @@ CREATE TABLE order_products(
     CONSTRAINT order_products_product_id_fk FOREIGN KEY(product_id) REFERENCES product(id)
 );
 
-CREATE INDEX order_products_order_id_idx ON order_products(order_id);
-
 -- +migrate Down
 -- SQL section 'Down' is executed when this migration is rolled back
 
-DROP INDEX order_products_order_id_idx;
 DROP TABLE order_products;
