@@ -31,7 +31,7 @@ func (c *Customer) OrderPaymentConfirmed(
 		port.UpdateOrderData{
 			Status:              order.StatusConfirmed,
 			StatusOperationTime: now,
-			VerificationCode:    generateVerificationCode(),
+			VerificationCode:    c.codeGenerator.Generate(),
 			DailyPosition:       position,
 		},
 		order.StatusPaymentInProgress,

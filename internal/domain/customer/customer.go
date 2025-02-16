@@ -14,6 +14,7 @@ type Customer struct {
 	cart             port.Cart
 	buttonRepository port.ButtonRepository
 	dailyPosition    port.DailyPositionGenerator
+	codeGenerator    port.VerificationCodeGenerator
 }
 
 func New(
@@ -25,6 +26,7 @@ func New(
 	cart port.Cart,
 	buttonRepository port.ButtonRepository,
 	dailyPosition port.DailyPositionGenerator,
+	codeGenerator port.VerificationCodeGenerator,
 ) *Customer {
 	return &Customer{
 		storeID:          store.IDFromInt(storeID),
@@ -35,5 +37,6 @@ func New(
 		cart:             cart,
 		buttonRepository: buttonRepository,
 		dailyPosition:    dailyPosition,
+		codeGenerator:    codeGenerator,
 	}
 }

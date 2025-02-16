@@ -18,6 +18,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/qrcodegenerator"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/driver"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/verificationcodegenerator"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/botconsumer"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/httpmanager"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/config"
@@ -88,7 +89,10 @@ func StartBot(
 	var (
 		sender            = messagesender.New(b, botCfg.PaymentToken)
 		qrGenerator       = qrcodegenerator.New()
-		customerProcessor = customer.New(storeID, sender, qrGenerator, pg, pg, cartRedis, buttonRepository, dailyPosition)
+		customerProcessor = customer.New(storeID, sender, qrGenerator,
+			pg, pg, cartRedis, buttonRepository, dailyPosition,
+			verificationcodegenerator.New(),
+		)
 	)
 
 	if err := botconsumer.Start(

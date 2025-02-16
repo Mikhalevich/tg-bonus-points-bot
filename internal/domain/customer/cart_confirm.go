@@ -3,7 +3,6 @@ package customer
 import (
 	"context"
 	"fmt"
-	"math/rand"
 	"strings"
 	"time"
 
@@ -49,7 +48,7 @@ func (c *Customer) CartConfirm(
 		return nil
 	}
 
-	createdOrder, err := c.repository.CreateOrder(ctx, makeCreateOrderInput(info.ChatID, orderedProducts, currencyID))
+	createdOrder, err := c.repository.CreateOrder(ctx, c.makeCreateOrderInput(info.ChatID, orderedProducts, currencyID))
 	if err != nil {
 		if c.repository.IsAlreadyExistsError(err) {
 			c.sender.SendText(ctx, info.ChatID, message.AlreadyHasActiveOrder())
@@ -103,7 +102,7 @@ func (c *Customer) sendOrderInvoice(
 	return nil
 }
 
-func makeCreateOrderInput(
+func (c *Customer) makeCreateOrderInput(
 	chatID msginfo.ChatID,
 	orderedProducts []order.OrderedProduct,
 	currencyID currency.ID,
@@ -112,7 +111,7 @@ func makeCreateOrderInput(
 		ChatID:              chatID,
 		Status:              order.StatusWaitingPayment,
 		StatusOperationTime: time.Now(),
-		VerificationCode:    generateVerificationCode(),
+		VerificationCode:    c.codeGenerator.Generate(),
 		Products:            orderedProducts,
 		CurrencyID:          currencyID,
 	}
@@ -153,11 +152,6 @@ func makeOrderDescription(
 	}
 
 	return strings.Join(positions, ", ")
-}
-
-func generateVerificationCode() string {
-	//nolint:gosec
-	return fmt.Sprintf("%03d", rand.Intn(1000))
 }
 
 func (c *Customer) orderedProductsFromCart(
