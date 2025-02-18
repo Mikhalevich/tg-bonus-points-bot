@@ -31,6 +31,7 @@ type OrderProcessor interface {
 		currency string, totalAmount int) error
 	OrderPaymentConfirmed(ctx context.Context, chatID msginfo.ChatID, orderID order.ID,
 		currency string, totalAmount int) error
+	OrderQueueSize(ctx context.Context, info msginfo.Info) error
 }
 
 type cbHandler func(ctx context.Context, info msginfo.Info, btn button.Button) error

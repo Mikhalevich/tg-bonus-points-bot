@@ -39,6 +39,7 @@ CREATE TABLE orders(
 
 CREATE INDEX orders_currency_id_idx ON orders(currency_id);
 CREATE INDEX orders_chat_id_status_idx ON orders(chat_id, status);
+CREATE INDEX orders_status_queue_idx ON orders(status) WHERE status IN ('confirmed', 'in_progress');
 CREATE UNIQUE INDEX orders_only_one_active_order_unique_idx ON orders(chat_id) WHERE status IN ('waiting_payment', 'payment_in_progress', 'confirmed', 'in_progress', 'ready');
 
 CREATE TABLE order_status_timeline(
