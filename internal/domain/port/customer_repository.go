@@ -66,6 +66,7 @@ type CustomerRepository interface {
 	) (map[product.ProductID]product.Product, error)
 	GetCurrencyByID(ctx context.Context, id currency.ID) (*currency.Currency, error)
 	GetOrdersCountByStatus(ctx context.Context, statuses ...order.Status) (int, error)
+	GetOrderPositionByStatus(ctx context.Context, id order.ID, statuses ...order.Status) (int, error)
 	IsNotFoundError(err error) bool
 	IsNotUpdatedError(err error) bool
 	IsAlreadyExistsError(err error) bool

@@ -40,14 +40,21 @@ func (c *Customer) OrderPaymentConfirmed(
 		return fmt.Errorf("update order status: %w", err)
 	}
 
-	if err := c.sendOrderQRImage(ctx, chatID, ord); err != nil {
+	queuePosition := c.orderQueuePosition(ctx, ord)
+
+	if err := c.sendOrderQRImage(ctx, chatID, ord, queuePosition); err != nil {
 		return fmt.Errorf("send order qr: %w", err)
 	}
 
 	return nil
 }
 
-func (c *Customer) sendOrderQRImage(ctx context.Context, chatID msginfo.ChatID, ord *order.Order) error {
+func (c *Customer) sendOrderQRImage(
+	ctx context.Context,
+	chatID msginfo.ChatID,
+	ord *order.Order,
+	queuePosition int,
+) error {
 	png, err := c.qrCode.GeneratePNG(ord.ID.String())
 	if err != nil {
 		return fmt.Errorf("qrcode generate png: %w", err)
@@ -61,7 +68,7 @@ func (c *Customer) sendOrderQRImage(ctx context.Context, chatID msginfo.ChatID, 
 	if err := c.sender.SendPNGMarkdown(
 		ctx,
 		chatID,
-		formatOrder(ord, productsInfo, c.sender.EscapeMarkdown),
+		formatOrder(ord, productsInfo, queuePosition, c.sender.EscapeMarkdown),
 		png,
 	); err != nil {
 		return fmt.Errorf("send png: %w", err)
