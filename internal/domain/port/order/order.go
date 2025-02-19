@@ -54,6 +54,14 @@ func (o *Order) CanCancel() bool {
 	return false
 }
 
+func (o *Order) InQueue() bool {
+	if o.Status == StatusConfirmed || o.Status == StatusInProgress {
+		return true
+	}
+
+	return false
+}
+
 func (o *Order) TotalPrice() int {
 	total := 0
 

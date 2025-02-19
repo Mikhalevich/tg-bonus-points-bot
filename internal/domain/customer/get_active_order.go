@@ -11,6 +11,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 )
 
 func (c *Customer) GetActiveOrder(ctx context.Context, info msginfo.Info) error {
@@ -38,11 +39,45 @@ func (c *Customer) GetActiveOrder(ctx context.Context, info msginfo.Info) error 
 		return fmt.Errorf("get products by ids: %w", err)
 	}
 
-	if err := c.replyCancelOrderMessage(ctx, info.ChatID, info.MessageID, activeOrder, productsInfo); err != nil {
+	position := c.orderQueuePosition(ctx, activeOrder)
+
+	if err := c.replyCancelOrderMessage(
+		ctx,
+		info.ChatID,
+		info.MessageID,
+		activeOrder,
+		productsInfo,
+		position,
+	); err != nil {
 		return fmt.Errorf("cancel order reply: %w", err)
 	}
 
 	return nil
+}
+
+func (c *Customer) orderQueuePosition(ctx context.Context, activeOrder *order.Order) int {
+	if !activeOrder.InQueue() {
+		return 0
+	}
+
+	pos, err := c.repository.GetOrderPositionByStatus(
+		ctx,
+		activeOrder.ID,
+		order.StatusConfirmed,
+		order.StatusInProgress,
+	)
+
+	if err != nil {
+		if c.repository.IsNotFoundError(err) {
+			return 0
+		}
+
+		logger.FromContext(ctx).WithError(err).Error("failed to get order position")
+
+		return 0
+	}
+
+	return pos
 }
 
 func (c *Customer) replyCancelOrderMessage(
@@ -51,8 +86,9 @@ func (c *Customer) replyCancelOrderMessage(
 	messageID msginfo.MessageID,
 	activeOrder *order.Order,
 	productsInfo map[product.ProductID]product.Product,
+	queuePosition int,
 ) error {
-	formattedOrder := formatOrder(activeOrder, productsInfo, c.sender.EscapeMarkdown)
+	formattedOrder := formatOrder(activeOrder, productsInfo, queuePosition, c.sender.EscapeMarkdown)
 
 	if !activeOrder.CanCancel() {
 		c.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder)
@@ -77,6 +113,7 @@ func (c *Customer) replyCancelOrderMessage(
 func formatOrder(
 	ord *order.Order,
 	productsInfo map[product.ProductID]product.Product,
+	queuePosition int,
 	escaper func(string) string,
 ) string {
 	format := []string{
@@ -99,6 +136,10 @@ func formatOrder(
 	for _, v := range ord.Products {
 		format = append(format, fmt.Sprintf("%s x%d %d",
 			escaper(productsInfo[v.ProductID].Title), v.Count, v.Price))
+	}
+
+	if queuePosition > 0 {
+		format = append(format, fmt.Sprintf("position in queue: *%d*", queuePosition))
 	}
 
 	return strings.Join(format, "\n")
