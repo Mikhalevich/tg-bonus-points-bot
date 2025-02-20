@@ -3,7 +3,6 @@ package customer
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
@@ -65,7 +64,7 @@ func (c *Customer) storeInfoByID(ctx context.Context, storeID store.ID) (*storeI
 		return nil, fmt.Errorf("get store by id: %w", err)
 	}
 
-	currentTime := time.Now()
+	currentTime := c.timeProvider.Now()
 
 	nextWorkingTime, isActive := s.Schedule.NextWorkingTime(currentTime)
 	if !isActive {

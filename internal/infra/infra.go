@@ -18,6 +18,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/qrcodegenerator"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/driver"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/timeprovider"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/verificationcodegenerator"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/botconsumer"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/httpmanager"
@@ -91,7 +92,7 @@ func StartBot(
 		qrGenerator       = qrcodegenerator.New()
 		customerProcessor = customer.New(storeID, sender, qrGenerator,
 			pg, pg, cartRedis, buttonRepository, dailyPosition,
-			verificationcodegenerator.New(),
+			verificationcodegenerator.New(), timeprovider.New(),
 		)
 	)
 
@@ -207,7 +208,7 @@ func StartManagerService(
 
 	var (
 		sender           = messagesender.New(b, botCfg.PaymentToken)
-		managerProcessor = manager.New(sender, pg)
+		managerProcessor = manager.New(sender, pg, timeprovider.New())
 	)
 
 	if err := httpmanager.New(managerProcessor, logger).Start(

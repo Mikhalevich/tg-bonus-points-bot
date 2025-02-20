@@ -3,7 +3,6 @@ package customer
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
@@ -32,7 +31,7 @@ func (c *Customer) OrderCancel(
 		return nil
 	}
 
-	if _, err := c.repository.UpdateOrderStatusByChatAndID(ctx, orderID, chatID, time.Now(),
+	if _, err := c.repository.UpdateOrderStatusByChatAndID(ctx, orderID, chatID, c.timeProvider.Now(),
 		order.StatusCanceled, order.StatusWaitingPayment, order.StatusConfirmed); err != nil {
 		if c.repository.IsNotUpdatedError(err) {
 			c.sender.SendText(ctx, chatID, message.OrderWithStatusNotExists(ord.Status))

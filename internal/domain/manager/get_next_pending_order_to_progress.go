@@ -3,14 +3,18 @@ package manager
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/perror"
 )
 
 func (m *Manager) GetNextPendingOrderToProcess(ctx context.Context) (*order.Order, error) {
-	order, err := m.repository.UpdateOrderStatusForMinID(ctx, time.Now(), order.StatusInProgress, order.StatusConfirmed)
+	order, err := m.repository.UpdateOrderStatusForMinID(
+		ctx,
+		m.timeProvider.Now(),
+		order.StatusInProgress,
+		order.StatusConfirmed,
+	)
 	if err != nil {
 		if m.repository.IsNotFoundError(err) {
 			return nil, perror.NotFound("no pending orders")
