@@ -3,7 +3,6 @@ package customer
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
@@ -17,7 +16,7 @@ func (c *Customer) OrderPaymentConfirmed(
 	currency string,
 	totalAmount int,
 ) error {
-	now := time.Now()
+	now := c.timeProvider.Now()
 
 	position, err := c.dailyPosition.Position(ctx, now)
 	if err != nil {

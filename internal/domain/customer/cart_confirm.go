@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
@@ -110,7 +109,7 @@ func (c *Customer) makeCreateOrderInput(
 	return port.CreateOrderInput{
 		ChatID:              chatID,
 		Status:              order.StatusWaitingPayment,
-		StatusOperationTime: time.Now(),
+		StatusOperationTime: c.timeProvider.Now(),
 		VerificationCode:    c.codeGenerator.Generate(),
 		Products:            orderedProducts,
 		CurrencyID:          currencyID,

@@ -3,7 +3,6 @@ package manager
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/perror"
@@ -18,7 +17,7 @@ func (m *Manager) UpdateOrderStatus(ctx context.Context, id order.ID, status ord
 	updatedOrder, err := m.repository.UpdateOrderStatus(
 		ctx,
 		id,
-		time.Now(),
+		m.timeProvider.Now(),
 		status,
 		previousStatuses...,
 	)

@@ -3,7 +3,6 @@ package customer
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
@@ -80,7 +79,7 @@ func (c *Customer) setOrderInProgress(
 	if _, err := c.repository.UpdateOrderStatus(
 		ctx,
 		orderID,
-		time.Now(),
+		c.timeProvider.Now(),
 		order.StatusPaymentInProgress,
 		order.StatusWaitingPayment,
 	); err != nil {
