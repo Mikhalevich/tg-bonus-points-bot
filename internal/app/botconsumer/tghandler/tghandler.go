@@ -11,38 +11,44 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
-//nolint:interfacebloat
-type OrderProcessor interface {
-	CartCreate(ctx context.Context, info msginfo.Info) error
-	CartViewCategoryProducts(ctx context.Context, info msginfo.Info, cartID cart.ID, categoryID product.CategoryID,
+type CartProcessor interface {
+	Create(ctx context.Context, info msginfo.Info) error
+	ViewCategoryProducts(ctx context.Context, info msginfo.Info, cartID cart.ID, categoryID product.CategoryID,
 		currencyID currency.ID) error
-	CartViewCategories(ctx context.Context, info msginfo.Info, cartID cart.ID, currencyID currency.ID) error
-	CartAddProduct(ctx context.Context, info msginfo.Info, cartID cart.ID, categoryID product.CategoryID,
+	ViewCategories(ctx context.Context, info msginfo.Info, cartID cart.ID, currencyID currency.ID) error
+	AddProduct(ctx context.Context, info msginfo.Info, cartID cart.ID, categoryID product.CategoryID,
 		productID product.ProductID, currencyID currency.ID) error
-	CartCancel(ctx context.Context, info msginfo.Info, cartID cart.ID) error
-	CartConfirm(ctx context.Context, info msginfo.Info, cartID cart.ID, currencyID currency.ID) error
+	Cancel(ctx context.Context, info msginfo.Info, cartID cart.ID) error
+	Confirm(ctx context.Context, info msginfo.Info, cartID cart.ID, currencyID currency.ID) error
+}
 
+type OrderProcessor interface {
 	GetButton(ctx context.Context, id button.ID) (*button.Button, error)
 
 	GetActiveOrder(ctx context.Context, info msginfo.Info) error
-	OrderCancel(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID,
+	Cancel(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID,
 		orderID order.ID, isTextMsg bool) error
-	OrderPaymentInProgress(ctx context.Context, paymentID string, orderID order.ID,
+	PaymentInProgress(ctx context.Context, paymentID string, orderID order.ID,
 		currency string, totalAmount int) error
-	OrderPaymentConfirmed(ctx context.Context, chatID msginfo.ChatID, orderID order.ID,
+	PaymentConfirmed(ctx context.Context, chatID msginfo.ChatID, orderID order.ID,
 		currency string, totalAmount int) error
-	OrderQueueSize(ctx context.Context, info msginfo.Info) error
+	QueueSize(ctx context.Context, info msginfo.Info) error
 }
 
 type cbHandler func(ctx context.Context, info msginfo.Info, btn button.Button) error
 
 type TGHandler struct {
+	cartProcessor  CartProcessor
 	orderProcessor OrderProcessor
 	cbHandlers     map[button.Operation]cbHandler
 }
 
-func New(orderProcessor OrderProcessor) *TGHandler {
+func New(
+	cartProcessor CartProcessor,
+	orderProcessor OrderProcessor,
+) *TGHandler {
 	h := &TGHandler{
+		cartProcessor:  cartProcessor,
 		orderProcessor: orderProcessor,
 	}
 

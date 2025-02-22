@@ -1,4 +1,4 @@
-package customer
+package customerorder
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (c *Customer) OrderPaymentConfirmed(
+func (c *CustomerOrder) PaymentConfirmed(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 	orderID order.ID,
@@ -48,7 +48,7 @@ func (c *Customer) OrderPaymentConfirmed(
 	return nil
 }
 
-func (c *Customer) sendOrderQRImage(
+func (c *CustomerOrder) sendOrderQRImage(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 	ord *order.Order,

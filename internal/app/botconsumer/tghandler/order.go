@@ -9,7 +9,7 @@ import (
 )
 
 func (t *TGHandler) Order(ctx context.Context, msg tgbot.BotMessage, sender tgbot.MessageSender) error {
-	if err := t.orderProcessor.CartCreate(
+	if err := t.cartProcessor.Create(
 		ctx,
 		msginfo.Info{
 			ChatID:    msginfo.ChatIDFromInt(msg.ChatID),

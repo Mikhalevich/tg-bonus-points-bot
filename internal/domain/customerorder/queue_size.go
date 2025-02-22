@@ -1,4 +1,4 @@
-package customer
+package customerorder
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (c *Customer) OrderQueueSize(ctx context.Context, info msginfo.Info) error {
+func (c *CustomerOrder) QueueSize(ctx context.Context, info msginfo.Info) error {
 	count, err := c.repository.GetOrdersCountByStatus(ctx, order.StatusConfirmed, order.StatusInProgress)
 	if err != nil {
 		return fmt.Errorf("get orders count by status: %w", err)
