@@ -13,10 +13,11 @@ func Start(
 	ctx context.Context,
 	token string,
 	logger logger.Logger,
-	processor tghandler.OrderProcessor,
+	cartProcessor tghandler.CartProcessor,
+	orderProcessor tghandler.OrderProcessor,
 ) error {
 	var (
-		botHandler = tghandler.New(processor)
+		botHandler = tghandler.New(cartProcessor, orderProcessor)
 	)
 
 	tbot, err := tgbot.New(token, logger)

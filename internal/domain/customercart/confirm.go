@@ -1,4 +1,4 @@
-package customer
+package customercart
 
 import (
 	"context"
@@ -16,7 +16,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
-func (c *Customer) CartConfirm(
+func (c *CustomerCart) Confirm(
 	ctx context.Context,
 	info msginfo.Info,
 	cartID cart.ID,
@@ -70,7 +70,7 @@ func (c *Customer) CartConfirm(
 	return nil
 }
 
-func (c *Customer) sendOrderInvoice(
+func (c *CustomerCart) sendOrderInvoice(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 	currencyID currency.ID,
@@ -101,7 +101,7 @@ func (c *Customer) sendOrderInvoice(
 	return nil
 }
 
-func (c *Customer) makeCreateOrderInput(
+func (c *CustomerCart) makeCreateOrderInput(
 	chatID msginfo.ChatID,
 	orderedProducts []order.OrderedProduct,
 	currencyID currency.ID,
@@ -110,13 +110,13 @@ func (c *Customer) makeCreateOrderInput(
 		ChatID:              chatID,
 		Status:              order.StatusWaitingPayment,
 		StatusOperationTime: c.timeProvider.Now(),
-		VerificationCode:    c.codeGenerator.Generate(),
+		VerificationCode:    "",
 		Products:            orderedProducts,
 		CurrencyID:          currencyID,
 	}
 }
 
-func (c *Customer) makeInvoiceButtons(
+func (c *CustomerCart) makeInvoiceButtons(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 	ord *order.Order,
@@ -153,7 +153,7 @@ func makeOrderDescription(
 	return strings.Join(positions, ", ")
 }
 
-func (c *Customer) orderedProductsFromCart(
+func (c *CustomerCart) orderedProductsFromCart(
 	ctx context.Context,
 	cartID cart.ID,
 	currencyID currency.ID,

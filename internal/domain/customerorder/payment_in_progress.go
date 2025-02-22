@@ -1,4 +1,4 @@
-package customer
+package customerorder
 
 import (
 	"context"
@@ -6,9 +6,10 @@ import (
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/store"
 )
 
-func (c *Customer) OrderPaymentInProgress(
+func (c *CustomerOrder) PaymentInProgress(
 	ctx context.Context,
 	paymentID string,
 	orderID order.ID,
@@ -45,7 +46,7 @@ type answerOrderPaymentResult struct {
 	ErrorMsg string
 }
 
-func (c *Customer) setOrderInProgress(
+func (c *CustomerOrder) setOrderInProgress(
 	ctx context.Context,
 	orderID order.ID,
 	totalAmount int,
@@ -88,5 +89,34 @@ func (c *Customer) setOrderInProgress(
 
 	return &answerOrderPaymentResult{
 		OK: true,
+	}, nil
+}
+
+type storeInfo struct {
+	Store              *store.Store
+	IsActive           bool
+	ClosedStoreMessage string
+}
+
+func (c *CustomerOrder) storeInfoByID(ctx context.Context, storeID store.ID) (*storeInfo, error) {
+	s, err := c.storeInfo.GetStoreByID(ctx, storeID)
+	if err != nil {
+		return nil, fmt.Errorf("get store by id: %w", err)
+	}
+
+	currentTime := c.timeProvider.Now()
+
+	nextWorkingTime, isActive := s.Schedule.NextWorkingTime(currentTime)
+	if !isActive {
+		return &storeInfo{
+			Store:              s,
+			IsActive:           false,
+			ClosedStoreMessage: message.StoreClosed(currentTime, nextWorkingTime),
+		}, nil
+	}
+
+	return &storeInfo{
+		Store:    s,
+		IsActive: true,
 	}, nil
 }

@@ -1,4 +1,4 @@
-package customer
+package customerorder
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (c *Customer) OrderCancel(
+func (c *CustomerOrder) Cancel(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 	messageID msginfo.MessageID,
@@ -46,7 +46,7 @@ func (c *Customer) OrderCancel(
 	return nil
 }
 
-func (c *Customer) editOridinOrderMessage(
+func (c *CustomerOrder) editOridinOrderMessage(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 	messageID msginfo.MessageID,

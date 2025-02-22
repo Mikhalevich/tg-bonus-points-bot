@@ -23,7 +23,8 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/botconsumer"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/httpmanager"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/config"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customercart"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customerorder"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/manager"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
@@ -88,19 +89,20 @@ func StartBot(
 	}
 
 	var (
-		sender            = messagesender.New(b, botCfg.PaymentToken)
-		qrGenerator       = qrcodegenerator.New()
-		customerProcessor = customer.New(storeID, sender, qrGenerator,
-			pg, pg, cartRedis, buttonRepository, dailyPosition,
-			verificationcodegenerator.New(), timeprovider.New(),
-		)
+		sender        = messagesender.New(b, botCfg.PaymentToken)
+		qrGenerator   = qrcodegenerator.New()
+		cartProcessor = customercart.New(storeID, pg, pg, cartRedis, sender,
+			timeprovider.New(), buttonRepository)
+		orderProcessor = customerorder.New(storeID, sender, qrGenerator, pg, pg,
+			buttonRepository, dailyPosition, verificationcodegenerator.New(), timeprovider.New())
 	)
 
 	if err := botconsumer.Start(
 		ctx,
 		botCfg.Token,
 		logger,
-		customerProcessor,
+		cartProcessor,
+		orderProcessor,
 	); err != nil {
 		return fmt.Errorf("start bot: %w", err)
 	}

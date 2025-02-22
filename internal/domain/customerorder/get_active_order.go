@@ -1,4 +1,4 @@
-package customer
+package customerorder
 
 import (
 	"context"
@@ -14,7 +14,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 )
 
-func (c *Customer) GetActiveOrder(ctx context.Context, info msginfo.Info) error {
+func (c *CustomerOrder) GetActiveOrder(ctx context.Context, info msginfo.Info) error {
 	activeOrder, err := c.repository.GetOrderByChatIDAndStatus(
 		ctx,
 		info.ChatID,
@@ -55,7 +55,7 @@ func (c *Customer) GetActiveOrder(ctx context.Context, info msginfo.Info) error 
 	return nil
 }
 
-func (c *Customer) orderQueuePosition(ctx context.Context, activeOrder *order.Order) int {
+func (c *CustomerOrder) orderQueuePosition(ctx context.Context, activeOrder *order.Order) int {
 	if !activeOrder.InQueue() {
 		return 0
 	}
@@ -80,7 +80,7 @@ func (c *Customer) orderQueuePosition(ctx context.Context, activeOrder *order.Or
 	return pos
 }
 
-func (c *Customer) replyCancelOrderMessage(
+func (c *CustomerOrder) replyCancelOrderMessage(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 	messageID msginfo.MessageID,
