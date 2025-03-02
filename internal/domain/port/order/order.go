@@ -46,6 +46,10 @@ type Order struct {
 	Products         []OrderedProduct
 }
 
+func (o *Order) IsSameChat(id msginfo.ChatID) bool {
+	return o.ChatID == id
+}
+
 func (o *Order) CanCancel() bool {
 	if o.Status == StatusConfirmed || o.Status == StatusWaitingPayment {
 		return true
