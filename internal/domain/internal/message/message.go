@@ -11,6 +11,10 @@ func OrderNotExists() string {
 	return "Order not exists"
 }
 
+func InvalidOrder() string {
+	return "Invalid order"
+}
+
 func OrderTotalPriceIncorrect() string {
 	return "Order price incorrect"
 }

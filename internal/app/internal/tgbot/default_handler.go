@@ -15,5 +15,5 @@ func (t *TGBot) defaultHandler(ctx context.Context, msg BotMessage, sender Messa
 }
 
 func (t *TGBot) makeDefaultHandler() bot.HandlerFunc {
-	return t.wrapHandler("default_handler", t.defaultHandler)
+	return t.wrapHandler("default_handler", "", t.defaultHandler)
 }
