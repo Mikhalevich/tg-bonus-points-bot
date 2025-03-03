@@ -15,7 +15,10 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 )
 
-var _ port.ButtonRepository = (*ButtonRepository)(nil)
+var (
+	_ port.ButtonRepositoryWriter = (*ButtonRepository)(nil)
+	_ port.ButtonRepositoryReader = (*ButtonRepository)(nil)
+)
 
 type ButtonRepository struct {
 	client *redis.Client

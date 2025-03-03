@@ -15,9 +15,10 @@ func Start(
 	logger logger.Logger,
 	cartProcessor tghandler.CartProcessor,
 	orderProcessor tghandler.OrderProcessor,
+	buttonProvider tghandler.ButtonProvider,
 ) error {
 	var (
-		botHandler = tghandler.New(cartProcessor, orderProcessor)
+		botHandler = tghandler.New(cartProcessor, orderProcessor, buttonProvider)
 	)
 
 	tbot, err := tgbot.New(token, logger)

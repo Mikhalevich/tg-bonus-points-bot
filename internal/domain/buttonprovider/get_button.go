@@ -1,4 +1,4 @@
-package customerorder
+package buttonprovider
 
 import (
 	"context"
@@ -8,10 +8,10 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/perror"
 )
 
-func (c *CustomerOrder) GetButton(ctx context.Context, id button.ID) (*button.Button, error) {
-	btn, err := c.buttonRepository.GetButton(ctx, id)
+func (b *ButtonProvider) GetButton(ctx context.Context, id button.ID) (*button.Button, error) {
+	btn, err := b.repository.GetButton(ctx, id)
 	if err != nil {
-		if c.buttonRepository.IsNotFoundError(err) {
+		if b.repository.IsNotFoundError(err) {
 			return nil, perror.NotFound("button not found")
 		}
 

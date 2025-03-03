@@ -11,7 +11,7 @@ type CustomerOrder struct {
 	qrCode           port.QRCodeGenerator
 	repository       port.CustomerOrderRepository
 	storeInfo        port.StoreInfo
-	buttonRepository port.ButtonRepository
+	buttonRepository port.ButtonRepositoryWriter
 	dailyPosition    port.DailyPositionGenerator
 	codeGenerator    port.VerificationCodeGenerator
 	timeProvider     port.TimeProvider
@@ -23,7 +23,7 @@ func New(
 	qrCode port.QRCodeGenerator,
 	repository port.CustomerOrderRepository,
 	storeInfo port.StoreInfo,
-	buttonRepository port.ButtonRepository,
+	buttonRepository port.ButtonRepositoryWriter,
 	dailyPosition port.DailyPositionGenerator,
 	codeGenerator port.VerificationCodeGenerator,
 	timeProvider port.TimeProvider,

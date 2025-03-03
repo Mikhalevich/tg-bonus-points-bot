@@ -23,6 +23,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/botconsumer"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/httpmanager"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/config"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/buttonprovider"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customercart"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customerorder"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/manager"
@@ -95,6 +96,7 @@ func StartBot(
 			timeprovider.New(), buttonRepository)
 		orderProcessor = customerorder.New(storeID, sender, qrGenerator, pg, pg,
 			buttonRepository, dailyPosition, verificationcodegenerator.New(), timeprovider.New())
+		buttonProvider = buttonprovider.New(buttonRepository)
 	)
 
 	if err := botconsumer.Start(
@@ -103,6 +105,7 @@ func StartBot(
 		logger,
 		cartProcessor,
 		orderProcessor,
+		buttonProvider,
 	); err != nil {
 		return fmt.Errorf("start bot: %w", err)
 	}
@@ -110,7 +113,10 @@ func StartBot(
 	return nil
 }
 
-func MakeRedisButtonRepository(ctx context.Context, cfg config.ButtonRedis) (port.ButtonRepository, error) {
+func MakeRedisButtonRepository(
+	ctx context.Context,
+	cfg config.ButtonRedis,
+) (*buttonrespository.ButtonRepository, error) {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     cfg.Addr,
 		Password: cfg.Pwd,

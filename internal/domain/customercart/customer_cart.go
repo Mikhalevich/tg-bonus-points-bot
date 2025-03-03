@@ -12,7 +12,7 @@ type CustomerCart struct {
 	cart             port.Cart
 	sender           port.MessageSender
 	timeProvider     port.TimeProvider
-	buttonRepository port.ButtonRepository
+	buttonRepository port.ButtonRepositoryWriter
 }
 
 func New(
@@ -22,7 +22,7 @@ func New(
 	cart port.Cart,
 	sender port.MessageSender,
 	timeProvider port.TimeProvider,
-	buttonRepository port.ButtonRepository,
+	buttonRepository port.ButtonRepositoryWriter,
 ) *CustomerCart {
 	return &CustomerCart{
 		storeID:          store.IDFromInt(storeID),
