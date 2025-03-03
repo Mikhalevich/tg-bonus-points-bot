@@ -23,8 +23,6 @@ type CartProcessor interface {
 }
 
 type OrderProcessor interface {
-	GetButton(ctx context.Context, id button.ID) (*button.Button, error)
-
 	GetActiveOrder(ctx context.Context, info msginfo.Info) error
 	GetOrderByID(ctx context.Context, chatID msginfo.ChatID, orderID order.ID) error
 	Cancel(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID,
@@ -36,21 +34,28 @@ type OrderProcessor interface {
 	QueueSize(ctx context.Context, info msginfo.Info) error
 }
 
+type ButtonProvider interface {
+	GetButton(ctx context.Context, id button.ID) (*button.Button, error)
+}
+
 type cbHandler func(ctx context.Context, info msginfo.Info, btn button.Button) error
 
 type TGHandler struct {
 	cartProcessor  CartProcessor
 	orderProcessor OrderProcessor
+	buttonProvider ButtonProvider
 	cbHandlers     map[button.Operation]cbHandler
 }
 
 func New(
 	cartProcessor CartProcessor,
 	orderProcessor OrderProcessor,
+	buttonProvider ButtonProvider,
 ) *TGHandler {
 	h := &TGHandler{
 		cartProcessor:  cartProcessor,
 		orderProcessor: orderProcessor,
+		buttonProvider: buttonProvider,
 	}
 
 	h.initCBHandlers()

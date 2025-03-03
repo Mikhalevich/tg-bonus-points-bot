@@ -11,7 +11,7 @@ import (
 )
 
 func (t *TGHandler) DefaultCallbackQuery(ctx context.Context, msg tgbot.BotMessage, sender tgbot.MessageSender) error {
-	btn, err := t.orderProcessor.GetButton(ctx, button.IDFromString(msg.Data))
+	btn, err := t.buttonProvider.GetButton(ctx, button.IDFromString(msg.Data))
 	if err != nil {
 		if perror.IsType(err, perror.TypeNotFound) {
 			sender.SendMessage(ctx, msg.ChatID, "Action already executed or expired")
