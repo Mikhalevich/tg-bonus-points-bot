@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/config"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra"
@@ -26,33 +24,29 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := runService(cfg, log); err != nil {
+	if err := tracing.SetupTracer(cfg.Tracing.Endpoint, cfg.Tracing.ServiceName, ""); err != nil {
+		log.WithError(err).Error("failed to setup tracer")
+		os.Exit(1)
+	}
+
+	if err := infra.RunSignalInterruptionFunc(func(ctx context.Context) error {
+		log.Info("manager service starting")
+
+		if err := infra.StartManagerService(
+			ctx,
+			cfg.HTTPPort,
+			cfg.Bot,
+			cfg.Postgres,
+			log.WithField("service_name", "http_manager"),
+		); err != nil {
+			return fmt.Errorf("start service: %w", err)
+		}
+
+		log.Info("manager service stopped")
+
+		return nil
+	}); err != nil {
 		log.WithError(err).Error("failed run service")
 		os.Exit(1)
 	}
-}
-
-func runService(cfg config.ManagerHTTPService, log logger.Logger) error {
-	if err := tracing.SetupTracer(cfg.Tracing.Endpoint, cfg.Tracing.ServiceName, ""); err != nil {
-		return fmt.Errorf("setup tracer: %w", err)
-	}
-
-	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer cancel()
-
-	log.Info("service starting")
-
-	if err := infra.StartManagerService(
-		ctx,
-		cfg.HTTPPort,
-		cfg.Bot,
-		cfg.Postgres,
-		log.WithField("service_name", "http_manager"),
-	); err != nil {
-		return fmt.Errorf("start bot: %w", err)
-	}
-
-	log.Info("service stopped")
-
-	return nil
 }
