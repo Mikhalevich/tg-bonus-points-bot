@@ -32,6 +32,7 @@ type OrderProcessor interface {
 	PaymentConfirmed(ctx context.Context, chatID msginfo.ChatID, orderID order.ID,
 		currency string, totalAmount int) error
 	QueueSize(ctx context.Context, info msginfo.Info) error
+	History(ctx context.Context, chatID msginfo.ChatID) error
 }
 
 type ButtonProvider interface {

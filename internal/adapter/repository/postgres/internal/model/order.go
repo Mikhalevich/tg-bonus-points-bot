@@ -65,6 +65,35 @@ func toPortCartProducts(dbProducts []OrderProduct) []order.OrderedProduct {
 	return portProducts
 }
 
+func ToPortShortOrders(orders []Order) ([]order.ShortOrder, error) {
+	shortOrders := make([]order.ShortOrder, 0, len(orders))
+
+	for _, v := range orders {
+		portShortOrder, err := ToPortShortOrder(v)
+		if err != nil {
+			return nil, fmt.Errorf("convert to short order: %w", err)
+		}
+
+		shortOrders = append(shortOrders, portShortOrder)
+	}
+
+	return shortOrders, nil
+}
+
+func ToPortShortOrder(dbOrder Order) (order.ShortOrder, error) {
+	status, err := order.StatusFromString(dbOrder.Status)
+	if err != nil {
+		return order.ShortOrder{}, fmt.Errorf("status from string: %w", err)
+	}
+
+	return order.ShortOrder{
+		ID:         order.IDFromInt(dbOrder.ID),
+		Status:     status,
+		CurrencyID: currency.IDFromInt(dbOrder.CurrencyID),
+		CreatedAt:  dbOrder.CreatedAt,
+	}, nil
+}
+
 func ToPortOrder(
 	dbOrder *Order,
 	dbOrderProducts []OrderProduct,
