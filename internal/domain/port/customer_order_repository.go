@@ -17,6 +17,7 @@ type UpdateOrderData struct {
 	DailyPosition       int
 }
 
+//nolint:interfacebloat
 type CustomerOrderRepository interface {
 	GetOrderByChatIDAndStatus(ctx context.Context, id msginfo.ChatID, statuses ...order.Status) (*order.Order, error)
 	GetOrderByID(ctx context.Context, id order.ID) (*order.Order, error)
@@ -49,6 +50,7 @@ type CustomerOrderRepository interface {
 		ids []product.ProductID,
 		currencyID currency.ID,
 	) (map[product.ProductID]product.Product, error)
+	HistoryOrders(ctx context.Context, chatID msginfo.ChatID, size int) ([]order.ShortOrder, error)
 	IsNotFoundError(err error) bool
 	IsNotUpdatedError(err error) bool
 }
