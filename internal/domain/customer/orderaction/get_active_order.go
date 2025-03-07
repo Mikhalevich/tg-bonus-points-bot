@@ -1,4 +1,4 @@
-package customerorder
+package orderaction
 
 import (
 	"context"
@@ -14,8 +14,8 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 )
 
-func (c *CustomerOrder) GetActiveOrder(ctx context.Context, info msginfo.Info) error {
-	activeOrder, err := c.repository.GetOrderByChatIDAndStatus(
+func (o *OrderAction) GetActiveOrder(ctx context.Context, info msginfo.Info) error {
+	activeOrder, err := o.repository.GetOrderByChatIDAndStatus(
 		ctx,
 		info.ChatID,
 		order.StatusWaitingPayment,
@@ -26,22 +26,22 @@ func (c *CustomerOrder) GetActiveOrder(ctx context.Context, info msginfo.Info) e
 	)
 
 	if err != nil {
-		if c.repository.IsNotFoundError(err) {
-			c.sender.ReplyText(ctx, info.ChatID, info.MessageID, "no active orders")
+		if o.repository.IsNotFoundError(err) {
+			o.sender.ReplyText(ctx, info.ChatID, info.MessageID, "no active orders")
 			return nil
 		}
 
 		return fmt.Errorf("get order by chat_id: %w", err)
 	}
 
-	productsInfo, err := c.repository.GetProductsByIDs(ctx, activeOrder.ProductIDs(), activeOrder.CurrencyID)
+	productsInfo, err := o.repository.GetProductsByIDs(ctx, activeOrder.ProductIDs(), activeOrder.CurrencyID)
 	if err != nil {
 		return fmt.Errorf("get products by ids: %w", err)
 	}
 
-	position := c.orderQueuePosition(ctx, activeOrder)
+	position := o.orderQueuePosition(ctx, activeOrder)
 
-	if err := c.replyCancelOrderMessage(
+	if err := o.replyCancelOrderMessage(
 		ctx,
 		info.ChatID,
 		info.MessageID,
@@ -55,12 +55,12 @@ func (c *CustomerOrder) GetActiveOrder(ctx context.Context, info msginfo.Info) e
 	return nil
 }
 
-func (c *CustomerOrder) orderQueuePosition(ctx context.Context, activeOrder *order.Order) int {
+func (o *OrderAction) orderQueuePosition(ctx context.Context, activeOrder *order.Order) int {
 	if !activeOrder.InQueue() {
 		return 0
 	}
 
-	pos, err := c.repository.GetOrderPositionByStatus(
+	pos, err := o.repository.GetOrderPositionByStatus(
 		ctx,
 		activeOrder.ID,
 		order.StatusConfirmed,
@@ -68,7 +68,7 @@ func (c *CustomerOrder) orderQueuePosition(ctx context.Context, activeOrder *ord
 	)
 
 	if err != nil {
-		if c.repository.IsNotFoundError(err) {
+		if o.repository.IsNotFoundError(err) {
 			return 0
 		}
 
@@ -80,7 +80,7 @@ func (c *CustomerOrder) orderQueuePosition(ctx context.Context, activeOrder *ord
 	return pos
 }
 
-func (c *CustomerOrder) replyCancelOrderMessage(
+func (o *OrderAction) replyCancelOrderMessage(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 	messageID msginfo.MessageID,
@@ -88,10 +88,10 @@ func (c *CustomerOrder) replyCancelOrderMessage(
 	productsInfo map[product.ProductID]product.Product,
 	queuePosition int,
 ) error {
-	formattedOrder := formatOrder(activeOrder, productsInfo, queuePosition, c.sender.EscapeMarkdown)
+	formattedOrder := formatOrder(activeOrder, productsInfo, queuePosition, o.sender.EscapeMarkdown)
 
 	if !activeOrder.CanCancel() {
-		c.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder)
+		o.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder)
 		return nil
 	}
 
@@ -100,12 +100,12 @@ func (c *CustomerOrder) replyCancelOrderMessage(
 		return fmt.Errorf("cancel order button: %w", err)
 	}
 
-	inlineCancelBtn, err := c.buttonRepository.SetButton(ctx, cancelBtn)
+	inlineCancelBtn, err := o.buttonRepository.SetButton(ctx, cancelBtn)
 	if err != nil {
 		return fmt.Errorf("make cancel order button: %w", err)
 	}
 
-	c.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder, button.InlineRow(inlineCancelBtn))
+	o.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder, button.InlineRow(inlineCancelBtn))
 
 	return nil
 }

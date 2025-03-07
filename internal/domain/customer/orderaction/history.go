@@ -1,4 +1,4 @@
-package customerorder
+package orderaction
 
 import (
 	"context"
@@ -15,13 +15,13 @@ const (
 	pageSize = 10
 )
 
-func (c *CustomerOrder) History(ctx context.Context, chatID msginfo.ChatID) error {
-	orders, err := c.repository.HistoryOrders(ctx, chatID, pageSize)
+func (o *OrderAction) History(ctx context.Context, chatID msginfo.ChatID) error {
+	orders, err := o.repository.HistoryOrders(ctx, chatID, pageSize)
 	if err != nil {
 		return fmt.Errorf("history orders: %w", err)
 	}
 
-	c.sender.SendTextMarkdown(ctx, chatID, formatShortOrders(orders, c.sender.EscapeMarkdown))
+	o.sender.SendTextMarkdown(ctx, chatID, formatShortOrders(orders, o.sender.EscapeMarkdown))
 
 	return nil
 }

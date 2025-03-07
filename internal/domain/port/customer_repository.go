@@ -18,6 +18,16 @@ type UpdateOrderData struct {
 }
 
 type CustomerOrderPaymentRepository interface {
+	GetOrderByID(ctx context.Context, id order.ID) (*order.Order, error)
+
+	GetProductsByIDs(
+		ctx context.Context,
+		ids []product.ProductID,
+		currencyID currency.ID,
+	) (map[product.ProductID]product.Product, error)
+
+	GetOrderPositionByStatus(ctx context.Context, id order.ID, statuses ...order.Status) (int, error)
+
 	UpdateOrderByChatAndID(
 		ctx context.Context,
 		orderID order.ID,
@@ -34,7 +44,12 @@ type CustomerOrderPaymentRepository interface {
 		prevStatuses ...order.Status,
 	) (*order.Order, error)
 
+	IsNotFoundError(err error) bool
+}
+
+type CustomerOrderActionRepository interface {
 	GetOrderByID(ctx context.Context, id order.ID) (*order.Order, error)
+	GetOrderByChatIDAndStatus(ctx context.Context, id msginfo.ChatID, statuses ...order.Status) (*order.Order, error)
 
 	GetProductsByIDs(
 		ctx context.Context,
@@ -43,14 +58,9 @@ type CustomerOrderPaymentRepository interface {
 	) (map[product.ProductID]product.Product, error)
 
 	GetOrderPositionByStatus(ctx context.Context, id order.ID, statuses ...order.Status) (int, error)
+	GetOrdersCountByStatus(ctx context.Context, statuses ...order.Status) (int, error)
+	HistoryOrders(ctx context.Context, chatID msginfo.ChatID, size int) ([]order.ShortOrder, error)
 
-	IsNotFoundError(err error) bool
-}
-
-//nolint:interfacebloat
-type CustomerOrderRepository interface {
-	GetOrderByChatIDAndStatus(ctx context.Context, id msginfo.ChatID, statuses ...order.Status) (*order.Order, error)
-	GetOrderByID(ctx context.Context, id order.ID) (*order.Order, error)
 	UpdateOrderByChatAndID(
 		ctx context.Context,
 		orderID order.ID,
@@ -58,6 +68,7 @@ type CustomerOrderRepository interface {
 		data UpdateOrderData,
 		prevStatuses ...order.Status,
 	) (*order.Order, error)
+
 	UpdateOrderStatusByChatAndID(
 		ctx context.Context,
 		orderID order.ID,
@@ -66,21 +77,33 @@ type CustomerOrderRepository interface {
 		newStatus order.Status,
 		prevStatuses ...order.Status,
 	) (*order.Order, error)
-	UpdateOrderStatus(
+
+	IsNotFoundError(err error) bool
+	IsNotUpdatedError(err error) bool
+}
+
+type CreateOrderInput struct {
+	ChatID              msginfo.ChatID
+	Status              order.Status
+	StatusOperationTime time.Time
+	VerificationCode    string
+	Products            []order.OrderedProduct
+	CurrencyID          currency.ID
+}
+
+type CustomerCartRepository interface {
+	CreateOrder(ctx context.Context, coi CreateOrderInput) (*order.Order, error)
+	GetCategories(ctx context.Context) ([]product.Category, error)
+	GetProductsByCategoryID(
 		ctx context.Context,
-		id order.ID,
-		operationTime time.Time,
-		newStatus order.Status,
-		prevStatuses ...order.Status,
-	) (*order.Order, error)
-	GetOrdersCountByStatus(ctx context.Context, statuses ...order.Status) (int, error)
-	GetOrderPositionByStatus(ctx context.Context, id order.ID, statuses ...order.Status) (int, error)
+		categoryID product.CategoryID,
+		currencyID currency.ID,
+	) ([]product.Product, error)
 	GetProductsByIDs(
 		ctx context.Context,
 		ids []product.ProductID,
 		currencyID currency.ID,
 	) (map[product.ProductID]product.Product, error)
-	HistoryOrders(ctx context.Context, chatID msginfo.ChatID, size int) ([]order.ShortOrder, error)
-	IsNotFoundError(err error) bool
-	IsNotUpdatedError(err error) bool
+	GetCurrencyByID(ctx context.Context, id currency.ID) (*currency.Currency, error)
+	IsAlreadyExistsError(err error) bool
 }

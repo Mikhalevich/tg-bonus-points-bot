@@ -22,16 +22,19 @@ type CartProcessor interface {
 	Confirm(ctx context.Context, info msginfo.Info, cartID cart.ID, currencyID currency.ID) error
 }
 
-type OrderProcessor interface {
+type OrderActionProcessor interface {
 	GetActiveOrder(ctx context.Context, info msginfo.Info) error
 	Cancel(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID,
 		orderID order.ID, isTextMsg bool) error
+	QueueSize(ctx context.Context, info msginfo.Info) error
+	History(ctx context.Context, chatID msginfo.ChatID) error
+}
+
+type OrderPaymentProcessor interface {
 	PaymentInProgress(ctx context.Context, paymentID string, orderID order.ID,
 		currency string, totalAmount int) error
 	PaymentConfirmed(ctx context.Context, chatID msginfo.ChatID, orderID order.ID,
 		currency string, totalAmount int) error
-	QueueSize(ctx context.Context, info msginfo.Info) error
-	History(ctx context.Context, chatID msginfo.ChatID) error
 }
 
 type ButtonProvider interface {
@@ -41,21 +44,24 @@ type ButtonProvider interface {
 type cbHandler func(ctx context.Context, info msginfo.Info, btn button.Button) error
 
 type TGHandler struct {
-	cartProcessor  CartProcessor
-	orderProcessor OrderProcessor
-	buttonProvider ButtonProvider
-	cbHandlers     map[button.Operation]cbHandler
+	cartProcessor    CartProcessor
+	actionProcessor  OrderActionProcessor
+	paymentProcessor OrderPaymentProcessor
+	buttonProvider   ButtonProvider
+	cbHandlers       map[button.Operation]cbHandler
 }
 
 func New(
 	cartProcessor CartProcessor,
-	orderProcessor OrderProcessor,
+	actionProcessor OrderActionProcessor,
+	paymentProcessor OrderPaymentProcessor,
 	buttonProvider ButtonProvider,
 ) *TGHandler {
 	h := &TGHandler{
-		cartProcessor:  cartProcessor,
-		orderProcessor: orderProcessor,
-		buttonProvider: buttonProvider,
+		cartProcessor:    cartProcessor,
+		actionProcessor:  actionProcessor,
+		paymentProcessor: paymentProcessor,
+		buttonProvider:   buttonProvider,
 	}
 
 	h.initCBHandlers()

@@ -1,4 +1,4 @@
-package customercart
+package cartprocessing
 
 import (
 	"context"
@@ -14,7 +14,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
 )
 
-func (c *CustomerCart) ViewCategories(
+func (c *CartProcessing) ViewCategories(
 	ctx context.Context,
 	info msginfo.Info,
 	cartID cart.ID,
@@ -57,7 +57,7 @@ func (c *CustomerCart) ViewCategories(
 	return nil
 }
 
-func (c *CustomerCart) makeCartCategoriesButtons(
+func (c *CartProcessing) makeCartCategoriesButtons(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 	cartID cart.ID,
