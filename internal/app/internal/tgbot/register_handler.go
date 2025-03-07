@@ -2,7 +2,6 @@ package tgbot
 
 import (
 	"context"
-	"strings"
 
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
@@ -55,8 +54,8 @@ func (t *TGBot) addCommand(command string, description string, handler Handler) 
 	t.bot.RegisterHandler(
 		bot.HandlerTypeMessageText,
 		command,
-		bot.MatchTypePrefix,
-		t.wrapHandler(command, command, handler),
+		bot.MatchTypeExact,
+		t.wrapHandler(command, handler),
 	)
 }
 
@@ -70,7 +69,7 @@ func (t *TGBot) AddDefaultTextHandler(h Handler) {
 		bot.HandlerTypeMessageText,
 		"",
 		bot.MatchTypePrefix,
-		t.wrapHandler("default_text_handler", "", h),
+		t.wrapHandler("default_text_handler", h),
 	)
 }
 
@@ -79,11 +78,11 @@ func (t *TGBot) AddDefaultCallbackQueryHander(h Handler) {
 		bot.HandlerTypeCallbackQueryData,
 		"",
 		bot.MatchTypePrefix,
-		t.wrapHandler("default_callback_query", "", h),
+		t.wrapHandler("default_callback_query", h),
 	)
 }
 
-func (t *TGBot) wrapHandler(pattern, prefixTrimFromText string, h Handler) bot.HandlerFunc {
+func (t *TGBot) wrapHandler(pattern string, h Handler) bot.HandlerFunc {
 	h = t.applyMiddleware(h)
 
 	return func(ctx context.Context, b *bot.Bot, update *models.Update) {
@@ -91,7 +90,7 @@ func (t *TGBot) wrapHandler(pattern, prefixTrimFromText string, h Handler) bot.H
 		defer span.End()
 
 		var (
-			msg    = makeMsgFromUpdate(update, prefixTrimFromText)
+			msg    = makeMsgFromUpdate(update)
 			log    = t.logger.WithContext(ctx).WithField("endpoint", pattern)
 			ctxLog = logger.WithLogger(ctx, log)
 		)
@@ -112,12 +111,12 @@ func (t *TGBot) wrapHandler(pattern, prefixTrimFromText string, h Handler) bot.H
 	}
 }
 
-func makeMsgFromUpdate(u *models.Update, prefixTrimFromText string) BotMessage {
+func makeMsgFromUpdate(u *models.Update) BotMessage {
 	if u.Message != nil {
 		msg := BotMessage{
 			MessageID: u.Message.ID,
 			ChatID:    u.Message.Chat.ID,
-			Text:      strings.TrimSpace(strings.TrimPrefix(u.Message.Text, prefixTrimFromText)),
+			Text:      u.Message.Text,
 		}
 
 		if u.Message.SuccessfulPayment != nil {
