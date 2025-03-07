@@ -7,10 +7,9 @@ import (
 )
 
 type ShortOrder struct {
-	ID               ID
-	Status           Status
-	VerificationCode string
-	CurrencyID       currency.ID
-	CreatedAt        time.Time
-	TotalPrice       int
+	ID         ID
+	Status     Status
+	CurrencyID currency.ID
+	CreatedAt  time.Time
+	TotalPrice int
 }
