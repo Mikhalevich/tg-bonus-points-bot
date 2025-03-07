@@ -48,7 +48,7 @@ func (t *TGHandler) cancelOrder(ctx context.Context, info msginfo.Info, btn butt
 		return fmt.Errorf("invalid payload: %w", err)
 	}
 
-	if err := t.orderProcessor.Cancel(
+	if err := t.actionProcessor.Cancel(
 		ctx,
 		info.ChatID,
 		info.MessageID,

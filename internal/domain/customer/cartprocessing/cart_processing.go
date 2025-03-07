@@ -1,11 +1,11 @@
-package customercart
+package cartprocessing
 
 import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/store"
 )
 
-type CustomerCart struct {
+type CartProcessing struct {
 	storeID          store.ID
 	repository       port.CustomerCartRepository
 	storeInfo        port.StoreInfo
@@ -23,8 +23,8 @@ func New(
 	sender port.MessageSender,
 	timeProvider port.TimeProvider,
 	buttonRepository port.ButtonRepositoryWriter,
-) *CustomerCart {
-	return &CustomerCart{
+) *CartProcessing {
+	return &CartProcessing{
 		storeID:          store.IDFromInt(storeID),
 		repository:       repository,
 		storeInfo:        storeInfo,

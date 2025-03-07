@@ -1,4 +1,4 @@
-package customerorder
+package orderaction
 
 import (
 	"context"
@@ -9,17 +9,17 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (c *CustomerOrder) Cancel(
+func (o *OrderAction) Cancel(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 	messageID msginfo.MessageID,
 	orderID order.ID,
 	isTextMsg bool,
 ) error {
-	ord, err := c.repository.GetOrderByID(ctx, orderID)
+	ord, err := o.repository.GetOrderByID(ctx, orderID)
 	if err != nil {
-		if c.repository.IsNotFoundError(err) {
-			c.sender.SendText(ctx, chatID, message.OrderNotExists())
+		if o.repository.IsNotFoundError(err) {
+			o.sender.SendText(ctx, chatID, message.OrderNotExists())
 			return nil
 		}
 
@@ -27,36 +27,36 @@ func (c *CustomerOrder) Cancel(
 	}
 
 	if !ord.CanCancel() {
-		c.sender.SendText(ctx, chatID, message.OrderStatus(ord.Status))
+		o.sender.SendText(ctx, chatID, message.OrderStatus(ord.Status))
 		return nil
 	}
 
-	if _, err := c.repository.UpdateOrderStatusByChatAndID(ctx, orderID, chatID, c.timeProvider.Now(),
+	if _, err := o.repository.UpdateOrderStatusByChatAndID(ctx, orderID, chatID, o.timeProvider.Now(),
 		order.StatusCanceled, order.StatusWaitingPayment, order.StatusConfirmed); err != nil {
-		if c.repository.IsNotUpdatedError(err) {
-			c.sender.SendText(ctx, chatID, message.OrderWithStatusNotExists(ord.Status))
+		if o.repository.IsNotUpdatedError(err) {
+			o.sender.SendText(ctx, chatID, message.OrderWithStatusNotExists(ord.Status))
 			return nil
 		}
 
 		return fmt.Errorf("update order status: %w", err)
 	}
 
-	c.editOridinOrderMessage(ctx, chatID, messageID, isTextMsg)
+	o.editOridinOrderMessage(ctx, chatID, messageID, isTextMsg)
 
 	return nil
 }
 
-func (c *CustomerOrder) editOridinOrderMessage(
+func (o *OrderAction) editOridinOrderMessage(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 	messageID msginfo.MessageID,
 	isTextMsg bool,
 ) {
 	if isTextMsg {
-		c.sender.EditTextMessage(ctx, chatID, messageID, message.OrderCanceled())
+		o.sender.EditTextMessage(ctx, chatID, messageID, message.OrderCanceled())
 		return
 	}
 
-	c.sender.DeleteMessage(ctx, chatID, messageID)
-	c.sender.SendText(ctx, chatID, message.OrderCanceled())
+	o.sender.DeleteMessage(ctx, chatID, messageID)
+	o.sender.SendText(ctx, chatID, message.OrderCanceled())
 }

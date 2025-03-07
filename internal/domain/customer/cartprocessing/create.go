@@ -1,4 +1,4 @@
-package customercart
+package cartprocessing
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/store"
 )
 
-func (c *CustomerCart) Create(ctx context.Context, info msginfo.Info) error {
+func (c *CartProcessing) Create(ctx context.Context, info msginfo.Info) error {
 	storeInfo, err := c.storeInfoByID(ctx, c.storeID)
 	if err != nil {
 		return fmt.Errorf("check for active: %w", err)
@@ -58,7 +58,7 @@ type storeInfo struct {
 	ClosedStoreMessage string
 }
 
-func (c *CustomerCart) storeInfoByID(ctx context.Context, storeID store.ID) (*storeInfo, error) {
+func (c *CartProcessing) storeInfoByID(ctx context.Context, storeID store.ID) (*storeInfo, error) {
 	s, err := c.storeInfo.GetStoreByID(ctx, storeID)
 	if err != nil {
 		return nil, fmt.Errorf("get store by id: %w", err)

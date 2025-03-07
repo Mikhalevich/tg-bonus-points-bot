@@ -14,11 +14,12 @@ func Start(
 	token string,
 	logger logger.Logger,
 	cartProcessor tghandler.CartProcessor,
-	orderProcessor tghandler.OrderProcessor,
+	actionProcessor tghandler.OrderActionProcessor,
+	paymentProcessor tghandler.OrderPaymentProcessor,
 	buttonProvider tghandler.ButtonProvider,
 ) error {
 	var (
-		botHandler = tghandler.New(cartProcessor, orderProcessor, buttonProvider)
+		botHandler = tghandler.New(cartProcessor, actionProcessor, paymentProcessor, buttonProvider)
 	)
 
 	tbot, err := tgbot.New(token, logger)

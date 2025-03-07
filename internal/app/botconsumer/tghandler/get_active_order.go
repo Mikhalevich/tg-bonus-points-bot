@@ -9,7 +9,7 @@ import (
 )
 
 func (t *TGHandler) GetActiveOrder(ctx context.Context, msg tgbot.BotMessage, sender tgbot.MessageSender) error {
-	if err := t.orderProcessor.GetActiveOrder(
+	if err := t.actionProcessor.GetActiveOrder(
 		ctx,
 		msginfo.Info{
 			ChatID:    msginfo.ChatIDFromInt(msg.ChatID),

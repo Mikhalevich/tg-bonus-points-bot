@@ -1,4 +1,4 @@
-package customerorder
+package orderpayment
 
 import (
 	"context"
@@ -9,32 +9,32 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/store"
 )
 
-func (c *CustomerOrder) PaymentInProgress(
+func (p *OrderPayment) PaymentInProgress(
 	ctx context.Context,
 	paymentID string,
 	orderID order.ID,
 	currency string,
 	totalAmount int,
 ) error {
-	storeInfo, err := c.storeInfoByID(ctx, c.storeID)
+	storeInfo, err := p.storeInfoByID(ctx, p.storeID)
 	if err != nil {
 		return fmt.Errorf("check for active: %w", err)
 	}
 
 	if !storeInfo.IsActive {
-		if err := c.sender.AnswerOrderPayment(ctx, paymentID, false, storeInfo.ClosedStoreMessage); err != nil {
+		if err := p.sender.AnswerOrderPayment(ctx, paymentID, false, storeInfo.ClosedStoreMessage); err != nil {
 			return fmt.Errorf("answer payment for store is closed: %w", err)
 		}
 
 		return nil
 	}
 
-	res, err := c.setOrderInProgress(ctx, orderID, totalAmount)
+	res, err := p.setOrderInProgress(ctx, orderID, totalAmount)
 	if err != nil {
 		return fmt.Errorf("set order in progress: %w", err)
 	}
 
-	if err := c.sender.AnswerOrderPayment(ctx, paymentID, res.OK, res.ErrorMsg); err != nil {
+	if err := p.sender.AnswerOrderPayment(ctx, paymentID, res.OK, res.ErrorMsg); err != nil {
 		return fmt.Errorf("answer order payment: %w", err)
 	}
 
@@ -46,14 +46,14 @@ type answerOrderPaymentResult struct {
 	ErrorMsg string
 }
 
-func (c *CustomerOrder) setOrderInProgress(
+func (p *OrderPayment) setOrderInProgress(
 	ctx context.Context,
 	orderID order.ID,
 	totalAmount int,
 ) (*answerOrderPaymentResult, error) {
-	ord, err := c.repository.GetOrderByID(ctx, orderID)
+	ord, err := p.repository.GetOrderByID(ctx, orderID)
 	if err != nil {
-		if c.repository.IsNotFoundError(err) {
+		if p.repository.IsNotFoundError(err) {
 			return &answerOrderPaymentResult{
 				OK:       false,
 				ErrorMsg: message.OrderNotExists(),
@@ -77,10 +77,10 @@ func (c *CustomerOrder) setOrderInProgress(
 		}, nil
 	}
 
-	if _, err := c.repository.UpdateOrderStatus(
+	if _, err := p.repository.UpdateOrderStatus(
 		ctx,
 		orderID,
-		c.timeProvider.Now(),
+		p.timeProvider.Now(),
 		order.StatusPaymentInProgress,
 		order.StatusWaitingPayment,
 	); err != nil {
@@ -98,13 +98,13 @@ type storeInfo struct {
 	ClosedStoreMessage string
 }
 
-func (c *CustomerOrder) storeInfoByID(ctx context.Context, storeID store.ID) (*storeInfo, error) {
-	s, err := c.storeInfo.GetStoreByID(ctx, storeID)
+func (p *OrderPayment) storeInfoByID(ctx context.Context, storeID store.ID) (*storeInfo, error) {
+	s, err := p.storeInfo.GetStoreByID(ctx, storeID)
 	if err != nil {
 		return nil, fmt.Errorf("get store by id: %w", err)
 	}
 
-	currentTime := c.timeProvider.Now()
+	currentTime := p.timeProvider.Now()
 
 	nextWorkingTime, isActive := s.Schedule.NextWorkingTime(currentTime)
 	if !isActive {
