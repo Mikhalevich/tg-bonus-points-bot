@@ -39,6 +39,7 @@ type Order struct {
 	Status           Status
 	VerificationCode string
 	CurrencyID       currency.ID
+	TotalPrice       int
 	DailyPosition    int
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
@@ -64,16 +65,6 @@ func (o *Order) InQueue() bool {
 	}
 
 	return false
-}
-
-func (o *Order) TotalPrice() int {
-	total := 0
-
-	for _, v := range o.Products {
-		total += v.Count * v.Price
-	}
-
-	return total
 }
 
 func (o *Order) ProductIDs() []product.ProductID {

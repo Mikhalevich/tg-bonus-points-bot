@@ -8,6 +8,7 @@ import (
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
@@ -39,6 +40,11 @@ func (o *OrderAction) GetActiveOrder(ctx context.Context, info msginfo.Info) err
 		return fmt.Errorf("get products by ids: %w", err)
 	}
 
+	curr, err := o.repository.GetCurrencyByID(ctx, activeOrder.CurrencyID)
+	if err != nil {
+		return fmt.Errorf("get currency by id: %w", err)
+	}
+
 	position := o.orderQueuePosition(ctx, activeOrder)
 
 	if err := o.replyCancelOrderMessage(
@@ -46,6 +52,7 @@ func (o *OrderAction) GetActiveOrder(ctx context.Context, info msginfo.Info) err
 		info.ChatID,
 		info.MessageID,
 		activeOrder,
+		curr,
 		productsInfo,
 		position,
 	); err != nil {
@@ -85,10 +92,11 @@ func (o *OrderAction) replyCancelOrderMessage(
 	chatID msginfo.ChatID,
 	messageID msginfo.MessageID,
 	activeOrder *order.Order,
+	curr *currency.Currency,
 	productsInfo map[product.ProductID]product.Product,
 	queuePosition int,
 ) error {
-	formattedOrder := formatOrder(activeOrder, productsInfo, queuePosition, o.sender.EscapeMarkdown)
+	formattedOrder := formatOrder(activeOrder, curr, productsInfo, queuePosition, o.sender.EscapeMarkdown)
 
 	if !activeOrder.CanCancel() {
 		o.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder)
@@ -112,6 +120,7 @@ func (o *OrderAction) replyCancelOrderMessage(
 
 func formatOrder(
 	ord *order.Order,
+	curr *currency.Currency,
 	productsInfo map[product.ProductID]product.Product,
 	queuePosition int,
 	escaper func(string) string,
@@ -121,6 +130,7 @@ func formatOrder(
 		fmt.Sprintf("status: *%s*", ord.Status.HumanReadable()),
 		fmt.Sprintf("verification code: *%s*", escaper(ord.VerificationCode)),
 		fmt.Sprintf("daily position: *%d*", ord.DailyPosition),
+		fmt.Sprintf("total price: *%s*", curr.FormatPrice(ord.TotalPrice)),
 		fmt.Sprintf("created\\_at: *%s*", escaper(ord.CreatedAt.Format(time.RFC3339))),
 		fmt.Sprintf("updated\\_at: *%s*", escaper(ord.UpdatedAt.Format(time.RFC3339))),
 	}
@@ -134,8 +144,8 @@ func formatOrder(
 	}
 
 	for _, v := range ord.Products {
-		format = append(format, fmt.Sprintf("%s x%d %d",
-			escaper(productsInfo[v.ProductID].Title), v.Count, v.Price))
+		format = append(format, fmt.Sprintf("%s x%d %s",
+			escaper(productsInfo[v.ProductID].Title), v.Count, curr.FormatPrice(v.Price)))
 	}
 
 	if queuePosition > 0 {

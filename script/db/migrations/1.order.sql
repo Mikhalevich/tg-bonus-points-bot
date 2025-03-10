@@ -31,6 +31,7 @@ CREATE TABLE orders(
     verification_code TEXT,
     currency_id INTEGER NOT NULL,
     daily_position INTEGER,
+    total_price INTEGER NOT NULL,
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL,
 

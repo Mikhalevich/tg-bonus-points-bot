@@ -19,6 +19,7 @@ type UpdateOrderData struct {
 
 type CustomerOrderPaymentRepository interface {
 	GetOrderByID(ctx context.Context, id order.ID) (*order.Order, error)
+	GetCurrencyByID(ctx context.Context, id currency.ID) (*currency.Currency, error)
 
 	GetProductsByIDs(
 		ctx context.Context,
@@ -47,9 +48,11 @@ type CustomerOrderPaymentRepository interface {
 	IsNotFoundError(err error) bool
 }
 
+//nolint:interfacebloat
 type CustomerOrderActionRepository interface {
 	GetOrderByID(ctx context.Context, id order.ID) (*order.Order, error)
 	GetOrderByChatIDAndStatus(ctx context.Context, id msginfo.ChatID, statuses ...order.Status) (*order.Order, error)
+	GetCurrencyByID(ctx context.Context, id currency.ID) (*currency.Currency, error)
 
 	GetProductsByIDs(
 		ctx context.Context,
@@ -87,6 +90,7 @@ type CreateOrderInput struct {
 	Status              order.Status
 	StatusOperationTime time.Time
 	VerificationCode    string
+	TotalPrice          int
 	Products            []order.OrderedProduct
 	CurrencyID          currency.ID
 }
