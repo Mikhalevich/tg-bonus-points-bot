@@ -19,6 +19,7 @@ func (p *Postgres) HistoryOrders(ctx context.Context, chatID msginfo.ChatID, siz
 			status,
 			verification_code,
 			currency_id,
+			total_price,
 			created_at,
 			updated_at
 		FROM

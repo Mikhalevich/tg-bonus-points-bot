@@ -70,7 +70,7 @@ func (p *OrderPayment) setOrderInProgress(
 		}, nil
 	}
 
-	if ord.TotalPrice() != totalAmount {
+	if ord.TotalPrice != totalAmount {
 		return &answerOrderPaymentResult{
 			OK:       false,
 			ErrorMsg: message.OrderTotalPriceIncorrect(),

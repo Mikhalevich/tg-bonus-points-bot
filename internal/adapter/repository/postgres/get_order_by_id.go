@@ -45,6 +45,8 @@ func selectOrderByID(ctx context.Context, ext sqlx.ExtContext, id order.ID) (*mo
 			status,
 			verification_code,
 			currency_id,
+			daily_position,
+			total_price,
 			created_at,
 			updated_at
 		FROM

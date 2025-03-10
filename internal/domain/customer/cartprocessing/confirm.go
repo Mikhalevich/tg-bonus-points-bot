@@ -106,11 +106,17 @@ func (c *CartProcessing) makeCreateOrderInput(
 	orderedProducts []order.OrderedProduct,
 	currencyID currency.ID,
 ) port.CreateOrderInput {
+	totalPrice := 0
+	for _, v := range orderedProducts {
+		totalPrice += v.Count * v.Price
+	}
+
 	return port.CreateOrderInput{
 		ChatID:              chatID,
 		Status:              order.StatusWaitingPayment,
 		StatusOperationTime: c.timeProvider.Now(),
 		VerificationCode:    "",
+		TotalPrice:          totalPrice,
 		Products:            orderedProducts,
 		CurrencyID:          currencyID,
 	}
@@ -122,7 +128,7 @@ func (c *CartProcessing) makeInvoiceButtons(
 	ord *order.Order,
 	curr *currency.Currency,
 ) ([]button.InlineKeyboardButtonRow, error) {
-	payBtn := button.Pay(fmt.Sprintf("%s, %s", message.Pay(), curr.FormatPrice(ord.TotalPrice())))
+	payBtn := button.Pay(fmt.Sprintf("%s, %s", message.Pay(), curr.FormatPrice(ord.TotalPrice)))
 
 	cancelBtn, err := button.CancelOrder(chatID, message.Cancel(), ord.ID, false)
 	if err != nil {

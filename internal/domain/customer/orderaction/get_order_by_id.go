@@ -30,7 +30,12 @@ func (o *OrderAction) GetOrderByID(ctx context.Context, chatID msginfo.ChatID, o
 		return fmt.Errorf("get products by ids: %w", err)
 	}
 
-	o.sender.SendText(ctx, chatID, formatOrder(ord, productsInfo, 0, o.sender.EscapeMarkdown))
+	curr, err := o.repository.GetCurrencyByID(ctx, ord.CurrencyID)
+	if err != nil {
+		return fmt.Errorf("get currency by id: %w", err)
+	}
+
+	o.sender.SendText(ctx, chatID, formatOrder(ord, curr, productsInfo, 0, o.sender.EscapeMarkdown))
 
 	return nil
 }

@@ -19,6 +19,7 @@ type Order struct {
 	VerificationCode sql.NullString `db:"verification_code"`
 	CurrencyID       int            `db:"currency_id"`
 	DailyPosition    sql.NullInt32  `db:"daily_position"`
+	TotalPrice       int            `db:"total_price"`
 	CreatedAt        time.Time      `db:"created_at"`
 	UpdatedAt        time.Time      `db:"updated_at"`
 }
@@ -91,6 +92,7 @@ func ToPortShortOrder(dbOrder Order) (order.ShortOrder, error) {
 		Status:     status,
 		CurrencyID: currency.IDFromInt(dbOrder.CurrencyID),
 		CreatedAt:  dbOrder.CreatedAt,
+		TotalPrice: dbOrder.TotalPrice,
 	}, nil
 }
 
@@ -116,6 +118,7 @@ func ToPortOrder(
 		VerificationCode: dbOrder.VerificationCode.String,
 		CurrencyID:       currency.IDFromInt(dbOrder.CurrencyID),
 		DailyPosition:    int(dbOrder.DailyPosition.Int32),
+		TotalPrice:       dbOrder.TotalPrice,
 		CreatedAt:        dbOrder.CreatedAt,
 		UpdatedAt:        dbOrder.UpdatedAt,
 		Timeline:         portTimeline,

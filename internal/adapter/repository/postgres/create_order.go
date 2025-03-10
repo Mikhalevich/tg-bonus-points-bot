@@ -21,6 +21,7 @@ func (p *Postgres) CreateOrder(ctx context.Context, coi port.CreateOrderInput) (
 			Status:           coi.Status.String(),
 			VerificationCode: model.NullString(coi.VerificationCode),
 			CurrencyID:       coi.CurrencyID.Int(),
+			TotalPrice:       coi.TotalPrice,
 			CreatedAt:        coi.StatusOperationTime,
 			UpdatedAt:        coi.StatusOperationTime,
 		})
@@ -58,6 +59,7 @@ func convertToOrder(id order.ID, input port.CreateOrderInput) order.Order {
 		Status:           input.Status,
 		VerificationCode: input.VerificationCode,
 		CurrencyID:       input.CurrencyID,
+		TotalPrice:       input.TotalPrice,
 		Products:         input.Products,
 	}
 }
@@ -69,6 +71,7 @@ func (p *Postgres) insertOrder(ctx context.Context, ext sqlx.ExtContext, dbOrder
 			status,
 			verification_code,
 			currency_id,
+			total_price,
 			created_at,
 			updated_at
 		) VALUES (
@@ -76,6 +79,7 @@ func (p *Postgres) insertOrder(ctx context.Context, ext sqlx.ExtContext, dbOrder
 			:status,
 			:verification_code,
 			:currency_id,
+			:total_price,
 			:created_at,
 			:updated_at
 		)

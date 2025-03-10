@@ -54,6 +54,8 @@ func selectOrderByChatIDAndStatus(
 			status,
 			verification_code,
 			currency_id,
+			daily_position,
+			total_price,
 			created_at,
 			updated_at
 		FROM
