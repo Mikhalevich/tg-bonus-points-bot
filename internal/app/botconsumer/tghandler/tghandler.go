@@ -27,6 +27,9 @@ type OrderActionProcessor interface {
 	Cancel(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID,
 		orderID order.ID, isTextMsg bool) error
 	QueueSize(ctx context.Context, info msginfo.Info) error
+}
+
+type OrderHistoryProcessor interface {
 	History(ctx context.Context, chatID msginfo.ChatID) error
 }
 
@@ -46,6 +49,7 @@ type cbHandler func(ctx context.Context, info msginfo.Info, btn button.Button) e
 type TGHandler struct {
 	cartProcessor    CartProcessor
 	actionProcessor  OrderActionProcessor
+	historyProcessor OrderHistoryProcessor
 	paymentProcessor OrderPaymentProcessor
 	buttonProvider   ButtonProvider
 	cbHandlers       map[button.Operation]cbHandler
@@ -54,12 +58,14 @@ type TGHandler struct {
 func New(
 	cartProcessor CartProcessor,
 	actionProcessor OrderActionProcessor,
+	historyProcessor OrderHistoryProcessor,
 	paymentProcessor OrderPaymentProcessor,
 	buttonProvider ButtonProvider,
 ) *TGHandler {
 	h := &TGHandler{
 		cartProcessor:    cartProcessor,
 		actionProcessor:  actionProcessor,
+		historyProcessor: historyProcessor,
 		paymentProcessor: paymentProcessor,
 		buttonProvider:   buttonProvider,
 	}

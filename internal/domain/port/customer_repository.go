@@ -48,7 +48,6 @@ type CustomerOrderPaymentRepository interface {
 	IsNotFoundError(err error) bool
 }
 
-//nolint:interfacebloat
 type CustomerOrderActionRepository interface {
 	GetOrderByID(ctx context.Context, id order.ID) (*order.Order, error)
 	GetOrderByChatIDAndStatus(ctx context.Context, id msginfo.ChatID, statuses ...order.Status) (*order.Order, error)
@@ -62,7 +61,6 @@ type CustomerOrderActionRepository interface {
 
 	GetOrderPositionByStatus(ctx context.Context, id order.ID, statuses ...order.Status) (int, error)
 	GetOrdersCountByStatus(ctx context.Context, statuses ...order.Status) (int, error)
-	HistoryOrders(ctx context.Context, chatID msginfo.ChatID, size int) ([]order.ShortOrder, error)
 
 	UpdateOrderByChatAndID(
 		ctx context.Context,
@@ -83,6 +81,10 @@ type CustomerOrderActionRepository interface {
 
 	IsNotFoundError(err error) bool
 	IsNotUpdatedError(err error) bool
+}
+
+type CustomerOrderHistoryRepository interface {
+	HistoryOrders(ctx context.Context, chatID msginfo.ChatID, size int) ([]order.ShortOrder, error)
 }
 
 type CreateOrderInput struct {

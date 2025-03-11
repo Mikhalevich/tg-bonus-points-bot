@@ -12,6 +12,7 @@ var (
 	_ port.CustomerCartRepository         = (*Postgres)(nil)
 	_ port.CustomerOrderPaymentRepository = (*Postgres)(nil)
 	_ port.CustomerOrderActionRepository  = (*Postgres)(nil)
+	_ port.CustomerOrderHistoryRepository = (*Postgres)(nil)
 	_ port.ManagerRepository              = (*Postgres)(nil)
 	_ port.StoreInfo                      = (*Postgres)(nil)
 )

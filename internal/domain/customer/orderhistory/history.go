@@ -1,4 +1,4 @@
-package orderaction
+package orderhistory
 
 import (
 	"context"
@@ -15,7 +15,7 @@ const (
 	pageSize = 10
 )
 
-func (o *OrderAction) History(ctx context.Context, chatID msginfo.ChatID) error {
+func (o *OrderHistory) History(ctx context.Context, chatID msginfo.ChatID) error {
 	orders, err := o.repository.HistoryOrders(ctx, chatID, pageSize)
 	if err != nil {
 		return fmt.Errorf("history orders: %w", err)
