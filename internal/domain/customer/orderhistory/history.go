@@ -34,7 +34,7 @@ func (o *OrderHistory) History(ctx context.Context, chatID msginfo.ChatID) error
 }
 
 func formatShortOrders(
-	orders []order.ShortOrder,
+	orders []order.HistoryOrder,
 	curr *currency.Currency,
 	escaper func(string) string,
 ) string {
@@ -46,7 +46,8 @@ func formatShortOrders(
 
 	for _, v := range orders {
 		formattedOrders = append(formattedOrders,
-			fmt.Sprintf("created\\_at: *%s* status: *%s* price: *%s*",
+			fmt.Sprintf("%d. created\\_at: *%s* status: *%s* price: *%s*",
+				v.SerialNumber,
 				escaper(v.CreatedAt.Format(time.RFC3339)),
 				v.Status.HumanReadable(),
 				curr.FormatPrice(v.TotalPrice),

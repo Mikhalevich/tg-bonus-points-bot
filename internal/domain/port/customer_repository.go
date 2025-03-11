@@ -85,7 +85,7 @@ type CustomerOrderActionRepository interface {
 
 type CustomerOrderHistoryRepository interface {
 	GetCurrencyByID(ctx context.Context, id currency.ID) (*currency.Currency, error)
-	HistoryOrders(ctx context.Context, chatID msginfo.ChatID, size int) ([]order.ShortOrder, error)
+	HistoryOrders(ctx context.Context, chatID msginfo.ChatID, size int) ([]order.HistoryOrder, error)
 }
 
 type CreateOrderInput struct {
