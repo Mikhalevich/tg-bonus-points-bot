@@ -25,7 +25,7 @@ func (p *Postgres) HistoryOrders(ctx context.Context, chatID msginfo.ChatID, siz
 		WHERE
 			chat_id = :chat_id
 		ORDER BY
-			id
+			id DESC
 		LIMIT
 			:size
 	`, map[string]any{
