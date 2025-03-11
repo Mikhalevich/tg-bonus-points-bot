@@ -23,3 +23,5 @@ daily_position_redis:
   db: 3
   ttl: 30h
 store_id: 1
+order_history:
+  page_size: 10

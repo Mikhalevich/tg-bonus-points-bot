@@ -13,6 +13,11 @@ type ConsumerBot struct {
 	CartRedis          CartRedis          `yaml:"cart_redis" required:"true"`
 	DailyPositionRedis DailyPositionRedis `yaml:"daily_position_redis" required:"true"`
 	StoreID            int                `yaml:"store_id" required:"true"`
+	OrderHistory       OrderHistory       `yaml:"order_history" required:"true"`
+}
+
+type OrderHistory struct {
+	PageSize int `yaml:"page_size" required:"true"`
 }
 
 type ManagerHTTPService struct {

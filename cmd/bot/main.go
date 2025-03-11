@@ -40,6 +40,7 @@ func main() {
 			cfg.CartRedis,
 			cfg.DailyPositionRedis,
 			cfg.ButtonRedis,
+			cfg.OrderHistory,
 			log.WithField("bot_name", "consumer"),
 		); err != nil {
 			return fmt.Errorf("start bot: %w", err)

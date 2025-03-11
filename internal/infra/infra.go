@@ -26,6 +26,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/buttonprovider"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer/cartprocessing"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer/orderaction"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer/orderhistory"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer/orderpayment"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/manager"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
@@ -54,6 +55,7 @@ func SetupLogger(lvl string) (logger.Logger, error) {
 	return log, nil
 }
 
+//nolint:funlen
 func StartBot(
 	ctx context.Context,
 	storeID int,
@@ -62,6 +64,7 @@ func StartBot(
 	cartRedisCfg config.CartRedis,
 	dailyPositionCfg config.DailyPositionRedis,
 	buttonRedisCfg config.ButtonRedis,
+	orderHistoryCfg config.OrderHistory,
 	logger logger.Logger,
 ) error {
 	b, err := bot.New(botCfg.Token, bot.WithSkipGetMe())
@@ -96,6 +99,7 @@ func StartBot(
 		cartProcessor = cartprocessing.New(storeID, pg, pg, cartRedis, sender,
 			timeprovider.New(), buttonRepository)
 		actionProcessor  = orderaction.New(sender, pg, buttonRepository, timeprovider.New())
+		historyProcessor = orderhistory.New(pg, sender, orderHistoryCfg.PageSize)
 		paymentProcessor = orderpayment.New(storeID, sender, qrGenerator, pg, pg,
 			dailyPosition, verificationcodegenerator.New(), timeprovider.New())
 		buttonProvider = buttonprovider.New(buttonRepository)
@@ -107,6 +111,7 @@ func StartBot(
 		logger,
 		cartProcessor,
 		actionProcessor,
+		historyProcessor,
 		paymentProcessor,
 		buttonProvider,
 	); err != nil {

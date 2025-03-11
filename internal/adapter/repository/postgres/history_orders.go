@@ -11,23 +11,21 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (p *Postgres) HistoryOrders(ctx context.Context, chatID msginfo.ChatID, size int) ([]order.ShortOrder, error) {
+func (p *Postgres) HistoryOrders(ctx context.Context, chatID msginfo.ChatID, size int) ([]order.HistoryOrder, error) {
 	query, args, err := sqlx.Named(`
 		SELECT
 			id,
-			chat_id,
+			ROW_NUMBER() OVER (ORDER BY id) AS serial_number,
 			status,
-			verification_code,
 			currency_id,
 			total_price,
-			created_at,
-			updated_at
+			created_at
 		FROM
 			orders
 		WHERE
 			chat_id = :chat_id
 		ORDER BY
-			id
+			id DESC
 		LIMIT
 			:size
 	`, map[string]any{
@@ -39,15 +37,15 @@ func (p *Postgres) HistoryOrders(ctx context.Context, chatID msginfo.ChatID, siz
 		return nil, fmt.Errorf("sqlx named: %w", err)
 	}
 
-	var orders []model.Order
+	var orders []model.HistoryOrder
 	if err := sqlx.SelectContext(ctx, p.db, &orders, p.db.Rebind(query), args...); err != nil {
 		return nil, fmt.Errorf("select context: %w", err)
 	}
 
-	portShortOrders, err := model.ToPortShortOrders(orders)
+	portHistoryOrders, err := model.ToPortHistoryOrders(orders)
 	if err != nil {
 		return nil, fmt.Errorf("convert to port orders: %w", err)
 	}
 
-	return portShortOrders, nil
+	return portHistoryOrders, nil
 }
