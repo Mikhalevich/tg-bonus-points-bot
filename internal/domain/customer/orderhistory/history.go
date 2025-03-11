@@ -46,7 +46,7 @@ func formatHistoryOrders(
 
 	for _, v := range orders {
 		formattedOrders = append(formattedOrders,
-			fmt.Sprintf("%d\\. created\\_at: *%s* status: *%s* price: *%s*",
+			fmt.Sprintf("%d\\. *%s* *%s* *%s*",
 				v.SerialNumber,
 				escaper(v.CreatedAt.Format(time.RFC3339)),
 				v.Status.HumanReadable(),
