@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
@@ -21,13 +22,24 @@ func (o *OrderHistory) History(ctx context.Context, chatID msginfo.ChatID) error
 		return fmt.Errorf("history orders: %w", err)
 	}
 
-	o.sender.SendTextMarkdown(ctx, chatID, formatShortOrders(orders, o.sender.EscapeMarkdown))
+	if len(orders) == 0 {
+		o.sender.SendTextMarkdown(ctx, chatID, message.OrderNoOrdersFound())
+		return nil
+	}
+
+	curr, err := o.repository.GetCurrencyByID(ctx, orders[0].CurrencyID)
+	if err != nil {
+		return fmt.Errorf("get currency by id: %w", err)
+	}
+
+	o.sender.SendTextMarkdown(ctx, chatID, formatShortOrders(orders, curr, o.sender.EscapeMarkdown))
 
 	return nil
 }
 
 func formatShortOrders(
 	orders []order.ShortOrder,
+	curr *currency.Currency,
 	escaper func(string) string,
 ) string {
 	if len(orders) == 0 {
@@ -38,10 +50,10 @@ func formatShortOrders(
 
 	for _, v := range orders {
 		formattedOrders = append(formattedOrders,
-			fmt.Sprintf("created\\_at: *%s* status: *%s* price: *%d*",
+			fmt.Sprintf("created\\_at: *%s* status: *%s* price: *%s*",
 				escaper(v.CreatedAt.Format(time.RFC3339)),
 				v.Status.HumanReadable(),
-				v.TotalPrice,
+				curr.FormatPrice(v.TotalPrice),
 			),
 		)
 	}
