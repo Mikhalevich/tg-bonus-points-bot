@@ -12,12 +12,8 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-const (
-	pageSize = 10
-)
-
 func (o *OrderHistory) History(ctx context.Context, chatID msginfo.ChatID) error {
-	orders, err := o.repository.HistoryOrders(ctx, chatID, pageSize)
+	orders, err := o.repository.HistoryOrders(ctx, chatID, o.pageSize)
 	if err != nil {
 		return fmt.Errorf("history orders: %w", err)
 	}

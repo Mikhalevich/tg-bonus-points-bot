@@ -7,14 +7,17 @@ import (
 type OrderHistory struct {
 	repository port.CustomerOrderHistoryRepository
 	sender     port.MessageSender
+	pageSize   int
 }
 
 func New(
 	repository port.CustomerOrderHistoryRepository,
 	sender port.MessageSender,
+	pageSize int,
 ) *OrderHistory {
 	return &OrderHistory{
 		repository: repository,
 		sender:     sender,
+		pageSize:   pageSize,
 	}
 }

@@ -64,6 +64,7 @@ func StartBot(
 	cartRedisCfg config.CartRedis,
 	dailyPositionCfg config.DailyPositionRedis,
 	buttonRedisCfg config.ButtonRedis,
+	orderHistoryCfg config.OrderHistory,
 	logger logger.Logger,
 ) error {
 	b, err := bot.New(botCfg.Token, bot.WithSkipGetMe())
@@ -98,7 +99,7 @@ func StartBot(
 		cartProcessor = cartprocessing.New(storeID, pg, pg, cartRedis, sender,
 			timeprovider.New(), buttonRepository)
 		actionProcessor  = orderaction.New(sender, pg, buttonRepository, timeprovider.New())
-		historyProcessor = orderhistory.New(pg, sender)
+		historyProcessor = orderhistory.New(pg, sender, orderHistoryCfg.PageSize)
 		paymentProcessor = orderpayment.New(storeID, sender, qrGenerator, pg, pg,
 			dailyPosition, verificationcodegenerator.New(), timeprovider.New())
 		buttonProvider = buttonprovider.New(buttonRepository)
