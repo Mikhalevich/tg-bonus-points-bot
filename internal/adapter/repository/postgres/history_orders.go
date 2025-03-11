@@ -19,7 +19,7 @@ func (p *Postgres) HistoryOrders(ctx context.Context, chatID msginfo.ChatID, siz
 			status,
 			currency_id,
 			total_price,
-			created_at,
+			created_at
 		FROM
 			orders
 		WHERE

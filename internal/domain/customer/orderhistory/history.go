@@ -28,12 +28,12 @@ func (o *OrderHistory) History(ctx context.Context, chatID msginfo.ChatID) error
 		return fmt.Errorf("get currency by id: %w", err)
 	}
 
-	o.sender.SendTextMarkdown(ctx, chatID, formatShortOrders(orders, curr, o.sender.EscapeMarkdown))
+	o.sender.SendTextMarkdown(ctx, chatID, formatHistoryOrders(orders, curr, o.sender.EscapeMarkdown))
 
 	return nil
 }
 
-func formatShortOrders(
+func formatHistoryOrders(
 	orders []order.HistoryOrder,
 	curr *currency.Currency,
 	escaper func(string) string,
@@ -46,7 +46,7 @@ func formatShortOrders(
 
 	for _, v := range orders {
 		formattedOrders = append(formattedOrders,
-			fmt.Sprintf("%d. created\\_at: *%s* status: *%s* price: *%s*",
+			fmt.Sprintf("%d\\. created\\_at: *%s* status: *%s* price: *%s*",
 				v.SerialNumber,
 				escaper(v.CreatedAt.Format(time.RFC3339)),
 				v.Status.HumanReadable(),

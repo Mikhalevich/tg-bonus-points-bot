@@ -31,6 +31,7 @@ CREATE TABLE store_schedule(
     CONSTRAINT store_schedule_store_id_fk FOREIGN KEY(store_id) REFERENCES store(id)
 );
 
+-- test data
 INSERT INTO currency(code, exp, decimal_sep, min_amount, max_amount, is_enabled) VALUES('BYN', 2, ',', 0, 0, TRUE);
 INSERT INTO currency(code, exp, decimal_sep, min_amount, max_amount, is_enabled) VALUES('USD', 2, ',', 0, 0, TRUE);
 
@@ -67,6 +68,27 @@ INSERT INTO product_category(product_id, category_id) VALUES(1, 1);
 INSERT INTO product_category(product_id, category_id) VALUES(2, 1);
 INSERT INTO product_category(product_id, category_id) VALUES(3, 3);
 INSERT INTO product_category(product_id, category_id) VALUES(4, 2);
+
+-- orders
+
+INSERT INTO orders(chat_id, status, verification_code, currency_id, daily_position, total_price, created_at, updated_at) VALUES(707363692, 'completed', '111', 1, 1, 100, '2025-02-07 23:00:01+03'::timestamptz, '2025-02-07 23:00:01+03'::timestamptz);
+INSERT INTO orders(chat_id, status, verification_code, currency_id, daily_position, total_price, created_at, updated_at) VALUES(707363692, 'completed', '111', 1, 1, 200, '2025-02-07 23:00:02+03'::timestamptz, '2025-02-07 23:00:02+03'::timestamptz);
+INSERT INTO orders(chat_id, status, verification_code, currency_id, daily_position, total_price, created_at, updated_at) VALUES(707363692, 'completed', '111', 1, 1, 300, '2025-02-07 23:00:03+03'::timestamptz, '2025-02-07 23:00:03+03'::timestamptz);
+INSERT INTO orders(chat_id, status, verification_code, currency_id, daily_position, total_price, created_at, updated_at) VALUES(707363692, 'completed', '111', 1, 1, 400, '2025-02-07 23:00:04+03'::timestamptz, '2025-02-07 23:00:04+03'::timestamptz);
+INSERT INTO orders(chat_id, status, verification_code, currency_id, daily_position, total_price, created_at, updated_at) VALUES(707363692, 'completed', '111', 1, 1, 500, '2025-02-07 23:00:05+03'::timestamptz, '2025-02-07 23:00:05+03'::timestamptz);
+INSERT INTO orders(chat_id, status, verification_code, currency_id, daily_position, total_price, created_at, updated_at) VALUES(707363692, 'completed', '111', 1, 1, 600, '2025-02-07 23:00:06+03'::timestamptz, '2025-02-07 23:00:06+03'::timestamptz);
+INSERT INTO orders(chat_id, status, verification_code, currency_id, daily_position, total_price, created_at, updated_at) VALUES(707363692, 'completed', '111', 1, 1, 700, '2025-02-07 23:00:07+03'::timestamptz, '2025-02-07 23:00:07+03'::timestamptz);
+INSERT INTO orders(chat_id, status, verification_code, currency_id, daily_position, total_price, created_at, updated_at) VALUES(707363692, 'completed', '111', 1, 1, 800, '2025-02-07 23:00:08+03'::timestamptz, '2025-02-07 23:00:08+03'::timestamptz);
+INSERT INTO orders(chat_id, status, verification_code, currency_id, daily_position, total_price, created_at, updated_at) VALUES(707363692, 'completed', '111', 1, 1, 900, '2025-02-07 23:00:09+03'::timestamptz, '2025-02-07 23:00:09+03'::timestamptz);
+INSERT INTO orders(chat_id, status, verification_code, currency_id, daily_position, total_price, created_at, updated_at) VALUES(707363692, 'completed', '111', 1, 1, 1000, '2025-02-07 23:00:10+03'::timestamptz, '2025-02-07 23:00:10+03'::timestamptz);
+INSERT INTO orders(chat_id, status, verification_code, currency_id, daily_position, total_price, created_at, updated_at) VALUES(707363692, 'completed', '111', 1, 1, 1100, '2025-02-07 23:00:11+03'::timestamptz, '2025-02-07 23:00:11+03'::timestamptz);
+INSERT INTO orders(chat_id, status, verification_code, currency_id, daily_position, total_price, created_at, updated_at) VALUES(707363692, 'completed', '111', 1, 1, 1200, '2025-02-07 23:00:12+03'::timestamptz, '2025-02-07 23:00:12+03'::timestamptz);
+INSERT INTO orders(chat_id, status, verification_code, currency_id, daily_position, total_price, created_at, updated_at) VALUES(707363692, 'completed', '111', 1, 1, 1300, '2025-02-07 23:00:13+03'::timestamptz, '2025-02-07 23:00:13+03'::timestamptz);
+INSERT INTO orders(chat_id, status, verification_code, currency_id, daily_position, total_price, created_at, updated_at) VALUES(707363692, 'completed', '111', 1, 1, 1400, '2025-02-07 23:00:14+03'::timestamptz, '2025-02-07 23:00:14+03'::timestamptz);
+INSERT INTO orders(chat_id, status, verification_code, currency_id, daily_position, total_price, created_at, updated_at) VALUES(707363692, 'completed', '111', 1, 1, 1500, '2025-02-07 23:00:15+03'::timestamptz, '2025-02-07 23:00:15+03'::timestamptz);
+INSERT INTO orders(chat_id, status, verification_code, currency_id, daily_position, total_price, created_at, updated_at) VALUES(707363692, 'completed', '111', 1, 1, 1600, '2025-02-07 23:00:16+03'::timestamptz, '2025-02-07 23:00:16+03'::timestamptz);
+INSERT INTO orders(chat_id, status, verification_code, currency_id, daily_position, total_price, created_at, updated_at) VALUES(707363692, 'completed', '111', 1, 1, 1700, '2025-02-07 23:00:17+03'::timestamptz, '2025-02-07 23:00:17+03'::timestamptz);
+INSERT INTO orders(chat_id, status, verification_code, currency_id, daily_position, total_price, created_at, updated_at) VALUES(707363692, 'completed', '111', 1, 1, 1800, '2025-02-07 23:00:18+03'::timestamptz, '2025-02-07 23:00:18+03'::timestamptz);
 
 -- +migrate Down
 -- SQL section 'Down' is executed when this migration is rolled back
