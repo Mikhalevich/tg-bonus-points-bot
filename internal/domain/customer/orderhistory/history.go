@@ -7,13 +7,14 @@ import (
 	"time"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
 func (o *OrderHistory) History(ctx context.Context, chatID msginfo.ChatID) error {
-	orders, err := o.repository.HistoryOrders(ctx, chatID, o.pageSize)
+	orders, err := o.repository.HistoryOrders(ctx, chatID, o.pageSize+1)
 	if err != nil {
 		return fmt.Errorf("history orders: %w", err)
 	}
@@ -28,9 +29,38 @@ func (o *OrderHistory) History(ctx context.Context, chatID msginfo.ChatID) error
 		return fmt.Errorf("get currency by id: %w", err)
 	}
 
-	o.sender.SendTextMarkdown(ctx, chatID, formatHistoryOrders(orders, curr, o.sender.EscapeMarkdown))
+	buttons, err := o.makeHistoryButtons(ctx, chatID, orders)
+	if err != nil {
+		return fmt.Errorf("make history buttons: %w", err)
+	}
+
+	o.sender.SendTextMarkdown(ctx, chatID, formatHistoryOrders(orders, curr, o.sender.EscapeMarkdown), buttons...)
 
 	return nil
+}
+
+func (o *OrderHistory) makeHistoryButtons(
+	ctx context.Context,
+	chatID msginfo.ChatID,
+	orders []order.HistoryOrder,
+) ([]button.InlineKeyboardButtonRow, error) {
+	var buttons button.ButtonRow
+
+	if len(orders) > o.pageSize {
+		previousOrdersBtn, err := button.OrderHistoryPrevious(chatID, message.Previous(), orders[o.pageSize].ID)
+		if err != nil {
+			return nil, fmt.Errorf("previous history button: %w", err)
+		}
+
+		buttons = append(buttons, previousOrdersBtn)
+	}
+
+	inlineButtons, err := o.buttonRepository.SetButtonRows(ctx, buttons)
+	if err != nil {
+		return nil, fmt.Errorf("store buttons: %w", err)
+	}
+
+	return inlineButtons, nil
 }
 
 func formatHistoryOrders(
@@ -38,10 +68,6 @@ func formatHistoryOrders(
 	curr *currency.Currency,
 	escaper func(string) string,
 ) string {
-	if len(orders) == 0 {
-		return message.OrderNoOrdersFound()
-	}
-
 	formattedOrders := make([]string, 0, len(orders))
 
 	for _, v := range orders {

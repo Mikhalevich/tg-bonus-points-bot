@@ -18,3 +18,15 @@ func CancelOrder(chatID msginfo.ChatID, caption string, id order.ID, isTextMsg b
 		},
 	)
 }
+
+type OrderHistory struct {
+	OrderID order.ID
+}
+
+func OrderHistoryPrevious(chatID msginfo.ChatID, caption string, beforeID order.ID) (Button, error) {
+	return createButton(chatID, caption, OperationOrderHistoryPrevious,
+		OrderHistory{
+			OrderID: beforeID,
+		},
+	)
+}

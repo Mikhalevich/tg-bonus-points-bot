@@ -5,19 +5,22 @@ import (
 )
 
 type OrderHistory struct {
-	repository port.CustomerOrderHistoryRepository
-	sender     port.MessageSender
-	pageSize   int
+	repository       port.CustomerOrderHistoryRepository
+	sender           port.MessageSender
+	buttonRepository port.ButtonRepositoryWriter
+	pageSize         int
 }
 
 func New(
 	repository port.CustomerOrderHistoryRepository,
 	sender port.MessageSender,
+	buttonRepository port.ButtonRepositoryWriter,
 	pageSize int,
 ) *OrderHistory {
 	return &OrderHistory{
-		repository: repository,
-		sender:     sender,
-		pageSize:   pageSize,
+		repository:       repository,
+		sender:           sender,
+		buttonRepository: buttonRepository,
+		pageSize:         pageSize,
 	}
 }
