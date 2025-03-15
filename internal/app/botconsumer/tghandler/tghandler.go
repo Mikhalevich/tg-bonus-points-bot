@@ -31,6 +31,8 @@ type OrderActionProcessor interface {
 
 type OrderHistoryProcessor interface {
 	History(ctx context.Context, chatID msginfo.ChatID) error
+	Previous(ctx context.Context, info msginfo.Info, beforeOrderID order.ID) error
+	Next(ctx context.Context, info msginfo.Info, afterOrderID order.ID) error
 }
 
 type OrderPaymentProcessor interface {
@@ -83,5 +85,7 @@ func (t *TGHandler) initCBHandlers() {
 		button.OperationCartViewCategories:       t.viewCategories,
 		button.OperationCartViewCategoryProducts: t.viewCategoryProducts,
 		button.OperationCartAddProduct:           t.addProduct,
+		button.OperationOrderHistoryPrevious:     t.historyPrevious,
+		button.OperationOrderHistoryNext:         t.historyNext,
 	}
 }

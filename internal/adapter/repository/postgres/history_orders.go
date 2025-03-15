@@ -37,6 +37,15 @@ func (p *Postgres) HistoryOrders(ctx context.Context, chatID msginfo.ChatID, siz
 		return nil, fmt.Errorf("sqlx named: %w", err)
 	}
 
+	orders, err := p.historyQuery(ctx, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("history query: %w", err)
+	}
+
+	return orders, nil
+}
+
+func (p *Postgres) historyQuery(ctx context.Context, query string, args ...any) ([]order.HistoryOrder, error) {
 	var orders []model.HistoryOrder
 	if err := sqlx.SelectContext(ctx, p.db, &orders, p.db.Rebind(query), args...); err != nil {
 		return nil, fmt.Errorf("select context: %w", err)
