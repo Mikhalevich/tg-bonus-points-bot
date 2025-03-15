@@ -3,7 +3,6 @@ package orderhistory
 import (
 	"context"
 	"fmt"
-	"slices"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
@@ -25,8 +24,6 @@ func (o *OrderHistory) Next(
 		return nil
 	}
 
-	slices.Reverse(twoPageOrders)
-
 	curr, err := o.repository.GetCurrencyByID(ctx, twoPageOrders[0].CurrencyID)
 	if err != nil {
 		return fmt.Errorf("get currency by id: %w", err)
@@ -41,8 +38,8 @@ func (o *OrderHistory) Next(
 	buttons, err := o.makeHistoryButtons(
 		ctx,
 		info.ChatID,
-		beforeOrderIDBtn,
 		afterOrderIDBtn,
+		beforeOrderIDBtn,
 	)
 	if err != nil {
 		return fmt.Errorf("make history buttons: %w", err)
