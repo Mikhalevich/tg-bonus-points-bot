@@ -84,3 +84,11 @@ func Confirm() string {
 func Pay() string {
 	return "Pay"
 }
+
+func Previous() string {
+	return "Previous"
+}
+
+func Next() string {
+	return "Next"
+}

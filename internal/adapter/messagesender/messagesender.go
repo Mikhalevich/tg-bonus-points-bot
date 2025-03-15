@@ -103,11 +103,13 @@ func (m *messageSender) SendTextMarkdown(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 	text string,
+	rows ...button.InlineKeyboardButtonRow,
 ) {
 	if _, err := m.bot.SendMessage(ctx, &bot.SendMessageParams{
-		ChatID:    chatID.Int64(),
-		ParseMode: models.ParseModeMarkdown,
-		Text:      text,
+		ChatID:      chatID.Int64(),
+		ParseMode:   models.ParseModeMarkdown,
+		Text:        text,
+		ReplyMarkup: makeButtonsMarkup(rows...),
 	}); err != nil {
 		logger.FromContext(ctx).
 			WithError(err).
@@ -120,10 +122,12 @@ func (m *messageSender) SendText(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 	text string,
+	rows ...button.InlineKeyboardButtonRow,
 ) {
 	if _, err := m.bot.SendMessage(ctx, &bot.SendMessageParams{
-		ChatID: chatID.Int64(),
-		Text:   text,
+		ChatID:      chatID.Int64(),
+		Text:        text,
+		ReplyMarkup: makeButtonsMarkup(rows...),
 	}); err != nil {
 		logger.FromContext(ctx).
 			WithError(err).

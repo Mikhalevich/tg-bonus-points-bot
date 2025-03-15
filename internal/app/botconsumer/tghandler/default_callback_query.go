@@ -138,3 +138,37 @@ func (t *TGHandler) addProduct(ctx context.Context, info msginfo.Info, btn butto
 
 	return nil
 }
+
+func (t *TGHandler) historyPrevious(ctx context.Context, info msginfo.Info, btn button.Button) error {
+	payload, err := button.GetPayload[button.OrderHistory](btn)
+	if err != nil {
+		return fmt.Errorf("invalid payload: %w", err)
+	}
+
+	if err := t.historyProcessor.Previous(
+		ctx,
+		info,
+		payload.OrderID,
+	); err != nil {
+		return fmt.Errorf("previous history: %w", err)
+	}
+
+	return nil
+}
+
+func (t *TGHandler) historyNext(ctx context.Context, info msginfo.Info, btn button.Button) error {
+	payload, err := button.GetPayload[button.OrderHistory](btn)
+	if err != nil {
+		return fmt.Errorf("invalid payload: %w", err)
+	}
+
+	if err := t.historyProcessor.Next(
+		ctx,
+		info,
+		payload.OrderID,
+	); err != nil {
+		return fmt.Errorf("next history: %w", err)
+	}
+
+	return nil
+}

@@ -99,7 +99,7 @@ func StartBot(
 		cartProcessor = cartprocessing.New(storeID, pg, pg, cartRedis, sender,
 			timeprovider.New(), buttonRepository)
 		actionProcessor  = orderaction.New(sender, pg, buttonRepository, timeprovider.New())
-		historyProcessor = orderhistory.New(pg, sender, orderHistoryCfg.PageSize)
+		historyProcessor = orderhistory.New(pg, sender, buttonRepository, orderHistoryCfg.PageSize)
 		paymentProcessor = orderpayment.New(storeID, sender, qrGenerator, pg, pg,
 			dailyPosition, verificationcodegenerator.New(), timeprovider.New())
 		buttonProvider = buttonprovider.New(buttonRepository)

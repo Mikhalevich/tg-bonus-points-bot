@@ -10,8 +10,10 @@ import (
 )
 
 type MessageSender interface {
-	SendText(ctx context.Context, chatID msginfo.ChatID, text string)
-	SendTextMarkdown(ctx context.Context, chatID msginfo.ChatID, text string)
+	SendText(ctx context.Context, chatID msginfo.ChatID, text string,
+		buttons ...button.InlineKeyboardButtonRow)
+	SendTextMarkdown(ctx context.Context, chatID msginfo.ChatID, text string,
+		buttons ...button.InlineKeyboardButtonRow)
 	ReplyText(ctx context.Context, chatID msginfo.ChatID, replyToMsgID msginfo.MessageID, text string,
 		buttons ...button.InlineKeyboardButtonRow)
 	ReplyTextMarkdown(ctx context.Context, chatID msginfo.ChatID,
