@@ -6,6 +6,7 @@ import (
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
 func (o *OrderHistory) First(ctx context.Context, info msginfo.Info) error {
@@ -24,11 +25,17 @@ func (o *OrderHistory) First(ctx context.Context, info msginfo.Info) error {
 		return fmt.Errorf("get currency by id: %w", err)
 	}
 
+	var (
+		afterOrderIDBtn  = order.IDFromInt(0)
+		beforeOrderIDBtn = calculateOrderIDForNextPage(twoPageOrders, o.pageSize)
+		onePageOrders    = truncateOrdersToPageSize(twoPageOrders, o.pageSize)
+	)
+
 	buttons, err := o.makeHistoryButtons(
 		ctx,
 		info.ChatID,
-		0,
-		calculateOrderIDForPreviousPage(twoPageOrders, o.pageSize),
+		afterOrderIDBtn,
+		beforeOrderIDBtn,
 	)
 	if err != nil {
 		return fmt.Errorf("make history buttons: %w", err)
@@ -38,7 +45,7 @@ func (o *OrderHistory) First(ctx context.Context, info msginfo.Info) error {
 		ctx,
 		info.ChatID,
 		info.MessageID,
-		formatHistoryOrders(truncateOrdersToPageSizeRight(twoPageOrders, o.pageSize), curr),
+		formatHistoryOrders(onePageOrders, curr),
 		buttons...,
 	)
 

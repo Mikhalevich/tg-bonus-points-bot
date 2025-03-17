@@ -3,6 +3,7 @@ package orderhistory
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
@@ -31,8 +32,8 @@ func (o *OrderHistory) Next(
 
 	var (
 		afterOrderIDBtn  = calculateOrderIDForNextPage(twoPageOrders, o.pageSize)
-		onePageOrders    = truncateOrdersToPageSizeLeft(twoPageOrders, o.pageSize)
-		beforeOrderIDBtn = onePageOrders[len(onePageOrders)-1].ID
+		onePageOrders    = truncateOrdersToPageSize(twoPageOrders, o.pageSize)
+		beforeOrderIDBtn = onePageOrders[0].ID
 	)
 
 	buttons, err := o.makeHistoryButtons(
@@ -44,6 +45,8 @@ func (o *OrderHistory) Next(
 	if err != nil {
 		return fmt.Errorf("make history buttons: %w", err)
 	}
+
+	slices.Reverse(onePageOrders)
 
 	o.sender.EditTextMessage(
 		ctx,

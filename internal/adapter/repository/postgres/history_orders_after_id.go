@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"slices"
 
 	"github.com/jmoiron/sqlx"
 
@@ -60,8 +59,6 @@ func (p *Postgres) HistoryOrdersAfterID(
 	if err != nil {
 		return nil, fmt.Errorf("history query: %w", err)
 	}
-
-	slices.Reverse(orders)
 
 	return orders, nil
 }

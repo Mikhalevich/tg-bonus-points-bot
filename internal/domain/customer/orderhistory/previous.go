@@ -30,8 +30,8 @@ func (o *OrderHistory) Previous(
 	}
 
 	var (
-		beforeOrderIDBtn = calculateOrderIDForPreviousPage(twoPageOrders, o.pageSize)
-		onePageOrders    = truncateOrdersToPageSizeRight(twoPageOrders, o.pageSize)
+		beforeOrderIDBtn = calculateOrderIDForNextPage(twoPageOrders, o.pageSize)
+		onePageOrders    = truncateOrdersToPageSize(twoPageOrders, o.pageSize)
 		afterOrderIDBtn  = onePageOrders[0].ID
 	)
 

@@ -29,11 +29,17 @@ func (o *OrderHistory) Show(ctx context.Context, chatID msginfo.ChatID) error {
 		return fmt.Errorf("get currency by id: %w", err)
 	}
 
+	var (
+		afterOrderIDBtn  = order.IDFromInt(0)
+		beforeOrderIDBtn = calculateOrderIDForNextPage(twoPageOrders, o.pageSize)
+		onePageOrders    = truncateOrdersToPageSize(twoPageOrders, o.pageSize)
+	)
+
 	buttons, err := o.makeHistoryButtons(
 		ctx,
 		chatID,
-		0,
-		calculateOrderIDForPreviousPage(twoPageOrders, o.pageSize),
+		afterOrderIDBtn,
+		beforeOrderIDBtn,
 	)
 	if err != nil {
 		return fmt.Errorf("make history buttons: %w", err)
@@ -42,14 +48,14 @@ func (o *OrderHistory) Show(ctx context.Context, chatID msginfo.ChatID) error {
 	o.sender.SendText(
 		ctx,
 		chatID,
-		formatHistoryOrders(truncateOrdersToPageSizeRight(twoPageOrders, o.pageSize), curr),
+		formatHistoryOrders(onePageOrders, curr),
 		buttons...,
 	)
 
 	return nil
 }
 
-func calculateOrderIDForPreviousPage(twoPageOrders []order.HistoryOrder, pageSize int) order.ID {
+func calculateOrderIDForNextPage(twoPageOrders []order.HistoryOrder, pageSize int) order.ID {
 	if len(twoPageOrders) > pageSize {
 		return twoPageOrders[pageSize-1].ID
 	}
@@ -57,25 +63,9 @@ func calculateOrderIDForPreviousPage(twoPageOrders []order.HistoryOrder, pageSiz
 	return 0
 }
 
-func calculateOrderIDForNextPage(twoPageOrders []order.HistoryOrder, pageSize int) order.ID {
-	if len(twoPageOrders) > pageSize {
-		return twoPageOrders[0].ID
-	}
-
-	return 0
-}
-
-func truncateOrdersToPageSizeRight(orders []order.HistoryOrder, pageSize int) []order.HistoryOrder {
+func truncateOrdersToPageSize(orders []order.HistoryOrder, pageSize int) []order.HistoryOrder {
 	if len(orders) > pageSize {
 		return orders[:pageSize]
-	}
-
-	return orders
-}
-
-func truncateOrdersToPageSizeLeft(orders []order.HistoryOrder, pageSize int) []order.HistoryOrder {
-	if len(orders) > pageSize {
-		return orders[len(orders)-pageSize:]
 	}
 
 	return orders
