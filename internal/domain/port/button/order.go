@@ -38,3 +38,19 @@ func OrderHistoryNext(chatID msginfo.ChatID, caption string, afterID order.ID) (
 		},
 	)
 }
+
+func OrderHistoryFirst(chatID msginfo.ChatID, caption string) Button {
+	return Button{
+		ChatID:    chatID,
+		Caption:   caption,
+		Operation: OperationOrderHistoryFirst,
+	}
+}
+
+func OrderHistoryLast(chatID msginfo.ChatID, caption string) Button {
+	return Button{
+		ChatID:    chatID,
+		Caption:   caption,
+		Operation: OperationOrderHistoryLast,
+	}
+}

@@ -13,8 +13,8 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (o *OrderHistory) History(ctx context.Context, chatID msginfo.ChatID) error {
-	twoPageOrders, err := o.repository.HistoryOrders(ctx, chatID, o.pageSize+1)
+func (o *OrderHistory) Show(ctx context.Context, chatID msginfo.ChatID) error {
+	twoPageOrders, err := o.repository.HistoryOrdersFirst(ctx, chatID, o.pageSize+1)
 	if err != nil {
 		return fmt.Errorf("history orders: %w", err)
 	}
@@ -29,11 +29,17 @@ func (o *OrderHistory) History(ctx context.Context, chatID msginfo.ChatID) error
 		return fmt.Errorf("get currency by id: %w", err)
 	}
 
+	var (
+		afterOrderIDBtn  = order.IDFromInt(0)
+		beforeOrderIDBtn = calculateOrderIDForNextPage(twoPageOrders, o.pageSize)
+		onePageOrders    = truncateOrdersToPageSize(twoPageOrders, o.pageSize)
+	)
+
 	buttons, err := o.makeHistoryButtons(
 		ctx,
 		chatID,
-		0,
-		calculateOrderIDForPreviousPage(twoPageOrders, o.pageSize),
+		afterOrderIDBtn,
+		beforeOrderIDBtn,
 	)
 	if err != nil {
 		return fmt.Errorf("make history buttons: %w", err)
@@ -42,24 +48,16 @@ func (o *OrderHistory) History(ctx context.Context, chatID msginfo.ChatID) error
 	o.sender.SendText(
 		ctx,
 		chatID,
-		formatHistoryOrders(truncateOrdersToPageSize(twoPageOrders, o.pageSize), curr),
+		formatHistoryOrders(onePageOrders, curr),
 		buttons...,
 	)
 
 	return nil
 }
 
-func calculateOrderIDForPreviousPage(twoPageOrders []order.HistoryOrder, pageSize int) order.ID {
-	if len(twoPageOrders) > pageSize {
-		return twoPageOrders[pageSize-1].ID
-	}
-
-	return 0
-}
-
 func calculateOrderIDForNextPage(twoPageOrders []order.HistoryOrder, pageSize int) order.ID {
 	if len(twoPageOrders) > pageSize {
-		return twoPageOrders[0].ID
+		return twoPageOrders[pageSize-1].ID
 	}
 
 	return 0
@@ -82,21 +80,25 @@ func (o *OrderHistory) makeHistoryButtons(
 	var buttons button.ButtonRow
 
 	if afterOrderID.Int() > 0 {
-		nextOrdersBtn, err := button.OrderHistoryNext(chatID, message.Next(), afterOrderID)
+		nextOrdersBtn, err := button.OrderHistoryNext(chatID, message.HistoryNext(), afterOrderID)
 		if err != nil {
 			return nil, fmt.Errorf("previous history button: %w", err)
 		}
 
-		buttons = append(buttons, nextOrdersBtn)
+		firstOrdersBtn := button.OrderHistoryFirst(chatID, message.HistoryFirst())
+
+		buttons = append(buttons, firstOrdersBtn, nextOrdersBtn)
 	}
 
 	if beforeOrderID.Int() > 0 {
-		previousOrdersBtn, err := button.OrderHistoryPrevious(chatID, message.Previous(), beforeOrderID)
+		previousOrdersBtn, err := button.OrderHistoryPrevious(chatID, message.HistoryPrevious(), beforeOrderID)
 		if err != nil {
 			return nil, fmt.Errorf("previous history button: %w", err)
 		}
 
-		buttons = append(buttons, previousOrdersBtn)
+		lastOrdersBtn := button.OrderHistoryLast(chatID, message.HistoryLast())
+
+		buttons = append(buttons, previousOrdersBtn, lastOrdersBtn)
 	}
 
 	if len(buttons) == 0 {

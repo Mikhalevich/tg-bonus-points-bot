@@ -9,7 +9,7 @@ import (
 )
 
 func (t *TGHandler) OrderHistory(ctx context.Context, msg tgbot.BotMessage, sender tgbot.MessageSender) error {
-	if err := t.historyProcessor.History(
+	if err := t.historyProcessor.Show(
 		ctx,
 		msginfo.ChatIDFromInt(msg.ChatID),
 	); err != nil {

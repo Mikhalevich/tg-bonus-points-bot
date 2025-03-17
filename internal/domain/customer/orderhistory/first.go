@@ -9,18 +9,14 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (o *OrderHistory) Previous(
-	ctx context.Context,
-	info msginfo.Info,
-	beforeOrderID order.ID,
-) error {
-	twoPageOrders, err := o.repository.HistoryOrdersBeforeID(ctx, info.ChatID, beforeOrderID, o.pageSize+1)
+func (o *OrderHistory) First(ctx context.Context, info msginfo.Info) error {
+	twoPageOrders, err := o.repository.HistoryOrdersFirst(ctx, info.ChatID, o.pageSize+1)
 	if err != nil {
 		return fmt.Errorf("history orders: %w", err)
 	}
 
 	if len(twoPageOrders) == 0 {
-		o.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderNoOrdersFound())
+		o.sender.SendTextMarkdown(ctx, info.ChatID, message.OrderNoOrdersFound())
 		return nil
 	}
 
@@ -30,9 +26,9 @@ func (o *OrderHistory) Previous(
 	}
 
 	var (
+		afterOrderIDBtn  = order.IDFromInt(0)
 		beforeOrderIDBtn = calculateOrderIDForNextPage(twoPageOrders, o.pageSize)
 		onePageOrders    = truncateOrdersToPageSize(twoPageOrders, o.pageSize)
-		afterOrderIDBtn  = onePageOrders[0].ID
 	)
 
 	buttons, err := o.makeHistoryButtons(

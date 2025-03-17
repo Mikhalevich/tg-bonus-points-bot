@@ -11,7 +11,11 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (p *Postgres) HistoryOrders(ctx context.Context, chatID msginfo.ChatID, size int) ([]order.HistoryOrder, error) {
+func (p *Postgres) HistoryOrdersFirst(
+	ctx context.Context,
+	chatID msginfo.ChatID,
+	size int,
+) ([]order.HistoryOrder, error) {
 	query, args, err := sqlx.Named(`
 		SELECT
 			id,

@@ -30,7 +30,9 @@ type OrderActionProcessor interface {
 }
 
 type OrderHistoryProcessor interface {
-	History(ctx context.Context, chatID msginfo.ChatID) error
+	Show(ctx context.Context, chatID msginfo.ChatID) error
+	First(ctx context.Context, info msginfo.Info) error
+	Last(ctx context.Context, info msginfo.Info) error
 	Previous(ctx context.Context, info msginfo.Info, beforeOrderID order.ID) error
 	Next(ctx context.Context, info msginfo.Info, afterOrderID order.ID) error
 }
@@ -87,5 +89,7 @@ func (t *TGHandler) initCBHandlers() {
 		button.OperationCartAddProduct:           t.addProduct,
 		button.OperationOrderHistoryPrevious:     t.historyPrevious,
 		button.OperationOrderHistoryNext:         t.historyNext,
+		button.OperationOrderHistoryFirst:        t.historyFirst,
+		button.OperationOrderHistoryLast:         t.historyLast,
 	}
 }
