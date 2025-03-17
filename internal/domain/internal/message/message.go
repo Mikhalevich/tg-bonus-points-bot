@@ -85,10 +85,18 @@ func Pay() string {
 	return "Pay"
 }
 
-func Previous() string {
-	return "Previous"
+func HistoryPrevious() string {
+	return ">"
 }
 
-func Next() string {
-	return "Next"
+func HistoryNext() string {
+	return "<"
+}
+
+func HistoryFirst() string {
+	return "<<"
+}
+
+func HistoryLast() string {
+	return ">>"
 }

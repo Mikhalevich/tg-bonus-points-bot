@@ -150,7 +150,7 @@ func (t *TGHandler) historyPrevious(ctx context.Context, info msginfo.Info, btn 
 		info,
 		payload.OrderID,
 	); err != nil {
-		return fmt.Errorf("previous history: %w", err)
+		return fmt.Errorf("history previous: %w", err)
 	}
 
 	return nil
@@ -167,7 +167,29 @@ func (t *TGHandler) historyNext(ctx context.Context, info msginfo.Info, btn butt
 		info,
 		payload.OrderID,
 	); err != nil {
-		return fmt.Errorf("next history: %w", err)
+		return fmt.Errorf("history next: %w", err)
+	}
+
+	return nil
+}
+
+func (t *TGHandler) historyFirst(ctx context.Context, info msginfo.Info, btn button.Button) error {
+	if err := t.historyProcessor.First(
+		ctx,
+		info,
+	); err != nil {
+		return fmt.Errorf("history first: %w", err)
+	}
+
+	return nil
+}
+
+func (t *TGHandler) historyLast(ctx context.Context, info msginfo.Info, btn button.Button) error {
+	if err := t.historyProcessor.Last(
+		ctx,
+		info,
+	); err != nil {
+		return fmt.Errorf("history last: %w", err)
 	}
 
 	return nil

@@ -85,7 +85,8 @@ type CustomerOrderActionRepository interface {
 
 type CustomerOrderHistoryRepository interface {
 	GetCurrencyByID(ctx context.Context, id currency.ID) (*currency.Currency, error)
-	HistoryOrders(ctx context.Context, chatID msginfo.ChatID, size int) ([]order.HistoryOrder, error)
+	HistoryOrdersFirst(ctx context.Context, chatID msginfo.ChatID, size int) ([]order.HistoryOrder, error)
+	HistoryOrdersLast(ctx context.Context, chatID msginfo.ChatID, size int) ([]order.HistoryOrder, error)
 	HistoryOrdersBeforeID(ctx context.Context, chatID msginfo.ChatID, id order.ID, size int) ([]order.HistoryOrder, error)
 	HistoryOrdersAfterID(ctx context.Context, chatID msginfo.ChatID, id order.ID, size int) ([]order.HistoryOrder, error)
 }

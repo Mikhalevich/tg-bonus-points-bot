@@ -6,21 +6,16 @@ import (
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (o *OrderHistory) Previous(
-	ctx context.Context,
-	info msginfo.Info,
-	beforeOrderID order.ID,
-) error {
-	twoPageOrders, err := o.repository.HistoryOrdersBeforeID(ctx, info.ChatID, beforeOrderID, o.pageSize+1)
+func (o *OrderHistory) Last(ctx context.Context, info msginfo.Info) error {
+	twoPageOrders, err := o.repository.HistoryOrdersLast(ctx, info.ChatID, o.pageSize+1)
 	if err != nil {
 		return fmt.Errorf("history orders: %w", err)
 	}
 
 	if len(twoPageOrders) == 0 {
-		o.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderNoOrdersFound())
+		o.sender.SendTextMarkdown(ctx, info.ChatID, message.OrderNoOrdersFound())
 		return nil
 	}
 
@@ -29,17 +24,11 @@ func (o *OrderHistory) Previous(
 		return fmt.Errorf("get currency by id: %w", err)
 	}
 
-	var (
-		beforeOrderIDBtn = calculateOrderIDForPreviousPage(twoPageOrders, o.pageSize)
-		onePageOrders    = truncateOrdersToPageSizeRight(twoPageOrders, o.pageSize)
-		afterOrderIDBtn  = onePageOrders[0].ID
-	)
-
 	buttons, err := o.makeHistoryButtons(
 		ctx,
 		info.ChatID,
-		afterOrderIDBtn,
-		beforeOrderIDBtn,
+		calculateOrderIDForNextPage(twoPageOrders, o.pageSize),
+		0,
 	)
 	if err != nil {
 		return fmt.Errorf("make history buttons: %w", err)
@@ -49,7 +38,7 @@ func (o *OrderHistory) Previous(
 		ctx,
 		info.ChatID,
 		info.MessageID,
-		formatHistoryOrders(onePageOrders, curr),
+		formatHistoryOrders(truncateOrdersToPageSizeLeft(twoPageOrders, o.pageSize), curr),
 		buttons...,
 	)
 
