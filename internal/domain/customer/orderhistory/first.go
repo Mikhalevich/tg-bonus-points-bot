@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer/orderhistory/internal/page"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
@@ -20,6 +21,11 @@ func (o *OrderHistory) First(ctx context.Context, info msginfo.Info) error {
 		return nil
 	}
 
+	totalOrders, err := o.repository.HistoryOrdersCount(ctx, info.ChatID)
+	if err != nil {
+		return fmt.Errorf("history orders count: %w", err)
+	}
+
 	curr, err := o.repository.GetCurrencyByID(ctx, twoPageOrders[0].CurrencyID)
 	if err != nil {
 		return fmt.Errorf("get currency by id: %w", err)
@@ -27,8 +33,9 @@ func (o *OrderHistory) First(ctx context.Context, info msginfo.Info) error {
 
 	var (
 		afterOrderIDBtn  = order.IDFromInt(0)
-		beforeOrderIDBtn = calculateOrderIDForNextPage(twoPageOrders, o.pageSize)
-		onePageOrders    = truncateOrdersToPageSize(twoPageOrders, o.pageSize)
+		beforeOrderIDBtn = page.CalculateOrderIDForNextPage(twoPageOrders, o.pageSize)
+		onePageOrders    = page.TruncateOrdersToPageSize(twoPageOrders, o.pageSize)
+		pageInfo         = page.Last(onePageOrders, totalOrders, o.pageSize)
 	)
 
 	buttons, err := o.makeHistoryButtons(
@@ -45,7 +52,7 @@ func (o *OrderHistory) First(ctx context.Context, info msginfo.Info) error {
 		ctx,
 		info.ChatID,
 		info.MessageID,
-		formatHistoryOrders(onePageOrders, curr),
+		formatHistoryOrders(onePageOrders, curr, pageInfo),
 		buttons...,
 	)
 

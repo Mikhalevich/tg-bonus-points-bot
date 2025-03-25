@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer/orderhistory/internal/page"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/internal/message"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
@@ -24,6 +25,11 @@ func (o *OrderHistory) Show(ctx context.Context, chatID msginfo.ChatID) error {
 		return nil
 	}
 
+	totalOrders, err := o.repository.HistoryOrdersCount(ctx, chatID)
+	if err != nil {
+		return fmt.Errorf("history orders count: %w", err)
+	}
+
 	curr, err := o.repository.GetCurrencyByID(ctx, twoPageOrders[0].CurrencyID)
 	if err != nil {
 		return fmt.Errorf("get currency by id: %w", err)
@@ -31,8 +37,9 @@ func (o *OrderHistory) Show(ctx context.Context, chatID msginfo.ChatID) error {
 
 	var (
 		afterOrderIDBtn  = order.IDFromInt(0)
-		beforeOrderIDBtn = calculateOrderIDForNextPage(twoPageOrders, o.pageSize)
-		onePageOrders    = truncateOrdersToPageSize(twoPageOrders, o.pageSize)
+		beforeOrderIDBtn = page.CalculateOrderIDForNextPage(twoPageOrders, o.pageSize)
+		onePageOrders    = page.TruncateOrdersToPageSize(twoPageOrders, o.pageSize)
+		pageInfo         = page.Last(onePageOrders, totalOrders, o.pageSize)
 	)
 
 	buttons, err := o.makeHistoryButtons(
@@ -48,27 +55,11 @@ func (o *OrderHistory) Show(ctx context.Context, chatID msginfo.ChatID) error {
 	o.sender.SendText(
 		ctx,
 		chatID,
-		formatHistoryOrders(onePageOrders, curr),
+		formatHistoryOrders(onePageOrders, curr, pageInfo),
 		buttons...,
 	)
 
 	return nil
-}
-
-func calculateOrderIDForNextPage(twoPageOrders []order.HistoryOrder, pageSize int) order.ID {
-	if len(twoPageOrders) > pageSize {
-		return twoPageOrders[pageSize-1].ID
-	}
-
-	return 0
-}
-
-func truncateOrdersToPageSize(orders []order.HistoryOrder, pageSize int) []order.HistoryOrder {
-	if len(orders) > pageSize {
-		return orders[:pageSize]
-	}
-
-	return orders
 }
 
 func (o *OrderHistory) makeHistoryButtons(
@@ -116,8 +107,10 @@ func (o *OrderHistory) makeHistoryButtons(
 func formatHistoryOrders(
 	orders []order.HistoryOrder,
 	curr *currency.Currency,
+	pageInfo page.Page,
 ) string {
-	formattedOrders := make([]string, 0, len(orders))
+	formattedOrders := make([]string, 0, len(orders)+1)
+	formattedOrders = append(formattedOrders, fmt.Sprintf("Page %d/%d", pageInfo.Number, pageInfo.Total))
 
 	for _, v := range orders {
 		formattedOrders = append(formattedOrders,
