@@ -36,7 +36,7 @@ func (o *OrderHistory) Last(ctx context.Context, info msginfo.Info) error {
 		afterOrderIDBtn  = page.CalculateOrderIDForNextPage(twoPageOrders, o.pageSize)
 		beforeOrderIDBtn = order.IDFromInt(0)
 		onePageOrders    = page.TruncateOrdersToPageSize(twoPageOrders, o.pageSize)
-		pageInfo         = page.First(onePageOrders, totalOrders, o.pageSize)
+		pageInfo         = page.First(totalOrders, o.pageSize, page.DESC)
 	)
 
 	buttons, err := o.makeHistoryButtons(

@@ -4,33 +4,57 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-type ScrollDirection int
-
-const (
-	TopToBottom ScrollDirection = iota + 1
-	BottomToTop
-)
-
 type Page struct {
 	Number int
 	Total  int
 }
 
-func Current(history []order.HistoryOrder, totalOrders int, direction ScrollDirection, pageSize int) Page {
+func Current(
+	history []order.HistoryOrder,
+	totalOrders int,
+	direction ScrollDirection,
+	pageSize int,
+	ordering Ordering,
+) Page {
+	var (
+		cp = currentPage(history, direction, pageSize)
+		tp = totalPages(totalOrders, pageSize)
+	)
+
+	if ordering == DESC {
+		cp = tp - cp + 1
+	}
+
 	return Page{
-		Number: currentPage(history, direction, pageSize),
-		Total:  totalPages(totalOrders, pageSize),
+		Number: cp,
+		Total:  tp,
 	}
 }
 
-func First(history []order.HistoryOrder, totalOrders int, pageSize int) Page {
+func First(totalOrders int, pageSize int, ordering Ordering) Page {
+	if ordering == ASC {
+		return firstPage(totalOrders, pageSize)
+	}
+
+	return lastPage(totalOrders, pageSize)
+}
+
+func Last(totalOrders int, pageSize int, ordering Ordering) Page {
+	if ordering == ASC {
+		return lastPage(totalOrders, pageSize)
+	}
+
+	return firstPage(totalOrders, pageSize)
+}
+
+func firstPage(totalOrders int, pageSize int) Page {
 	return Page{
 		Number: 1,
 		Total:  totalPages(totalOrders, pageSize),
 	}
 }
 
-func Last(history []order.HistoryOrder, totalOrders int, pageSize int) Page {
+func lastPage(totalOrders int, pageSize int) Page {
 	total := totalPages(totalOrders, pageSize)
 
 	return Page{

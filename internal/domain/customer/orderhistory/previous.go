@@ -39,7 +39,7 @@ func (o *OrderHistory) Previous(
 		beforeOrderIDBtn = page.CalculateOrderIDForNextPage(twoPageOrders, o.pageSize)
 		onePageOrders    = page.TruncateOrdersToPageSize(twoPageOrders, o.pageSize)
 		afterOrderIDBtn  = onePageOrders[0].ID
-		pageInfo         = page.Current(onePageOrders, totalOrders, page.TopToBottom, o.pageSize)
+		pageInfo         = page.Current(onePageOrders, totalOrders, page.TopToBottom, o.pageSize, page.DESC)
 	)
 
 	buttons, err := o.makeHistoryButtons(
