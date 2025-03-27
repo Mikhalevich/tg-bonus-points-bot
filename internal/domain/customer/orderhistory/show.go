@@ -39,7 +39,7 @@ func (o *OrderHistory) Show(ctx context.Context, chatID msginfo.ChatID) error {
 		afterOrderIDBtn  = order.IDFromInt(0)
 		beforeOrderIDBtn = page.CalculateOrderIDForNextPage(twoPageOrders, o.pageSize)
 		onePageOrders    = page.TruncateOrdersToPageSize(twoPageOrders, o.pageSize)
-		pageInfo         = page.Last(onePageOrders, totalOrders, o.pageSize)
+		pageInfo         = page.Last(totalOrders, o.pageSize, page.DESC)
 	)
 
 	buttons, err := o.makeHistoryButtons(
