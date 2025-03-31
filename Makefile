@@ -4,7 +4,7 @@ GOBIN ?= $(ROOT)/tools/bin
 ENV_PATH = PATH=$(GOBIN):$(PATH)
 BIN_PATH ?= $(ROOT)/bin
 LINTER_NAME := golangci-lint
-LINTER_VERSION := v1.64.4
+LINTER_VERSION := v2.0.2
 
 .PHONY: all build test compose-up vendor install-linter lint tools generate
 

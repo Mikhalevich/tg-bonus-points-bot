@@ -1,22 +1,16 @@
+version: "2"
 run:
   concurrency: 4
-  timeout: 5m
+  modules-download-mode: readonly
   issues-exit-code: 1
   tests: true
-  modules-download-mode: readonly
-
 output:
   formats:
-    - format: colored-line-number
-  print-issued-lines: true
-  print-linter-name: true
-
-linters-settings:
-  misspell:
-    locale: US
-
+    text:
+      path: stdout
+      print-linter-name: true
+      print-issued-lines: true
 linters:
-  fast: false
   enable:
     - asasalint
     - asciicheck
@@ -30,7 +24,6 @@ linters:
     - dogsled
     - dupl
     - durationcheck
-    - errcheck
     - errchkjson
     - errname
     - errorlint
@@ -48,20 +41,15 @@ linters:
     - gocyclo
     - godot
     - godox
-    - gofmt
     - goheader
-    - goimports
     - gomoddirectives
     - gomodguard
     - goprintffuncname
     - gosec
-    - gosimple
     - gosmopolitan
-    - govet
     - grouper
     - importas
     - inamedparam
-    - ineffassign
     - interfacebloat
     - intrange
     - lll
@@ -90,15 +78,12 @@ linters:
     - spancheck
     - sqlclosecheck
     - staticcheck
-    - stylecheck
     - testableexamples
     - testifylint
     - thelper
     - tparallel
-    - typecheck
     - unconvert
     - unparam
-    - unused
     - usestdlibvars
     - wastedassign
     - whitespace
@@ -106,38 +91,56 @@ linters:
     - wsl
     - zerologlint
   disable:
-    - gci
-    - revive
-    - gofumpt
-    - tagalign
     - depguard
-    - exhaustruct
-    - nlreturn
-    - ireturn
-    - perfsprint
-    - tagliatelle
-    - varnamelen
-    - gochecknoglobals
     - dupword
-    - testpackage
     - err113
-
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - funlen
-        - dupl
-
-    - path: _mock\.go
-      linters:
-        - gocyclo
-        - funlen
-        - errcheck
-        - dupl
-        - gosec
-        - maligned
-        - gochecknoglobals
-        - typecheck
-  exclude-dirs:
-    - vendor
+    - exhaustruct
+    - gochecknoglobals
+    - ireturn
+    - nlreturn
+    - perfsprint
+    - revive
+    - tagalign
+    - tagliatelle
+    - testpackage
+    - varnamelen
+  settings:
+    misspell:
+      locale: US
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - dupl
+          - funlen
+        path: _test\.go
+      - linters:
+          - dupl
+          - errcheck
+          - funlen
+          - gochecknoglobals
+          - gocyclo
+          - gosec
+          - maligned
+        path: _mock\.go
+    paths:
+      - vendor
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - vendor
+      - third_party$
+      - builtin$
+      - examples$
