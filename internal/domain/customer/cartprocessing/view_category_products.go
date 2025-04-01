@@ -23,6 +23,7 @@ func (c *CartProcessing) ViewCategoryProducts(
 	if err != nil {
 		if c.cart.IsNotFoundError(err) {
 			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
+
 			return nil
 		}
 

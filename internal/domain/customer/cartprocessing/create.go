@@ -17,6 +17,7 @@ func (c *CartProcessing) Create(ctx context.Context, info msginfo.Info) error {
 
 	if !storeInfo.IsActive {
 		c.sender.SendText(ctx, info.ChatID, storeInfo.ClosedStoreMessage)
+
 		return nil
 	}
 

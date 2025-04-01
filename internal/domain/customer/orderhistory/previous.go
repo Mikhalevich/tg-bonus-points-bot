@@ -22,6 +22,7 @@ func (o *OrderHistory) Previous(
 
 	if len(twoPageOrders) == 0 {
 		o.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderNoOrdersFound())
+
 		return nil
 	}
 

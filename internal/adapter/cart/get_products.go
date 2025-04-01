@@ -33,6 +33,7 @@ func combineDuplicateItems(items []string) map[string]int {
 	for _, v := range items {
 		if _, ok := itemsMap[v]; !ok {
 			itemsMap[v] = 1
+
 			continue
 		}
 

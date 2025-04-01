@@ -100,5 +100,6 @@ func isTimeBetween(t time.Time, start time.Time, end time.Time) bool {
 
 func timeUTCSecs(t time.Time) int {
 	h, m, s := t.UTC().Clock()
+
 	return h*3600 + m*60 + s
 }

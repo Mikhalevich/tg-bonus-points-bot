@@ -29,6 +29,7 @@ func (c *CartProcessing) Confirm(
 
 	if !storeInfo.IsActive {
 		c.sender.SendText(ctx, info.ChatID, storeInfo.ClosedStoreMessage)
+
 		return nil
 	}
 
@@ -36,6 +37,7 @@ func (c *CartProcessing) Confirm(
 	if err != nil {
 		if perror.IsType(err, perror.TypeNotFound) {
 			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
+
 			return nil
 		}
 
@@ -44,6 +46,7 @@ func (c *CartProcessing) Confirm(
 
 	if len(orderedProducts) == 0 {
 		c.sender.SendText(ctx, info.ChatID, message.NoProductsForOrder())
+
 		return nil
 	}
 
@@ -51,6 +54,7 @@ func (c *CartProcessing) Confirm(
 	if err != nil {
 		if c.repository.IsAlreadyExistsError(err) {
 			c.sender.SendText(ctx, info.ChatID, message.AlreadyHasActiveOrder())
+
 			return nil
 		}
 

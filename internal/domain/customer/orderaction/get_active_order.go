@@ -29,6 +29,7 @@ func (o *OrderAction) GetActiveOrder(ctx context.Context, info msginfo.Info) err
 	if err != nil {
 		if o.repository.IsNotFoundError(err) {
 			o.sender.ReplyText(ctx, info.ChatID, info.MessageID, "no active orders")
+
 			return nil
 		}
 
@@ -100,6 +101,7 @@ func (o *OrderAction) replyCancelOrderMessage(
 
 	if !activeOrder.CanCancel() {
 		o.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder)
+
 		return nil
 	}
 
