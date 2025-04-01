@@ -14,6 +14,12 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 )
 
+const (
+	readTimeout      = time.Second * 10
+	writeTimeout     = time.Second * 10
+	shoutdownTimeout = time.Second * 30
+)
+
 type HTTPManager struct {
 	mux     *http.ServeMux
 	humaAPI huma.API
@@ -44,8 +50,8 @@ func (m *HTTPManager) Start(
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", port),
 		Handler:      m.mux,
-		ReadTimeout:  time.Second * 10,
-		WriteTimeout: time.Second * 10,
+		ReadTimeout:  readTimeout,
+		WriteTimeout: writeTimeout,
 	}
 
 	go func() {
@@ -58,7 +64,7 @@ func (m *HTTPManager) Start(
 
 	<-ctx.Done()
 
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), shoutdownTimeout)
 	defer cancel()
 
 	//nolint:contextcheck
