@@ -22,7 +22,6 @@ linters:
     - revive
     - tagalign
     - tagliatelle
-    - testpackage
     - varnamelen
 
   settings:
