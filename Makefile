@@ -37,6 +37,9 @@ install-linter:
 lint: install-linter
 	$(GOBIN)/$(LINTER_VERSION)/$(LINTER_NAME) run --config .golangci.yml
 
+fmt: install-linter
+	$(GOBIN)/$(LINTER_VERSION)/$(LINTER_NAME) fmt --config .golangci.yml
+
 tools: install-linter
 	@if [ ! -f $(GOBIN)/mockgen ]; then\
 		echo "Installing mockgen";\

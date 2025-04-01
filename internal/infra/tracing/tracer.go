@@ -88,7 +88,9 @@ func StartSpanName(ctx context.Context, spanName string) (context.Context, trace
 }
 
 func callingFuncName() string {
-	pc, _, _, ok := runtime.Caller(2)
+	const skipCallers = 2
+
+	pc, _, _, ok := runtime.Caller(skipCallers)
 	if !ok {
 		return ""
 	}

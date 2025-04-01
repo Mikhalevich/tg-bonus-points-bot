@@ -10,6 +10,10 @@ import (
 
 var _ port.QRCodeGenerator = (*QRCodeGenerator)(nil)
 
+const (
+	pngSize = 256
+)
+
 type QRCodeGenerator struct {
 }
 
@@ -18,7 +22,7 @@ func New() *QRCodeGenerator {
 }
 
 func (q *QRCodeGenerator) GeneratePNG(content string) ([]byte, error) {
-	png, err := qrcode.Encode(content, qrcode.Medium, 256)
+	png, err := qrcode.Encode(content, qrcode.Medium, pngSize)
 	if err != nil {
 		return nil, fmt.Errorf("qrcode encode: %w", err)
 	}
