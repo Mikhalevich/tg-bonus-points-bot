@@ -22,6 +22,7 @@ func (o *OrderHistory) Show(ctx context.Context, chatID msginfo.ChatID) error {
 
 	if len(twoPageOrders) == 0 {
 		o.sender.SendTextMarkdown(ctx, chatID, message.OrderNoOrdersFound())
+
 		return nil
 	}
 

@@ -24,6 +24,7 @@ func (c *CartProcessing) ViewCategories(
 	if err != nil {
 		if perror.IsType(err, perror.TypeNotFound) {
 			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
+
 			return nil
 		}
 

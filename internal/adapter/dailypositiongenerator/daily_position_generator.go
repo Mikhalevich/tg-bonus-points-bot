@@ -43,5 +43,6 @@ func (r *RedisDeilyPositionGenerator) Position(ctx context.Context, t time.Time)
 
 func makeKey(t time.Time) string {
 	y, m, d := t.Date()
+
 	return fmt.Sprintf("dailyposition:%d_%d_%d", y, m, d)
 }

@@ -46,6 +46,7 @@ func supressSensitiveInfoFromError(originErr error) error {
 	var humaError *huma.ErrorModel
 	if errors.As(originErr, &humaError) {
 		humaError.Errors = nil
+
 		return humaError
 	}
 

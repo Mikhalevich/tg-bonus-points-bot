@@ -13,6 +13,7 @@ func (c *CartProcessing) Cancel(ctx context.Context, info msginfo.Info, cartID c
 	if err := c.cart.Clear(ctx, info.ChatID, cartID); err != nil {
 		if c.cart.IsNotFoundError(err) {
 			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
+
 			return nil
 		}
 

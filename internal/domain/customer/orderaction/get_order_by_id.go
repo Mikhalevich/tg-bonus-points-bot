@@ -14,6 +14,7 @@ func (o *OrderAction) GetOrderByID(ctx context.Context, chatID msginfo.ChatID, o
 	if err != nil {
 		if o.repository.IsNotFoundError(err) {
 			o.sender.SendText(ctx, chatID, message.InvalidOrder())
+
 			return nil
 		}
 
@@ -22,6 +23,7 @@ func (o *OrderAction) GetOrderByID(ctx context.Context, chatID msginfo.ChatID, o
 
 	if !ord.IsSameChat(chatID) {
 		o.sender.SendText(ctx, chatID, message.InvalidOrder())
+
 		return nil
 	}
 

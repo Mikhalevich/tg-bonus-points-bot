@@ -14,12 +14,10 @@ linters:
   default: all
   disable:
     - depguard
-    - dupword
     - err113
     - exhaustruct
     - gochecknoglobals
     - ireturn
-    - nlreturn
     - perfsprint
     - revive
     - tagalign

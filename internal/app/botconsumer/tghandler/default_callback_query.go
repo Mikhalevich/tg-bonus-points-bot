@@ -15,6 +15,7 @@ func (t *TGHandler) DefaultCallbackQuery(ctx context.Context, msg tgbot.BotMessa
 	if err != nil {
 		if perror.IsType(err, perror.TypeNotFound) {
 			sender.SendMessage(ctx, msg.ChatID, "Action already executed or expired")
+
 			return nil
 		}
 

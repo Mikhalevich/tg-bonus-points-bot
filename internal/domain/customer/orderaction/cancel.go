@@ -20,6 +20,7 @@ func (o *OrderAction) Cancel(
 	if err != nil {
 		if o.repository.IsNotFoundError(err) {
 			o.sender.SendText(ctx, chatID, message.OrderNotExists())
+
 			return nil
 		}
 
@@ -28,6 +29,7 @@ func (o *OrderAction) Cancel(
 
 	if !ord.CanCancel() {
 		o.sender.SendText(ctx, chatID, message.OrderStatus(ord.Status))
+
 		return nil
 	}
 
@@ -35,6 +37,7 @@ func (o *OrderAction) Cancel(
 		order.StatusCanceled, order.StatusWaitingPayment, order.StatusConfirmed); err != nil {
 		if o.repository.IsNotUpdatedError(err) {
 			o.sender.SendText(ctx, chatID, message.OrderWithStatusNotExists(ord.Status))
+
 			return nil
 		}
 
@@ -54,6 +57,7 @@ func (o *OrderAction) editOridinOrderMessage(
 ) {
 	if isTextMsg {
 		o.sender.EditTextMessage(ctx, chatID, messageID, message.OrderCanceled())
+
 		return
 	}
 
