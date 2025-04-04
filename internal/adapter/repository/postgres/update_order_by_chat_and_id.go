@@ -30,13 +30,13 @@ func (p *Postgres) UpdateOrderByChatAndID(
 	)
 
 	if err := transaction.Transaction(ctx, p.db, true,
-		func(ctx context.Context, tx sqlx.ExtContext) error {
-			dbOrder, err = updateOrderDataByChatAndID(ctx, tx, orderID, chatID, data, prevStatuses...)
+		func(ctx context.Context, trx sqlx.ExtContext) error {
+			dbOrder, err = updateOrderDataByChatAndID(ctx, trx, orderID, chatID, data, prevStatuses...)
 			if err != nil {
 				return fmt.Errorf("update order data: %w", err)
 			}
 
-			if err := insertOrderTimeline(ctx, tx, model.OrderTimeline{
+			if err := insertOrderTimeline(ctx, trx, model.OrderTimeline{
 				ID:        orderID.Int(),
 				Status:    data.Status.String(),
 				UpdatedAt: data.StatusOperationTime,
@@ -49,7 +49,7 @@ func (p *Postgres) UpdateOrderByChatAndID(
 				return fmt.Errorf("select order products: %w", err)
 			}
 
-			orderTimeline, err = selectOrderTimeline(ctx, tx, orderID.Int())
+			orderTimeline, err = selectOrderTimeline(ctx, trx, orderID.Int())
 			if err != nil {
 				return fmt.Errorf("select order timeline: %w", err)
 			}

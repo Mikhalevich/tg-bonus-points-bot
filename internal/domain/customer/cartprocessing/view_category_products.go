@@ -95,20 +95,20 @@ func (c *CartProcessing) makeCartProductsButtons(
 	return inlineButtons, nil
 }
 
-func makeProductButtonTitle(p product.Product, cartProducts []cart.CartProduct, curr *currency.Currency) string {
-	for _, v := range cartProducts {
-		if v.ProductID == p.ID {
+func makeProductButtonTitle(prod product.Product, cartProducts []cart.CartProduct, curr *currency.Currency) string {
+	for _, cartProduct := range cartProducts {
+		if cartProduct.ProductID == prod.ID {
 			return fmt.Sprintf("%s %s [x%d %s]",
-				p.Title,
-				curr.FormatPrice(p.Price),
-				v.Count,
-				curr.FormatPrice(p.Price*v.Count),
+				prod.Title,
+				curr.FormatPrice(prod.Price),
+				cartProduct.Count,
+				curr.FormatPrice(prod.Price*cartProduct.Count),
 			)
 		}
 	}
 
 	return fmt.Sprintf("%s %s",
-		p.Title,
-		curr.FormatPrice(p.Price),
+		prod.Title,
+		curr.FormatPrice(prod.Price),
 	)
 }

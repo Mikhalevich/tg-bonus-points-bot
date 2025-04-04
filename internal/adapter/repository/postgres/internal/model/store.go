@@ -24,16 +24,16 @@ type StoreSchedule struct {
 func (s *Store) ToPortStore(schedule []StoreSchedule) (*store.Store, error) {
 	days := make([]store.DaySchedule, 0, len(schedule))
 
-	for _, v := range schedule {
-		day, err := store.WeekdayFromString(v.DayOfWeek)
+	for _, daySchedule := range schedule {
+		day, err := store.WeekdayFromString(daySchedule.DayOfWeek)
 		if err != nil {
 			return nil, fmt.Errorf("weekday from string: %w", err)
 		}
 
 		days = append(days, store.DaySchedule{
 			Weekday:   day,
-			StartTime: v.StartTime,
-			EndTime:   v.EndTime,
+			StartTime: daySchedule.StartTime,
+			EndTime:   daySchedule.EndTime,
 		})
 	}
 

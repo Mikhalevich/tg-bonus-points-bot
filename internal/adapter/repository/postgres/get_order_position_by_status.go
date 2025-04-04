@@ -11,7 +11,11 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (p *Postgres) GetOrderPositionByStatus(ctx context.Context, id order.ID, statuses ...order.Status) (int, error) {
+func (p *Postgres) GetOrderPositionByStatus(
+	ctx context.Context,
+	orderID order.ID,
+	statuses ...order.Status,
+) (int, error) {
 	query, args, err := sqlx.In(`
 		WITH order_queue AS (
 			SELECT
@@ -31,7 +35,7 @@ func (p *Postgres) GetOrderPositionByStatus(ctx context.Context, id order.ID, st
 			order_queue
 		WHERE
 			id = ?
-	`, statuses, id.Int())
+	`, statuses, orderID.Int())
 
 	if err != nil {
 		return 0, fmt.Errorf("sqlx in statement: %w", err)

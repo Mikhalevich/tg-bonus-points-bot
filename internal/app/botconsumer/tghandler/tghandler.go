@@ -66,7 +66,7 @@ func New(
 	paymentProcessor OrderPaymentProcessor,
 	buttonProvider ButtonProvider,
 ) *TGHandler {
-	h := &TGHandler{
+	handler := &TGHandler{
 		cartProcessor:    cartProcessor,
 		actionProcessor:  actionProcessor,
 		historyProcessor: historyProcessor,
@@ -74,9 +74,9 @@ func New(
 		buttonProvider:   buttonProvider,
 	}
 
-	h.initCBHandlers()
+	handler.initCBHandlers()
 
-	return h
+	return handler
 }
 
 func (t *TGHandler) initCBHandlers() {

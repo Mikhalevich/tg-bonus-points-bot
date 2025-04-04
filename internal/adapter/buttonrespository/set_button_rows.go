@@ -39,15 +39,15 @@ func processButtonRows(
 	for _, buttonsRow := range rows {
 		inlineButtonsRow := make([]button.InlineKeyboardButton, 0, len(buttonsRow))
 
-		for _, b := range buttonsRow {
+		for _, btn := range buttonsRow {
 			formattedNum := strconv.FormatInt(buttonNum, 10)
 
 			inlineButtonsRow = append(inlineButtonsRow, button.InlineKeyboardButton{
 				ID:      makeHmapbuttonID(key, formattedNum),
-				Caption: b.Caption,
+				Caption: btn.Caption,
 			})
 
-			encodedButton, err := encodeButton(b)
+			encodedButton, err := encodeButton(btn)
 			if err != nil {
 				return nil, nil, fmt.Errorf("encode button: %w", err)
 			}

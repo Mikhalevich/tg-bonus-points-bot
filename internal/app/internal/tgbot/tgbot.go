@@ -22,7 +22,7 @@ func New(token string, logger logger.Logger) (*TGBot, error) {
 		logger: logger,
 	}
 
-	b, err := bot.New(
+	botAPI, err := bot.New(
 		token,
 		bot.WithSkipGetMe(),
 		bot.WithDefaultHandler(tgbot.makeDefaultHandler()),
@@ -31,7 +31,7 @@ func New(token string, logger logger.Logger) (*TGBot, error) {
 		return nil, fmt.Errorf("creating bot: %w", err)
 	}
 
-	tgbot.bot = b
+	tgbot.bot = botAPI
 
 	return tgbot, nil
 }

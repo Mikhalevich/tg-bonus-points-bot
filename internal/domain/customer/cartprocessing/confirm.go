@@ -193,16 +193,16 @@ func (c *CartProcessing) orderedProductsFromCart(
 
 	output := make([]order.OrderedProduct, 0, len(cartProducts))
 
-	for _, v := range cartProducts {
-		productInfo, ok := productsInfo[v.ProductID]
+	for _, prod := range cartProducts {
+		productInfo, ok := productsInfo[prod.ProductID]
 		if !ok {
-			return nil, nil, fmt.Errorf("missing product id: %d", v.ProductID.Int())
+			return nil, nil, fmt.Errorf("missing product id: %d", prod.ProductID.Int())
 		}
 
 		output = append(output, order.OrderedProduct{
-			ProductID:  v.ProductID,
-			CategoryID: v.CategoryID,
-			Count:      v.Count,
+			ProductID:  prod.ProductID,
+			CategoryID: prod.CategoryID,
+			Count:      prod.Count,
 			Price:      productInfo.Price,
 		})
 	}

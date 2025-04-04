@@ -21,7 +21,6 @@ linters:
     - revive
     - tagalign
     - tagliatelle
-    - varnamelen
 
   settings:
     misspell:

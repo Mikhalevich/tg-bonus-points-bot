@@ -21,7 +21,7 @@ func (p *Postgres) GetCurrencyByID(ctx context.Context, id currency.ID) (*curren
 	return curr.ToPortCurrency(), nil
 }
 
-func selectCurrencyByID(ctx context.Context, tx sqlx.ExtContext, id currency.ID) (*model.Currency, error) {
+func selectCurrencyByID(ctx context.Context, trx sqlx.ExtContext, currencyID currency.ID) (*model.Currency, error) {
 	query, args, err := sqlx.Named(`
 		SELECT
 			id,
@@ -36,7 +36,7 @@ func selectCurrencyByID(ctx context.Context, tx sqlx.ExtContext, id currency.ID)
 		WHERE
 			id = :id
 	`, map[string]any{
-		"id": id.Int(),
+		"id": currencyID.Int(),
 	})
 
 	if err != nil {
@@ -44,7 +44,7 @@ func selectCurrencyByID(ctx context.Context, tx sqlx.ExtContext, id currency.ID)
 	}
 
 	var curr model.Currency
-	if err := sqlx.GetContext(ctx, tx, &curr, tx.Rebind(query), args...); err != nil {
+	if err := sqlx.GetContext(ctx, trx, &curr, trx.Rebind(query), args...); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, errNotFound
 		}

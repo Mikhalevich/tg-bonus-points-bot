@@ -67,12 +67,12 @@ func StartBot(
 	orderHistoryCfg config.OrderHistory,
 	logger logger.Logger,
 ) error {
-	b, err := bot.New(botCfg.Token, bot.WithSkipGetMe())
+	botAPI, err := bot.New(botCfg.Token, bot.WithSkipGetMe())
 	if err != nil {
 		return fmt.Errorf("creating bot: %w", err)
 	}
 
-	pg, cleanup, err := MakePostgres(postgresCfg)
+	pgDB, cleanup, err := MakePostgres(postgresCfg)
 	if err != nil {
 		return fmt.Errorf("make postgres: %w", err)
 	}
@@ -94,13 +94,13 @@ func StartBot(
 	}
 
 	var (
-		sender        = messagesender.New(b, botCfg.PaymentToken)
+		sender        = messagesender.New(botAPI, botCfg.PaymentToken)
 		qrGenerator   = qrcodegenerator.New()
-		cartProcessor = cartprocessing.New(storeID, pg, pg, cartRedis, sender,
+		cartProcessor = cartprocessing.New(storeID, pgDB, pgDB, cartRedis, sender,
 			timeprovider.New(), buttonRepository)
-		actionProcessor  = orderaction.New(sender, pg, buttonRepository, timeprovider.New())
-		historyProcessor = orderhistory.New(pg, sender, buttonRepository, orderHistoryCfg.PageSize)
-		paymentProcessor = orderpayment.New(storeID, sender, qrGenerator, pg, pg,
+		actionProcessor  = orderaction.New(sender, pgDB, buttonRepository, timeprovider.New())
+		historyProcessor = orderhistory.New(pgDB, sender, buttonRepository, orderHistoryCfg.PageSize)
+		paymentProcessor = orderpayment.New(storeID, sender, qrGenerator, pgDB, pgDB,
 			dailyPosition, verificationcodegenerator.New(), timeprovider.New())
 		buttonProvider = buttonprovider.New(buttonRepository)
 	)
@@ -188,19 +188,19 @@ func MakePostgres(cfg config.Postgres) (*postgres.Postgres, func(), error) {
 
 	driver := driver.NewPgx()
 
-	db, err := otelsql.Open(driver.Name(), cfg.Connection)
+	dbConn, err := otelsql.Open(driver.Name(), cfg.Connection)
 	if err != nil {
 		return nil, nil, fmt.Errorf("open database: %w", err)
 	}
 
-	if err := db.Ping(); err != nil {
+	if err := dbConn.Ping(); err != nil {
 		return nil, nil, fmt.Errorf("ping: %w", err)
 	}
 
-	p := postgres.New(db, driver)
+	p := postgres.New(dbConn, driver)
 
 	return p, func() {
-		db.Close()
+		dbConn.Close()
 	}, nil
 }
 
@@ -211,20 +211,20 @@ func StartManagerService(
 	postgresCfg config.Postgres,
 	logger logger.Logger,
 ) error {
-	b, err := bot.New(botCfg.Token, bot.WithSkipGetMe())
+	botAPI, err := bot.New(botCfg.Token, bot.WithSkipGetMe())
 	if err != nil {
 		return fmt.Errorf("creating bot: %w", err)
 	}
 
-	pg, cleanup, err := MakePostgres(postgresCfg)
+	pgDB, cleanup, err := MakePostgres(postgresCfg)
 	if err != nil {
 		return fmt.Errorf("make postgres: %w", err)
 	}
 	defer cleanup()
 
 	var (
-		sender           = messagesender.New(b, botCfg.PaymentToken)
-		managerProcessor = manager.New(sender, pg, timeprovider.New())
+		sender           = messagesender.New(botAPI, botCfg.PaymentToken)
+		managerProcessor = manager.New(sender, pgDB, timeprovider.New())
 	)
 
 	if err := httpmanager.New(managerProcessor, logger).Start(

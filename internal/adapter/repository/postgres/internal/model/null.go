@@ -4,24 +4,24 @@ import (
 	"database/sql"
 )
 
-func NullString(s string) sql.NullString {
-	if s == "" {
+func NullString(value string) sql.NullString {
+	if value == "" {
 		return sql.NullString{}
 	}
 
 	return sql.NullString{
-		String: s,
+		String: value,
 		Valid:  true,
 	}
 }
 
-func NullIntPositive(i int32) sql.NullInt32 {
-	if i <= 0 {
+func NullIntPositive(value int32) sql.NullInt32 {
+	if value <= 0 {
 		return sql.NullInt32{}
 	}
 
 	return sql.NullInt32{
-		Int32: i,
+		Int32: value,
 		Valid: true,
 	}
 }

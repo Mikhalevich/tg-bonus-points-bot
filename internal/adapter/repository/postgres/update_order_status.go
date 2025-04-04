@@ -16,7 +16,7 @@ import (
 
 func (p *Postgres) UpdateOrderStatus(
 	ctx context.Context,
-	id order.ID,
+	orderID order.ID,
 	operationTime time.Time,
 	newStatus order.Status,
 	prevStatuses ...order.Status,
@@ -29,14 +29,14 @@ func (p *Postgres) UpdateOrderStatus(
 	)
 
 	if err := transaction.Transaction(ctx, p.db, true,
-		func(ctx context.Context, tx sqlx.ExtContext) error {
-			dbOrder, err = updateOrderStatus(ctx, tx, id, operationTime, newStatus, prevStatuses...)
+		func(ctx context.Context, trx sqlx.ExtContext) error {
+			dbOrder, err = updateOrderStatus(ctx, trx, orderID, operationTime, newStatus, prevStatuses...)
 			if err != nil {
 				return fmt.Errorf("update order status: %w", err)
 			}
 
-			if err := insertOrderTimeline(ctx, tx, model.OrderTimeline{
-				ID:        id.Int(),
+			if err := insertOrderTimeline(ctx, trx, model.OrderTimeline{
+				ID:        orderID.Int(),
 				Status:    newStatus.String(),
 				UpdatedAt: operationTime,
 			}); err != nil {
@@ -48,7 +48,7 @@ func (p *Postgres) UpdateOrderStatus(
 				return fmt.Errorf("select order products: %w", err)
 			}
 
-			orderTimeline, err = selectOrderTimeline(ctx, tx, id.Int())
+			orderTimeline, err = selectOrderTimeline(ctx, trx, orderID.Int())
 			if err != nil {
 				return fmt.Errorf("select order timeline: %w", err)
 			}
@@ -70,7 +70,7 @@ func (p *Postgres) UpdateOrderStatus(
 func updateOrderStatus(
 	ctx context.Context,
 	ext sqlx.ExtContext,
-	id order.ID,
+	orderID order.ID,
 	operationTime time.Time,
 	newStatus order.Status,
 	prevStatuses ...order.Status,
@@ -87,7 +87,7 @@ func updateOrderStatus(
 		map[string]any{
 			"status":     newStatus,
 			"updated_at": operationTime,
-			"id":         id.Int(),
+			"id":         orderID.Int(),
 		})
 
 	if err != nil {

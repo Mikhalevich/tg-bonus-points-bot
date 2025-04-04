@@ -99,24 +99,24 @@ type storeInfo struct {
 }
 
 func (p *OrderPayment) storeInfoByID(ctx context.Context, storeID store.ID) (*storeInfo, error) {
-	s, err := p.storeInfo.GetStoreByID(ctx, storeID)
+	stor, err := p.storeInfo.GetStoreByID(ctx, storeID)
 	if err != nil {
 		return nil, fmt.Errorf("get store by id: %w", err)
 	}
 
 	currentTime := p.timeProvider.Now()
 
-	nextWorkingTime, isActive := s.Schedule.NextWorkingTime(currentTime)
+	nextWorkingTime, isActive := stor.Schedule.NextWorkingTime(currentTime)
 	if !isActive {
 		return &storeInfo{
-			Store:              s,
+			Store:              stor,
 			IsActive:           false,
 			ClosedStoreMessage: message.StoreClosed(currentTime, nextWorkingTime),
 		}, nil
 	}
 
 	return &storeInfo{
-		Store:    s,
+		Store:    stor,
 		IsActive: true,
 	}, nil
 }

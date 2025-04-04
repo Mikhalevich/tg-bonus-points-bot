@@ -8,7 +8,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/perror"
 )
 
-func (m *Manager) UpdateOrderStatus(ctx context.Context, id order.ID, status order.Status) error {
+func (m *Manager) UpdateOrderStatus(ctx context.Context, orderID order.ID, status order.Status) error {
 	previousStatuses, err := calculateLegalPreviousStatuses(status)
 	if err != nil {
 		return fmt.Errorf("calculate legal previous statuses: %w", err)
@@ -16,7 +16,7 @@ func (m *Manager) UpdateOrderStatus(ctx context.Context, id order.ID, status ord
 
 	updatedOrder, err := m.repository.UpdateOrderStatus(
 		ctx,
-		id,
+		orderID,
 		m.timeProvider.Now(),
 		status,
 		previousStatuses...,
