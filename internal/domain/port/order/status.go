@@ -44,8 +44,8 @@ func (s Status) HumanReadable() string {
 	return ""
 }
 
-func StatusFromString(s string) (Status, error) {
-	status := Status(s)
+func StatusFromString(value string) (Status, error) {
+	status := Status(value)
 	switch status {
 	case StatusWaitingPayment,
 		StatusPaymentInProgress,
@@ -57,6 +57,6 @@ func StatusFromString(s string) (Status, error) {
 		StatusRejected:
 		return status, nil
 	default:
-		return Status("invalid"), fmt.Errorf("invalid status: %s", s)
+		return Status("invalid"), fmt.Errorf("invalid status: %s", value)
 	}
 }

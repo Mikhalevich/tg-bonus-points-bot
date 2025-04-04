@@ -36,7 +36,7 @@ func (p *Postgres) GetOrderByID(ctx context.Context, id order.ID) (*order.Order,
 	return portOrder, nil
 }
 
-func selectOrderByID(ctx context.Context, ext sqlx.ExtContext, id order.ID) (*model.Order, error) {
+func selectOrderByID(ctx context.Context, ext sqlx.ExtContext, orderID order.ID) (*model.Order, error) {
 	var modelOrder model.Order
 	if err := sqlx.GetContext(ctx, ext, &modelOrder,
 		`SELECT
@@ -53,7 +53,7 @@ func selectOrderByID(ctx context.Context, ext sqlx.ExtContext, id order.ID) (*mo
 			orders
 		WHERE
 			id = $1
-	`, id.Int(),
+	`, orderID.Int(),
 	); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, errNotFound

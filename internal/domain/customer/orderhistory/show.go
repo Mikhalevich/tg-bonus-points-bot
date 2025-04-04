@@ -113,13 +113,13 @@ func formatHistoryOrders(
 	formattedOrders := make([]string, 0, len(orders)+1)
 	formattedOrders = append(formattedOrders, fmt.Sprintf("Page %d/%d", pageInfo.Number, pageInfo.Total))
 
-	for _, v := range orders {
+	for _, ord := range orders {
 		formattedOrders = append(formattedOrders,
 			fmt.Sprintf("%d) %s, %s, %s",
-				v.SerialNumber,
-				v.CreatedAt.Format(time.RFC3339),
-				v.Status.HumanReadable(),
-				curr.FormatPrice(v.TotalPrice),
+				ord.SerialNumber,
+				ord.CreatedAt.Format(time.RFC3339),
+				ord.Status.HumanReadable(),
+				curr.FormatPrice(ord.TotalPrice),
 			),
 		)
 	}

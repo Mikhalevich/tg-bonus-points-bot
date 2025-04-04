@@ -30,14 +30,14 @@ func (c *Cart) GetProducts(ctx context.Context, id cart.ID) ([]cart.CartProduct,
 func combineDuplicateItems(items []string) map[string]int {
 	itemsMap := make(map[string]int, len(items))
 
-	for _, v := range items {
-		if _, ok := itemsMap[v]; !ok {
-			itemsMap[v] = 1
+	for _, item := range items {
+		if _, ok := itemsMap[item]; !ok {
+			itemsMap[item] = 1
 
 			continue
 		}
 
-		itemsMap[v]++
+		itemsMap[item]++
 	}
 
 	return itemsMap
@@ -51,14 +51,14 @@ func convertToCartItems(itemsMap map[string]int) ([]cart.CartProduct, error) {
 			continue
 		}
 
-		p, err := decodeCartProduct(encodedProduct)
+		decodedProduct, err := decodeCartProduct(encodedProduct)
 		if err != nil {
 			return nil, fmt.Errorf("decode cart product: %w", err)
 		}
 
 		cartItems = append(cartItems, cart.CartProduct{
-			ProductID:  p.ProductID,
-			CategoryID: p.CategoryID,
+			ProductID:  decodedProduct.ProductID,
+			CategoryID: decodedProduct.CategoryID,
 			Count:      count,
 		})
 	}

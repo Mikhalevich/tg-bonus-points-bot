@@ -17,17 +17,17 @@ func Current(
 	ordering Ordering,
 ) Page {
 	var (
-		cp = currentPage(history, direction, pageSize)
-		tp = totalPages(totalOrders, pageSize)
+		current = currentPage(history, direction, pageSize)
+		total   = totalPages(totalOrders, pageSize)
 	)
 
 	if ordering == DESC {
-		cp = tp - cp + 1
+		current = total - current + 1
 	}
 
 	return Page{
-		Number: cp,
-		Total:  tp,
+		Number: current,
+		Total:  total,
 	}
 }
 

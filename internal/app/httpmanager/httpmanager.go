@@ -32,15 +32,15 @@ func New(manager handler.Manager, logger logger.Logger) *HTTPManager {
 		humaAPI = humago.New(mux, huma.DefaultConfig("Bonus points", "1.0.0"))
 	)
 
-	m := &HTTPManager{
+	httpManager := &HTTPManager{
 		mux:     mux,
 		humaAPI: humaAPI,
 		logger:  logger,
 	}
 
-	m.routes(handler.New(manager))
+	httpManager.routes(handler.New(manager))
 
-	return m
+	return httpManager
 }
 
 func (m *HTTPManager) Start(

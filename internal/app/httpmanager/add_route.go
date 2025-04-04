@@ -20,17 +20,17 @@ func addRoute[I, O any](m *HTTPManager, op huma.Operation, hf handlerFunc[I, O])
 	)
 }
 
-func makeHandlerWrapper[I, O any](m *HTTPManager, pattern string, hf handlerFunc[I, O]) handlerFunc[I, O] {
+func makeHandlerWrapper[I, O any](manager *HTTPManager, pattern string, hndlrFn handlerFunc[I, O]) handlerFunc[I, O] {
 	return func(ctx context.Context, input *I) (*O, error) {
 		ctx, span := tracing.StartSpanName(ctx, pattern)
 		defer span.End()
 
 		var (
-			log    = m.logger.WithContext(ctx).WithField("endpoint", pattern)
+			log    = manager.logger.WithContext(ctx).WithField("endpoint", pattern)
 			ctxLog = logger.WithLogger(ctx, log)
 		)
 
-		output, err := hf(ctxLog, input)
+		output, err := hndlrFn(ctxLog, input)
 		if err != nil {
 			log.WithError(err).
 				Error("http handler error")

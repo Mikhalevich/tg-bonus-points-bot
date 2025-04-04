@@ -82,10 +82,10 @@ func (t *TGBot) AddDefaultCallbackQueryHander(h Handler) {
 	)
 }
 
-func (t *TGBot) wrapHandler(pattern string, h Handler) bot.HandlerFunc {
-	h = t.applyMiddleware(h)
+func (t *TGBot) wrapHandler(pattern string, handler Handler) bot.HandlerFunc {
+	handler = t.applyMiddleware(handler)
 
-	return func(ctx context.Context, b *bot.Bot, update *models.Update) {
+	return func(ctx context.Context, botAPI *bot.Bot, update *models.Update) {
 		ctx, span := tracing.StartSpanName(ctx, pattern)
 		defer span.End()
 
@@ -95,10 +95,10 @@ func (t *TGBot) wrapHandler(pattern string, h Handler) bot.HandlerFunc {
 			ctxLog = logger.WithLogger(ctx, log)
 		)
 
-		if err := h(ctxLog, msg, t); err != nil {
+		if err := handler(ctxLog, msg, t); err != nil {
 			log.WithError(err).Error("error while processing message")
 
-			if _, err := b.SendMessage(ctx, &bot.SendMessageParams{
+			if _, err := botAPI.SendMessage(ctx, &bot.SendMessageParams{
 				ChatID: msg.ChatID,
 				ReplyParameters: &models.ReplyParameters{
 					MessageID: msg.MessageID,
@@ -111,52 +111,52 @@ func (t *TGBot) wrapHandler(pattern string, h Handler) bot.HandlerFunc {
 	}
 }
 
-func makeMsgFromUpdate(u *models.Update) BotMessage {
-	if u.Message != nil {
+func makeMsgFromUpdate(update *models.Update) BotMessage {
+	if update.Message != nil {
 		msg := BotMessage{
-			MessageID: u.Message.ID,
-			ChatID:    u.Message.Chat.ID,
-			Text:      u.Message.Text,
+			MessageID: update.Message.ID,
+			ChatID:    update.Message.Chat.ID,
+			Text:      update.Message.Text,
 		}
 
-		if u.Message.SuccessfulPayment != nil {
+		if update.Message.SuccessfulPayment != nil {
 			msg.Payment = Payment{
 				IsSuccessful:   true,
-				InvoicePayload: u.Message.SuccessfulPayment.InvoicePayload,
-				Currency:       u.Message.SuccessfulPayment.Currency,
-				TotalAmount:    u.Message.SuccessfulPayment.TotalAmount,
+				InvoicePayload: update.Message.SuccessfulPayment.InvoicePayload,
+				Currency:       update.Message.SuccessfulPayment.Currency,
+				TotalAmount:    update.Message.SuccessfulPayment.TotalAmount,
 			}
 		}
 
 		return msg
 	}
 
-	if u.CallbackQuery != nil {
-		if u.CallbackQuery.Message.Message != nil {
+	if update.CallbackQuery != nil {
+		if update.CallbackQuery.Message.Message != nil {
 			return BotMessage{
-				MessageID: u.CallbackQuery.Message.Message.ID,
-				ChatID:    u.CallbackQuery.Message.Message.Chat.ID,
-				Data:      u.CallbackQuery.Data,
+				MessageID: update.CallbackQuery.Message.Message.ID,
+				ChatID:    update.CallbackQuery.Message.Message.Chat.ID,
+				Data:      update.CallbackQuery.Data,
 			}
 		}
 
-		if u.CallbackQuery.Message.InaccessibleMessage != nil {
+		if update.CallbackQuery.Message.InaccessibleMessage != nil {
 			return BotMessage{
-				MessageID: u.CallbackQuery.Message.InaccessibleMessage.MessageID,
-				ChatID:    u.CallbackQuery.Message.InaccessibleMessage.Chat.ID,
-				Data:      u.CallbackQuery.Data,
+				MessageID: update.CallbackQuery.Message.InaccessibleMessage.MessageID,
+				ChatID:    update.CallbackQuery.Message.InaccessibleMessage.Chat.ID,
+				Data:      update.CallbackQuery.Data,
 			}
 		}
 	}
 
-	if u.PreCheckoutQuery != nil {
+	if update.PreCheckoutQuery != nil {
 		return BotMessage{
 			Payment: Payment{
 				IsCheckout:     true,
-				ID:             u.PreCheckoutQuery.ID,
-				InvoicePayload: u.PreCheckoutQuery.InvoicePayload,
-				Currency:       u.PreCheckoutQuery.Currency,
-				TotalAmount:    u.PreCheckoutQuery.TotalAmount,
+				ID:             update.PreCheckoutQuery.ID,
+				InvoicePayload: update.PreCheckoutQuery.InvoicePayload,
+				Currency:       update.PreCheckoutQuery.Currency,
+				TotalAmount:    update.PreCheckoutQuery.TotalAmount,
 			},
 		}
 	}

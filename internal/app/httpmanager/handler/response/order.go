@@ -18,9 +18,9 @@ type StatusTime struct {
 	Time   time.Time `json:"time" doc:"Status time"`
 }
 
-func ToOrder(o *order.Order) *Order {
-	timeline := make([]StatusTime, 0, len(o.Timeline))
-	for _, tl := range o.Timeline {
+func ToOrder(ord *order.Order) *Order {
+	timeline := make([]StatusTime, 0, len(ord.Timeline))
+	for _, tl := range ord.Timeline {
 		timeline = append(timeline, StatusTime{
 			Status: tl.Status.String(),
 			Time:   tl.Time,
@@ -28,9 +28,9 @@ func ToOrder(o *order.Order) *Order {
 	}
 
 	return &Order{
-		ID:               o.ID.String(),
-		Status:           o.Status.String(),
-		VerificationCode: o.VerificationCode,
+		ID:               ord.ID.String(),
+		Status:           ord.Status.String(),
+		VerificationCode: ord.VerificationCode,
 		Timeline:         timeline,
 	}
 }

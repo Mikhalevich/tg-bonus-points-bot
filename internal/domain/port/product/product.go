@@ -24,13 +24,13 @@ func ProductIDFromInt(i int) ProductID {
 }
 
 func ProductIDFromString(s string) (ProductID, error) {
-	i, err := id.IntIDFromString(s)
+	intValue, err := id.IntIDFromString(s)
 	if err != nil {
 		return ProductID{}, fmt.Errorf("int id: %w", err)
 	}
 
 	return ProductID{
-		IntID: i,
+		IntID: intValue,
 	}, nil
 }
 
@@ -41,13 +41,13 @@ func CategoryIDFromInt(i int) CategoryID {
 }
 
 func CategoryIDFromString(s string) (CategoryID, error) {
-	i, err := id.IntIDFromString(s)
+	intValue, err := id.IntIDFromString(s)
 	if err != nil {
 		return CategoryID{}, fmt.Errorf("int id: %w", err)
 	}
 
 	return CategoryID{
-		IntID: i,
+		IntID: intValue,
 	}, nil
 }
 

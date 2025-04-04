@@ -44,7 +44,7 @@ func (p *Postgres) GetOrderByChatIDAndStatus(
 func selectOrderByChatIDAndStatus(
 	ctx context.Context,
 	ext sqlx.ExtContext,
-	id msginfo.ChatID,
+	chatID msginfo.ChatID,
 	statuses ...order.Status,
 ) (*model.Order, error) {
 	query, args, err := sqlx.In(`
@@ -63,7 +63,7 @@ func selectOrderByChatIDAndStatus(
 		WHERE
 			chat_id = ? AND
 			status IN(?)
-	`, id, statuses)
+	`, chatID, statuses)
 
 	if err != nil {
 		return nil, fmt.Errorf("sqlx.in: %w", err)
@@ -107,7 +107,7 @@ func selectOrderTimeline(ctx context.Context, ext sqlx.ExtContext, orderID int) 
 	return orderTimeline, nil
 }
 
-func selectOrderProducts(ctx context.Context, ext sqlx.ExtContext, id int) ([]model.OrderProduct, error) {
+func selectOrderProducts(ctx context.Context, ext sqlx.ExtContext, orderID int) ([]model.OrderProduct, error) {
 	query, args, err := sqlx.Named(`
 		SELECT
 			order_id,
@@ -119,7 +119,7 @@ func selectOrderProducts(ctx context.Context, ext sqlx.ExtContext, id int) ([]mo
 		WHERE
 			order_id = :order_id
 	`, map[string]any{
-		"order_id": id,
+		"order_id": orderID,
 	})
 
 	if err != nil {

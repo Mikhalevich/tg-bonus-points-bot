@@ -25,7 +25,7 @@ func (c *Cart) StartNewCart(ctx context.Context, chatID msginfo.ChatID) (cart.ID
 
 	cartPrevID, err := c.activeCartID(ctx, chatID)
 	if err != nil {
-		return "", fmt.Errorf("get active cart id")
+		return "", fmt.Errorf("get active cart id: %w", err)
 	}
 
 	if _, err := c.client.Pipelined(ctx, func(pipeline redis.Pipeliner) error {
@@ -56,7 +56,7 @@ func (c *Cart) StartNewCart(ctx context.Context, chatID msginfo.ChatID) (cart.ID
 }
 
 func (c *Cart) activeCartID(ctx context.Context, chatID msginfo.ChatID) (cart.ID, error) {
-	id, err := c.client.Get(ctx, makeCartIDKey(chatID)).Result()
+	cartID, err := c.client.Get(ctx, makeCartIDKey(chatID)).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			return "", nil
@@ -65,7 +65,7 @@ func (c *Cart) activeCartID(ctx context.Context, chatID msginfo.ChatID) (cart.ID
 		return "", fmt.Errorf("get: %w", err)
 	}
 
-	return cart.IDFromString(id), nil
+	return cart.IDFromString(cartID), nil
 }
 
 func generateID() string {

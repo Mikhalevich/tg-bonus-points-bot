@@ -16,13 +16,11 @@ linters:
     - depguard
     - err113
     - exhaustruct
-    - gochecknoglobals
     - ireturn
     - perfsprint
     - revive
     - tagalign
     - tagliatelle
-    - varnamelen
 
   settings:
     misspell:

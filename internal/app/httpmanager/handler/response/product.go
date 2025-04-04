@@ -25,26 +25,26 @@ type CategoryProducts struct {
 }
 
 func ConvertFromPortProduct(portCategory []product.CategoryProducts) []CategoryProducts {
-	category := make([]CategoryProducts, 0, len(portCategory))
+	categoryProducts := make([]CategoryProducts, 0, len(portCategory))
 
-	for _, v := range portCategory {
-		products := make([]Product, 0, len(v.Products))
-		for _, v := range v.Products {
+	for _, category := range portCategory {
+		products := make([]Product, 0, len(category.Products))
+		for _, prod := range category.Products {
 			products = append(products, Product{
-				ID:        v.ID.Int(),
-				Title:     v.Title,
-				Price:     v.Price,
-				IsEnabled: v.IsEnabled,
-				CreatedAt: v.CreatedAt,
-				UpdatedAt: v.UpdatedAt,
+				ID:        prod.ID.Int(),
+				Title:     prod.Title,
+				Price:     prod.Price,
+				IsEnabled: prod.IsEnabled,
+				CreatedAt: prod.CreatedAt,
+				UpdatedAt: prod.UpdatedAt,
 			})
 		}
 
-		category = append(category, CategoryProducts{
-			Title:    v.Title,
+		categoryProducts = append(categoryProducts, CategoryProducts{
+			Title:    category.Title,
 			Products: products,
 		})
 	}
 
-	return category
+	return categoryProducts
 }

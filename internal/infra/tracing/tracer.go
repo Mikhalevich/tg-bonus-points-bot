@@ -16,6 +16,7 @@ import (
 )
 
 var (
+	//nolint:gochecknoglobals
 	std Tracer = NewNoopTracer()
 )
 

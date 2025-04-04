@@ -15,8 +15,8 @@ import (
 func (p *Postgres) CreateOrder(ctx context.Context, coi port.CreateOrderInput) (*order.Order, error) {
 	var orderResult order.Order
 
-	if err := transaction.Transaction(ctx, p.db, true, func(ctx context.Context, tx sqlx.ExtContext) error {
-		orderID, err := p.insertOrder(ctx, tx, model.Order{
+	if err := transaction.Transaction(ctx, p.db, true, func(ctx context.Context, trx sqlx.ExtContext) error {
+		orderID, err := p.insertOrder(ctx, trx, model.Order{
 			ChatID:           coi.ChatID.Int64(),
 			Status:           coi.Status.String(),
 			VerificationCode: model.NullString(coi.VerificationCode),
@@ -30,11 +30,11 @@ func (p *Postgres) CreateOrder(ctx context.Context, coi port.CreateOrderInput) (
 			return fmt.Errorf("insert order: %w", err)
 		}
 
-		if err := insertProductsToOrder(ctx, tx, model.PortToOrderProducts(orderID, coi.Products)); err != nil {
+		if err := insertProductsToOrder(ctx, trx, model.PortToOrderProducts(orderID, coi.Products)); err != nil {
 			return fmt.Errorf("insert order products: %w", err)
 		}
 
-		if err := insertOrderTimeline(ctx, tx, model.OrderTimeline{
+		if err := insertOrderTimeline(ctx, trx, model.OrderTimeline{
 			ID:        orderID.Int(),
 			Status:    coi.Status.String(),
 			UpdatedAt: coi.StatusOperationTime,

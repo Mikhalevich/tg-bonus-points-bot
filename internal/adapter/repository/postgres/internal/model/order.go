@@ -143,15 +143,15 @@ func toPortTimeline(dbTimeline []OrderTimeline) ([]order.StatusTime, error) {
 
 	portTimeline := make([]order.StatusTime, 0, len(dbTimeline))
 
-	for _, t := range dbTimeline {
-		status, err := order.StatusFromString(t.Status)
+	for _, orderTime := range dbTimeline {
+		status, err := order.StatusFromString(orderTime.Status)
 		if err != nil {
 			return nil, fmt.Errorf("timeline status from string: %w", err)
 		}
 
 		portTimeline = append(portTimeline, order.StatusTime{
 			Status: status,
-			Time:   t.UpdatedAt,
+			Time:   orderTime.UpdatedAt,
 		})
 	}
 
