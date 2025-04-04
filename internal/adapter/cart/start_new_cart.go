@@ -25,7 +25,7 @@ func (c *Cart) StartNewCart(ctx context.Context, chatID msginfo.ChatID) (cart.ID
 
 	cartPrevID, err := c.activeCartID(ctx, chatID)
 	if err != nil {
-		return "", fmt.Errorf("get active cart id")
+		return "", fmt.Errorf("get active cart id: %w", err)
 	}
 
 	if _, err := c.client.Pipelined(ctx, func(pipeline redis.Pipeliner) error {

@@ -1,6 +1,7 @@
 package logger
 
 var (
+	//nolint:gochecknoglobals
 	std Logger = NewLogrus()
 )
 

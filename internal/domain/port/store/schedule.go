@@ -18,6 +18,7 @@ const (
 )
 
 var (
+	//nolint:gochecknoglobals
 	weekdayString = map[string]Weekday{
 		Monday.String():    Monday,
 		Tuesday.String():   Tuesday,

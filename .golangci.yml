@@ -16,7 +16,6 @@ linters:
     - depguard
     - err113
     - exhaustruct
-    - gochecknoglobals
     - ireturn
     - perfsprint
     - revive
