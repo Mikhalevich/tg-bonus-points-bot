@@ -18,6 +18,9 @@ github.com/danielgtaylor/huma/v2/negotiation
 github.com/danielgtaylor/huma/v2/queryparam
 github.com/danielgtaylor/huma/v2/validation
 github.com/danielgtaylor/huma/v2/yaml
+# github.com/davecgh/go-spew v1.1.1
+## explicit
+github.com/davecgh/go-spew/spew
 # github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f
 ## explicit
 github.com/dgryski/go-rendezvous
@@ -74,6 +77,9 @@ github.com/jinzhu/configor
 ## explicit; go 1.10
 github.com/jmoiron/sqlx
 github.com/jmoiron/sqlx/reflectx
+# github.com/pmezard/go-difflib v1.0.0
+## explicit
+github.com/pmezard/go-difflib/difflib
 # github.com/redis/go-redis/extra/rediscmd/v9 v9.7.0
 ## explicit; go 1.19
 github.com/redis/go-redis/extra/rediscmd/v9
@@ -98,6 +104,12 @@ github.com/sirupsen/logrus
 github.com/skip2/go-qrcode
 github.com/skip2/go-qrcode/bitset
 github.com/skip2/go-qrcode/reedsolomon
+# github.com/stretchr/testify v1.10.0
+## explicit; go 1.17
+github.com/stretchr/testify/assert
+github.com/stretchr/testify/assert/yaml
+github.com/stretchr/testify/require
+github.com/stretchr/testify/suite
 # github.com/uptrace/opentelemetry-go-extra/otellogrus v0.3.2
 ## explicit; go 1.22
 github.com/uptrace/opentelemetry-go-extra/otellogrus
@@ -167,6 +179,9 @@ go.opentelemetry.io/proto/otlp/collector/trace/v1
 go.opentelemetry.io/proto/otlp/common/v1
 go.opentelemetry.io/proto/otlp/resource/v1
 go.opentelemetry.io/proto/otlp/trace/v1
+# go.uber.org/mock v0.5.1
+## explicit; go 1.22
+go.uber.org/mock/gomock
 # golang.org/x/crypto v0.30.0
 ## explicit; go 1.20
 golang.org/x/crypto/pbkdf2
