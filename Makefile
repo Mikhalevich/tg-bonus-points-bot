@@ -6,7 +6,7 @@ BIN_PATH ?= $(ROOT)/bin
 LINTER_NAME := golangci-lint
 LINTER_VERSION := v2.0.2
 
-.PHONY: all build test compose-up vendor install-linter lint tools generate
+.PHONY: all build test compose-up vendor install-linter lint tools tools-update generate
 
 all: build
 
@@ -46,5 +46,8 @@ tools: install-linter
 		GOBIN=$(GOBIN) go install go.uber.org/mock/mockgen@v0.5.0;\
 	fi
 
-generate: tools
+tools-update:
+	go get tool
+
+generate:
 	$(ENV_PATH) go generate ./...

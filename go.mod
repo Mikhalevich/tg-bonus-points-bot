@@ -21,7 +21,7 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.33.0
 	go.opentelemetry.io/otel/sdk v1.33.0
 	go.opentelemetry.io/otel/trace v1.33.0
-	go.uber.org/mock v0.5.0
+	go.uber.org/mock v0.5.1
 )
 
 require (
