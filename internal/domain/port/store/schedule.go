@@ -53,18 +53,6 @@ type Schedule struct {
 	Days []DaySchedule
 }
 
-func (s Schedule) isActive(t time.Time) bool {
-	currentDay := Weekday(t.Weekday())
-
-	for _, v := range s.Days {
-		if v.Weekday == currentDay {
-			return isTimeBetween(t, v.StartTime, v.EndTime)
-		}
-	}
-
-	return false
-}
-
 func (s Schedule) NextWorkingTime(current time.Time) (time.Time, bool) {
 	if s.isActive(current) {
 		return current, true
@@ -83,6 +71,18 @@ func (s Schedule) NextWorkingTime(current time.Time) (time.Time, bool) {
 			}
 		}
 	}
+}
+
+func (s Schedule) isActive(t time.Time) bool {
+	currentDay := Weekday(t.Weekday())
+
+	for _, v := range s.Days {
+		if v.Weekday == currentDay {
+			return isTimeBetween(t, v.StartTime, v.EndTime)
+		}
+	}
+
+	return false
 }
 
 func isTimeBetween(t time.Time, start time.Time, end time.Time) bool {
