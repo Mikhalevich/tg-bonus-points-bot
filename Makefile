@@ -6,7 +6,7 @@ BIN_PATH ?= $(ROOT)/bin
 LINTER_NAME := golangci-lint
 LINTER_VERSION := v2.1.2
 
-.PHONY: all build test compose-up vendor install-linter lint tools tools-update generate
+.PHONY: all build test compose-up compose-down vendor install-linter lint fmt tools tools-update generate
 
 all: build
 
