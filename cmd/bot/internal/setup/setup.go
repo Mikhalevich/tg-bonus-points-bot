@@ -9,6 +9,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/uptrace/opentelemetry-go-extra/otelsql"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/cmd/bot/internal/app"
 	"github.com/Mikhalevich/tg-bonus-points-bot/cmd/bot/internal/config"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/buttonrespository"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/cart"
@@ -19,7 +20,6 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/driver"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/timeprovider"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/verificationcodegenerator"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/botconsumer"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/buttonprovider"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer/cartprocessing"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer/orderaction"
@@ -79,7 +79,7 @@ func StartBot(
 		buttonProvider = buttonprovider.New(buttonRepository)
 	)
 
-	if err := botconsumer.Start(
+	if err := app.Start(
 		ctx,
 		botCfg.Token,
 		logger,

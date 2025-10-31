@@ -1,11 +1,11 @@
-package botconsumer
+package app
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/botconsumer/tghandler"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/internal/tgbot"
+	"github.com/Mikhalevich/tg-bonus-points-bot/cmd/bot/internal/app/tgbot"
+	"github.com/Mikhalevich/tg-bonus-points-bot/cmd/bot/internal/app/tghandler"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 )
 
