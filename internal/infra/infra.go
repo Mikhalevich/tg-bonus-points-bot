@@ -1,21 +1,11 @@
 package infra
 
 import (
-	"context"
 	"flag"
 	"fmt"
 
-	"github.com/go-telegram/bot"
 	"github.com/jinzhu/configor"
-	"github.com/uptrace/opentelemetry-go-extra/otelsql"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/messagesender"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/driver"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/timeprovider"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/httpmanager"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/config"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/manager"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 )
 
@@ -39,60 +29,4 @@ func SetupLogger(lvl string) (logger.Logger, error) {
 	logger.SetStdLogger(log)
 
 	return log, nil
-}
-
-func MakePostgres(cfg config.Postgres) (*postgres.Postgres, func(), error) {
-	if cfg.Connection == "" {
-		return nil, func() {}, nil
-	}
-
-	driver := driver.NewPgx()
-
-	dbConn, err := otelsql.Open(driver.Name(), cfg.Connection)
-	if err != nil {
-		return nil, nil, fmt.Errorf("open database: %w", err)
-	}
-
-	if err := dbConn.Ping(); err != nil {
-		return nil, nil, fmt.Errorf("ping: %w", err)
-	}
-
-	p := postgres.New(dbConn, driver)
-
-	return p, func() {
-		dbConn.Close()
-	}, nil
-}
-
-func StartManagerService(
-	ctx context.Context,
-	httpPort int,
-	botCfg config.Bot,
-	postgresCfg config.Postgres,
-	logger logger.Logger,
-) error {
-	botAPI, err := bot.New(botCfg.Token, bot.WithSkipGetMe())
-	if err != nil {
-		return fmt.Errorf("creating bot: %w", err)
-	}
-
-	pgDB, cleanup, err := MakePostgres(postgresCfg)
-	if err != nil {
-		return fmt.Errorf("make postgres: %w", err)
-	}
-	defer cleanup()
-
-	var (
-		sender           = messagesender.New(botAPI, botCfg.PaymentToken)
-		managerProcessor = manager.New(sender, pgDB, timeprovider.New())
-	)
-
-	if err := httpmanager.New(managerProcessor, logger).Start(
-		ctx,
-		httpPort,
-	); err != nil {
-		return fmt.Errorf("start bot: %w", err)
-	}
-
-	return nil
 }

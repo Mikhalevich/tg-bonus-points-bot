@@ -1,6 +1,6 @@
 package config
 
-type ManagerHTTPService struct {
+type Config struct {
 	LogLevel string   `yaml:"log_level" required:"true"`
 	Tracing  Tracing  `yaml:"tracing" required:"true"`
 	Bot      Bot      `yaml:"bot" required:"true"`

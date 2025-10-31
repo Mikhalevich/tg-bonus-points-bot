@@ -1,15 +1,15 @@
-package httpmanager
+package app
 
 import (
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/httpmanager/handler"
+	"github.com/Mikhalevich/tg-bonus-points-bot/cmd/manager/internal/app/handler"
 )
 
-func (m *HTTPManager) routes(handler *handler.Handler) {
-	addRoute(m,
+func (application *App) routes(handler *handler.Handler) {
+	addRoute(application,
 		huma.Operation{
 			OperationID:   "next-order",
 			Method:        http.MethodGet,
@@ -22,7 +22,7 @@ func (m *HTTPManager) routes(handler *handler.Handler) {
 		handler.GetNextOrder,
 	)
 
-	addRoute(m,
+	addRoute(application,
 		huma.Operation{
 			OperationID:   "update-order-status",
 			Method:        http.MethodPatch,
@@ -35,7 +35,7 @@ func (m *HTTPManager) routes(handler *handler.Handler) {
 		handler.UpdateOrderStatus,
 	)
 
-	addRoute(m,
+	addRoute(application,
 		huma.Operation{
 			OperationID:   "get-products",
 			Method:        http.MethodGet,
