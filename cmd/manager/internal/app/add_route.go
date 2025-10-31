@@ -1,4 +1,4 @@
-package httpmanager
+package app
 
 import (
 	"context"
@@ -12,21 +12,21 @@ import (
 
 type handlerFunc[I, O any] func(context.Context, *I) (*O, error)
 
-func addRoute[I, O any](m *HTTPManager, op huma.Operation, hf handlerFunc[I, O]) {
+func addRoute[I, O any](application *App, op huma.Operation, hf handlerFunc[I, O]) {
 	huma.Register(
-		m.humaAPI,
+		application.humaAPI,
 		op,
-		makeHandlerWrapper(m, op.Path, hf),
+		makeHandlerWrapper(application, op.Path, hf),
 	)
 }
 
-func makeHandlerWrapper[I, O any](manager *HTTPManager, pattern string, hndlrFn handlerFunc[I, O]) handlerFunc[I, O] {
+func makeHandlerWrapper[I, O any](application *App, pattern string, hndlrFn handlerFunc[I, O]) handlerFunc[I, O] {
 	return func(ctx context.Context, input *I) (*O, error) {
 		ctx, span := tracing.StartSpanName(ctx, pattern)
 		defer span.End()
 
 		var (
-			log    = manager.logger.WithContext(ctx).WithField("endpoint", pattern)
+			log    = application.logger.WithContext(ctx).WithField("endpoint", pattern)
 			ctxLog = logger.WithLogger(ctx, log)
 		)
 

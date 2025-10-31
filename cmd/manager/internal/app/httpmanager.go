@@ -1,4 +1,4 @@
-package httpmanager
+package app
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
 	_ "github.com/danielgtaylor/huma/v2/formats/cbor"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/httpmanager/handler"
+	"github.com/Mikhalevich/tg-bonus-points-bot/cmd/manager/internal/app/handler"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 )
 
@@ -20,19 +20,19 @@ const (
 	shoutdownTimeout = time.Second * 30
 )
 
-type HTTPManager struct {
+type App struct {
 	mux     *http.ServeMux
 	humaAPI huma.API
 	logger  logger.Logger
 }
 
-func New(manager handler.Manager, logger logger.Logger) *HTTPManager {
+func New(manager handler.Manager, logger logger.Logger) *App {
 	var (
 		mux     = http.NewServeMux()
 		humaAPI = humago.New(mux, huma.DefaultConfig("Bonus points", "1.0.0"))
 	)
 
-	httpManager := &HTTPManager{
+	httpManager := &App{
 		mux:     mux,
 		humaAPI: humaAPI,
 		logger:  logger,
@@ -43,13 +43,13 @@ func New(manager handler.Manager, logger logger.Logger) *HTTPManager {
 	return httpManager
 }
 
-func (m *HTTPManager) Start(
+func (application *App) Start(
 	ctx context.Context,
 	port int,
 ) error {
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", port),
-		Handler:      m.mux,
+		Handler:      application.mux,
 		ReadTimeout:  readTimeout,
 		WriteTimeout: writeTimeout,
 	}

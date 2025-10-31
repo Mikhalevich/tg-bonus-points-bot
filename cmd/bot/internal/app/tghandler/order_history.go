@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/internal/tgbot"
+	"github.com/Mikhalevich/tg-bonus-points-bot/cmd/bot/internal/app/tgbot"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 )
 

@@ -6,7 +6,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/app/httpmanager/handler/request"
+	"github.com/Mikhalevich/tg-bonus-points-bot/cmd/manager/internal/app/handler/request"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/perror"
 )
