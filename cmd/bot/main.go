@@ -5,14 +5,15 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/config"
+	"github.com/Mikhalevich/tg-bonus-points-bot/cmd/bot/internal/config"
+	"github.com/Mikhalevich/tg-bonus-points-bot/cmd/bot/internal/setup"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/tracing"
 )
 
 func main() {
-	var cfg config.ConsumerBot
+	var cfg config.Config
 	if err := infra.LoadConfig(&cfg); err != nil {
 		logger.StdLogger().WithError(err).Error("failed to load config")
 		os.Exit(1)
@@ -32,7 +33,7 @@ func main() {
 	if err := infra.RunSignalInterruptionFunc(func(ctx context.Context) error {
 		log.Info("starting consumer bot")
 
-		if err := infra.StartBot(
+		if err := setup.StartBot(
 			ctx,
 			cfg.StoreID,
 			cfg.Bot,
