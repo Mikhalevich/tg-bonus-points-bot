@@ -25,13 +25,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	consumerLogger := log.WithField("bot_name", "consumer")
+
 	if err := tracing.SetupTracer(cfg.Tracing.Endpoint, cfg.Tracing.ServiceName, ""); err != nil {
 		log.WithError(err).Error("failed to setup tracer")
 		os.Exit(1)
 	}
 
 	if err := infra.RunSignalInterruptionFunc(func(ctx context.Context) error {
-		log.Info("starting consumer bot")
+		consumerLogger.Info("starting consumer bot")
+		defer consumerLogger.Info("consumer bot stopped")
 
 		if err := setup.StartBot(
 			ctx,
@@ -42,12 +45,10 @@ func main() {
 			cfg.DailyPositionRedis,
 			cfg.ButtonRedis,
 			cfg.OrderHistory,
-			log.WithField("bot_name", "consumer"),
+			consumerLogger,
 		); err != nil {
 			return fmt.Errorf("start bot: %w", err)
 		}
-
-		log.Info("consumer bot stopped")
 
 		return nil
 	}); err != nil {
