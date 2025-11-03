@@ -29,59 +29,52 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 )
 
-//nolint:funlen
 func StartBot(
 	ctx context.Context,
-	storeID int,
-	botCfg config.Bot,
-	postgresCfg config.Postgres,
-	cartRedisCfg config.CartRedis,
-	dailyPositionCfg config.DailyPositionRedis,
-	buttonRedisCfg config.ButtonRedis,
-	orderHistoryCfg config.OrderHistory,
+	cfg config.Config,
 	logger logger.Logger,
 ) error {
-	botAPI, err := bot.New(botCfg.Token, bot.WithSkipGetMe())
+	botAPI, err := bot.New(cfg.Bot.Token, bot.WithSkipGetMe())
 	if err != nil {
 		return fmt.Errorf("creating bot: %w", err)
 	}
 
-	pgDB, cleanup, err := MakePostgres(postgresCfg)
+	pgDB, cleanup, err := MakePostgres(cfg.Postgres)
 	if err != nil {
 		return fmt.Errorf("make postgres: %w", err)
 	}
 	defer cleanup()
 
-	cartRedis, err := MakeRedisCart(ctx, cartRedisCfg)
+	cartRedis, err := MakeRedisCart(ctx, cfg.CartRedis)
 	if err != nil {
 		return fmt.Errorf("make redis cart: %w", err)
 	}
 
-	dailyPosition, err := MakeRedisDailyPositionGenerator(ctx, dailyPositionCfg)
+	dailyPosition, err := MakeRedisDailyPositionGenerator(ctx, cfg.DailyPositionRedis)
 	if err != nil {
 		return fmt.Errorf("make redis daily position generator: %w", err)
 	}
 
-	buttonRepository, err := MakeRedisButtonRepository(ctx, buttonRedisCfg)
+	buttonRepository, err := MakeRedisButtonRepository(ctx, cfg.ButtonRedis)
 	if err != nil {
 		return fmt.Errorf("make redis button repository: %w", err)
 	}
 
 	var (
-		sender        = messagesender.New(botAPI, botCfg.PaymentToken)
+		sender        = messagesender.New(botAPI, cfg.Bot.PaymentToken)
 		qrGenerator   = qrcodegenerator.New()
-		cartProcessor = cartprocessing.New(storeID, pgDB, pgDB, cartRedis, sender,
+		cartProcessor = cartprocessing.New(cfg.StoreID, pgDB, pgDB, cartRedis, sender,
 			timeprovider.New(), buttonRepository)
 		actionProcessor  = orderaction.New(sender, pgDB, buttonRepository, timeprovider.New())
-		historyProcessor = orderhistory.New(pgDB, sender, buttonRepository, orderHistoryCfg.PageSize)
-		paymentProcessor = orderpayment.New(storeID, sender, qrGenerator, pgDB, pgDB,
+		historyProcessor = orderhistory.New(pgDB, sender, buttonRepository, cfg.OrderHistory.PageSize)
+		paymentProcessor = orderpayment.New(cfg.StoreID, sender, qrGenerator, pgDB, pgDB,
 			dailyPosition, verificationcodegenerator.New(), timeprovider.New())
 		buttonProvider = buttonprovider.New(buttonRepository)
 	)
 
 	if err := app.Start(
 		ctx,
-		botCfg.Token,
+		cfg.Bot.Token,
 		logger,
 		cartProcessor,
 		actionProcessor,
