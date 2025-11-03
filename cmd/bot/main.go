@@ -38,13 +38,7 @@ func main() {
 
 		if err := setup.StartBot(
 			ctx,
-			cfg.StoreID,
-			cfg.Bot,
-			cfg.Postgres,
-			cfg.CartRedis,
-			cfg.DailyPositionRedis,
-			cfg.ButtonRedis,
-			cfg.OrderHistory,
+			cfg,
 			consumerLogger,
 		); err != nil {
 			return fmt.Errorf("start bot: %w", err)
