@@ -28,7 +28,7 @@ func main() {
 	consumerLogger := log.WithField("bot_name", "consumer")
 
 	if err := tracing.SetupTracer(cfg.Tracing.Endpoint, cfg.Tracing.ServiceName, ""); err != nil {
-		log.WithError(err).Error("failed to setup tracer")
+		consumerLogger.WithError(err).Error("failed to setup tracer")
 		os.Exit(1)
 	}
 
@@ -46,7 +46,7 @@ func main() {
 
 		return nil
 	}); err != nil {
-		log.WithError(err).Error("failed run service")
+		consumerLogger.WithError(err).Error("failed run service")
 		os.Exit(1)
 	}
 }
