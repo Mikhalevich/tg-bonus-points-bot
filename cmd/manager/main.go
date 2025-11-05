@@ -38,9 +38,7 @@ func main() {
 
 		if err := setup.StartService(
 			ctx,
-			cfg.HTTPPort,
-			cfg.Bot,
-			cfg.Postgres,
+			cfg,
 			log,
 		); err != nil {
 			return fmt.Errorf("start service: %w", err)

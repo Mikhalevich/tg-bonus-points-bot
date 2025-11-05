@@ -19,30 +19,28 @@ import (
 
 func StartService(
 	ctx context.Context,
-	httpPort int,
-	botCfg config.Bot,
-	postgresCfg config.Postgres,
+	cfg config.Config,
 	logger logger.Logger,
 ) error {
-	botAPI, err := bot.New(botCfg.Token, bot.WithSkipGetMe())
+	botAPI, err := bot.New(cfg.Bot.Token, bot.WithSkipGetMe())
 	if err != nil {
 		return fmt.Errorf("creating bot: %w", err)
 	}
 
-	pgDB, cleanup, err := MakePostgres(postgresCfg)
+	pgDB, cleanup, err := MakePostgres(cfg.Postgres)
 	if err != nil {
 		return fmt.Errorf("make postgres: %w", err)
 	}
 	defer cleanup()
 
 	var (
-		sender           = messagesender.New(botAPI, botCfg.PaymentToken)
+		sender           = messagesender.New(botAPI, cfg.Bot.PaymentToken)
 		managerProcessor = manager.New(sender, pgDB, timeprovider.New())
 	)
 
 	if err := app.New(managerProcessor, logger).Start(
 		ctx,
-		httpPort,
+		cfg.HTTPPort,
 	); err != nil {
 		return fmt.Errorf("start bot: %w", err)
 	}
