@@ -25,6 +25,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	log = log.WithField("service_name", "http_manager")
+
 	if err := tracing.SetupTracer(cfg.Tracing.Endpoint, cfg.Tracing.ServiceName, ""); err != nil {
 		log.WithError(err).Error("failed to setup tracer")
 		os.Exit(1)
@@ -32,18 +34,17 @@ func main() {
 
 	if err := infra.RunSignalInterruptionFunc(func(ctx context.Context) error {
 		log.Info("manager service starting")
+		defer log.Info("manager service stopped")
 
 		if err := setup.StartService(
 			ctx,
 			cfg.HTTPPort,
 			cfg.Bot,
 			cfg.Postgres,
-			log.WithField("service_name", "http_manager"),
+			log,
 		); err != nil {
 			return fmt.Errorf("start service: %w", err)
 		}
-
-		log.Info("manager service stopped")
 
 		return nil
 	}); err != nil {
