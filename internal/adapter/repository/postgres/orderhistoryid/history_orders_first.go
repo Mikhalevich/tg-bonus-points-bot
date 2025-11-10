@@ -1,4 +1,4 @@
-package postgres
+package orderhistoryid
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (p *Postgres) HistoryOrdersFirst(
+func (o *OrderHistoryID) HistoryOrdersFirst(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 	size int,
@@ -41,7 +41,7 @@ func (p *Postgres) HistoryOrdersFirst(
 		return nil, fmt.Errorf("sqlx named: %w", err)
 	}
 
-	orders, err := p.historyQuery(ctx, query, args...)
+	orders, err := o.historyQuery(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("history query: %w", err)
 	}
@@ -49,9 +49,9 @@ func (p *Postgres) HistoryOrdersFirst(
 	return orders, nil
 }
 
-func (p *Postgres) historyQuery(ctx context.Context, query string, args ...any) ([]order.HistoryOrder, error) {
+func (o *OrderHistoryID) historyQuery(ctx context.Context, query string, args ...any) ([]order.HistoryOrder, error) {
 	var orders []model.HistoryOrder
-	if err := sqlx.SelectContext(ctx, p.db, &orders, p.db.Rebind(query), args...); err != nil {
+	if err := sqlx.SelectContext(ctx, o.db, &orders, o.db.Rebind(query), args...); err != nil {
 		return nil, fmt.Errorf("select context: %w", err)
 	}
 

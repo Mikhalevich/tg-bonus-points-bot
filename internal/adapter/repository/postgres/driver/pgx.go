@@ -5,6 +5,14 @@ import (
 
 	"github.com/jackc/pgx/v5/pgconn"
 	_ "github.com/jackc/pgx/v5/stdlib"
+
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/orderhistoryid"
+)
+
+var (
+	_ postgres.Driver       = (*Pgx)(nil)
+	_ orderhistoryid.Driver = (*Pgx)(nil)
 )
 
 type Pgx struct {

@@ -31,7 +31,7 @@ func (o *OrderHistory) Show(ctx context.Context, chatID msginfo.ChatID) error {
 		return fmt.Errorf("history orders count: %w", err)
 	}
 
-	curr, err := o.repository.GetCurrencyByID(ctx, twoPageOrders[0].CurrencyID)
+	curr, err := o.currencyProvider.GetCurrencyByID(ctx, twoPageOrders[0].CurrencyID)
 	if err != nil {
 		return fmt.Errorf("get currency by id: %w", err)
 	}
@@ -97,7 +97,7 @@ func (o *OrderHistory) makeHistoryButtons(
 		return nil, nil
 	}
 
-	inlineButtons, err := o.buttonRepository.SetButtonRows(ctx, buttons)
+	inlineButtons, err := o.buttonSetter.SetButtonRows(ctx, buttons)
 	if err != nil {
 		return nil, fmt.Errorf("store buttons: %w", err)
 	}

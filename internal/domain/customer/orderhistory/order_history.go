@@ -1,26 +1,60 @@
 package orderhistory
 
 import (
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
+	"context"
+
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
+type CurrencyProvider interface {
+	GetCurrencyByID(ctx context.Context, id currency.ID) (*currency.Currency, error)
+}
+
+type Repository interface {
+	HistoryOrdersCount(ctx context.Context, chatID msginfo.ChatID) (int, error)
+	HistoryOrdersFirst(ctx context.Context, chatID msginfo.ChatID, size int) ([]order.HistoryOrder, error)
+	HistoryOrdersLast(ctx context.Context, chatID msginfo.ChatID, size int) ([]order.HistoryOrder, error)
+	HistoryOrdersBeforeID(ctx context.Context, chatID msginfo.ChatID, id order.ID, size int) ([]order.HistoryOrder, error)
+	HistoryOrdersAfterID(ctx context.Context, chatID msginfo.ChatID, id order.ID, size int) ([]order.HistoryOrder, error)
+}
+
+type MessageSender interface {
+	SendText(ctx context.Context, chatID msginfo.ChatID, text string,
+		buttons ...button.InlineKeyboardButtonRow)
+	SendTextMarkdown(ctx context.Context, chatID msginfo.ChatID, text string,
+		buttons ...button.InlineKeyboardButtonRow)
+	EditTextMessage(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID,
+		text string, rows ...button.InlineKeyboardButtonRow,
+	)
+}
+
+type ButtonRowsSetter interface {
+	SetButtonRows(ctx context.Context, rows ...button.ButtonRow) ([]button.InlineKeyboardButtonRow, error)
+}
+
 type OrderHistory struct {
-	repository       port.CustomerOrderHistoryRepository
-	sender           port.MessageSender
-	buttonRepository port.ButtonRepositoryWriter
+	currencyProvider CurrencyProvider
+	repository       Repository
+	sender           MessageSender
+	buttonSetter     ButtonRowsSetter
 	pageSize         int
 }
 
 func New(
-	repository port.CustomerOrderHistoryRepository,
-	sender port.MessageSender,
-	buttonRepository port.ButtonRepositoryWriter,
+	currencyProvider CurrencyProvider,
+	repository Repository,
+	sender MessageSender,
+	buttonSetter ButtonRowsSetter,
 	pageSize int,
 ) *OrderHistory {
 	return &OrderHistory{
+		currencyProvider: currencyProvider,
 		repository:       repository,
 		sender:           sender,
-		buttonRepository: buttonRepository,
+		buttonSetter:     buttonSetter,
 		pageSize:         pageSize,
 	}
 }

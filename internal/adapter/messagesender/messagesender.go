@@ -8,13 +8,17 @@ import (
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer/orderhistory"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 )
 
-var _ port.MessageSender = (*messageSender)(nil)
+var (
+	_ port.MessageSender         = (*messageSender)(nil)
+	_ orderhistory.MessageSender = (*messageSender)(nil)
+)
 
 type messageSender struct {
 	bot          *bot.Bot
