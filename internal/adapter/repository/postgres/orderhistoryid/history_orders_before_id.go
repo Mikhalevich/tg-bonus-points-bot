@@ -1,4 +1,4 @@
-package postgres
+package orderhistoryid
 
 import (
 	"context"
@@ -10,9 +10,10 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (p *Postgres) HistoryOrdersLast(
+func (o *OrderHistoryID) HistoryOrdersBeforeID(
 	ctx context.Context,
 	chatID msginfo.ChatID,
+	beforeOrderID order.ID,
 	size int,
 ) ([]order.HistoryOrder, error) {
 	query, args, err := sqlx.Named(`
@@ -26,13 +27,15 @@ func (p *Postgres) HistoryOrdersLast(
 		FROM
 			orders
 		WHERE
-			chat_id = :chat_id
+			chat_id = :chat_id AND
+			id < :id
 		ORDER BY
-			id
+			id DESC
 		LIMIT
 			:size
 	`, map[string]any{
-		"chat_id": chatID,
+		"chat_id": chatID.Int64(),
+		"id":      beforeOrderID.Int(),
 		"size":    size,
 	})
 
@@ -40,7 +43,7 @@ func (p *Postgres) HistoryOrdersLast(
 		return nil, fmt.Errorf("sqlx named: %w", err)
 	}
 
-	orders, err := p.historyQuery(ctx, query, args...)
+	orders, err := o.historyQuery(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("history query: %w", err)
 	}

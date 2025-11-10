@@ -16,7 +16,6 @@ var (
 	_ port.ManagerRepository              = (*Postgres)(nil)
 	_ port.StoreInfo                      = (*Postgres)(nil)
 
-	_ orderhistory.Repository       = (*Postgres)(nil)
 	_ orderhistory.CurrencyProvider = (*Postgres)(nil)
 )
 

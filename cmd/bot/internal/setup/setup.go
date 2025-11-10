@@ -2,6 +2,7 @@ package setup
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/go-telegram/bot"
@@ -18,6 +19,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/qrcodegenerator"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/driver"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/orderhistoryid"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/timeprovider"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/verificationcodegenerator"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/buttonprovider"
@@ -39,9 +41,9 @@ func StartBot(
 		return fmt.Errorf("creating bot: %w", err)
 	}
 
-	pgDB, cleanup, err := MakePostgres(cfg.Postgres)
+	dbConn, driver, cleanup, err := MakePGXConnection(cfg.Postgres)
 	if err != nil {
-		return fmt.Errorf("make postgres: %w", err)
+		return fmt.Errorf("make pgx connection: %w", err)
 	}
 	defer cleanup()
 
@@ -61,12 +63,14 @@ func StartBot(
 	}
 
 	var (
-		sender        = messagesender.New(botAPI, cfg.Bot.PaymentToken)
-		qrGenerator   = qrcodegenerator.New()
-		cartProcessor = cartprocessing.New(cfg.StoreID, pgDB, pgDB, cartRedis, sender,
+		pgDB             = postgres.New(dbConn, driver)
+		pgOrderHistoryID = orderhistoryid.New(dbConn, driver)
+		sender           = messagesender.New(botAPI, cfg.Bot.PaymentToken)
+		qrGenerator      = qrcodegenerator.New()
+		cartProcessor    = cartprocessing.New(cfg.StoreID, pgDB, pgDB, cartRedis, sender,
 			timeprovider.New(), buttonRepository)
 		actionProcessor  = orderaction.New(sender, pgDB, buttonRepository, timeprovider.New())
-		historyProcessor = orderhistory.New(pgDB, pgDB, sender, buttonRepository, cfg.OrderHistory.PageSize)
+		historyProcessor = orderhistory.New(pgDB, pgOrderHistoryID, sender, buttonRepository, cfg.OrderHistory.PageSize)
 		paymentProcessor = orderpayment.New(cfg.StoreID, sender, qrGenerator, pgDB, pgDB,
 			dailyPosition, verificationcodegenerator.New(), timeprovider.New())
 		buttonProvider = buttonprovider.New(buttonRepository)
@@ -148,25 +152,23 @@ func MakeRedisDailyPositionGenerator(
 	return dailypositiongenerator.New(rdb, cfg.TTL), nil
 }
 
-func MakePostgres(cfg config.Postgres) (*postgres.Postgres, func(), error) {
+func MakePGXConnection(cfg config.Postgres) (*sql.DB, *driver.Pgx, func(), error) {
 	if cfg.Connection == "" {
-		return nil, func() {}, nil
+		return nil, nil, func() {}, nil
 	}
 
 	driver := driver.NewPgx()
 
 	dbConn, err := otelsql.Open(driver.Name(), cfg.Connection)
 	if err != nil {
-		return nil, nil, fmt.Errorf("open database: %w", err)
+		return nil, nil, nil, fmt.Errorf("open database: %w", err)
 	}
 
 	if err := dbConn.Ping(); err != nil {
-		return nil, nil, fmt.Errorf("ping: %w", err)
+		return nil, nil, nil, fmt.Errorf("ping: %w", err)
 	}
 
-	p := postgres.New(dbConn, driver)
-
-	return p, func() {
+	return dbConn, driver, func() {
 		dbConn.Close()
 	}, nil
 }

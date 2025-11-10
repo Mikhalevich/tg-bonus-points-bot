@@ -1,4 +1,4 @@
-package postgres
+package orderhistoryid
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 )
 
-func (p *Postgres) HistoryOrdersCount(
+func (o *OrderHistoryID) HistoryOrdersCount(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 ) (int, error) {
@@ -29,7 +29,7 @@ func (p *Postgres) HistoryOrdersCount(
 	}
 
 	var count int
-	if err := sqlx.GetContext(ctx, p.db, &count, p.db.Rebind(query), args...); err != nil {
+	if err := sqlx.GetContext(ctx, o.db, &count, o.db.Rebind(query), args...); err != nil {
 		return 0, fmt.Errorf("select context: %w", err)
 	}
 

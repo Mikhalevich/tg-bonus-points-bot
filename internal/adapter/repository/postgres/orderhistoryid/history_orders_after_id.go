@@ -1,4 +1,4 @@
-package postgres
+package orderhistoryid
 
 import (
 	"context"
@@ -10,32 +10,44 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
-func (p *Postgres) HistoryOrdersBeforeID(
+func (o *OrderHistoryID) HistoryOrdersAfterID(
 	ctx context.Context,
 	chatID msginfo.ChatID,
-	beforeOrderID order.ID,
+	afterOrderID order.ID,
 	size int,
 ) ([]order.HistoryOrder, error) {
 	query, args, err := sqlx.Named(`
+		WITH orders_history AS (
+			SELECT
+				id,
+				ROW_NUMBER() OVER (ORDER BY id) AS serial_number,
+				status,
+				currency_id,
+				total_price,
+				created_at
+			FROM
+				orders
+			WHERE
+				chat_id = :chat_id
+		)
 		SELECT
 			id,
-			ROW_NUMBER() OVER (ORDER BY id) AS serial_number,
+			serial_number,
 			status,
 			currency_id,
 			total_price,
 			created_at
 		FROM
-			orders
+			orders_history
 		WHERE
-			chat_id = :chat_id AND
-			id < :id
+			id > :id
 		ORDER BY
-			id DESC
+			id
 		LIMIT
 			:size
 	`, map[string]any{
 		"chat_id": chatID.Int64(),
-		"id":      beforeOrderID.Int(),
+		"id":      afterOrderID.Int(),
 		"size":    size,
 	})
 
@@ -43,7 +55,7 @@ func (p *Postgres) HistoryOrdersBeforeID(
 		return nil, fmt.Errorf("sqlx named: %w", err)
 	}
 
-	orders, err := p.historyQuery(ctx, query, args...)
+	orders, err := o.historyQuery(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("history query: %w", err)
 	}
