@@ -3,7 +3,6 @@ package orderhistory
 import (
 	"context"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
@@ -47,7 +46,7 @@ type OrderHistory struct {
 func New(
 	currencyProvider CurrencyProvider,
 	repository Repository,
-	sender port.MessageSender,
+	sender MessageSender,
 	buttonSetter ButtonRowsSetter,
 	pageSize int,
 ) *OrderHistory {
