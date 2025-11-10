@@ -28,7 +28,7 @@ func (o *OrderHistory) Last(ctx context.Context, info msginfo.Info) error {
 		return fmt.Errorf("history orders count: %w", err)
 	}
 
-	curr, err := o.repository.GetCurrencyByID(ctx, twoPageOrders[0].CurrencyID)
+	curr, err := o.currencyProvider.GetCurrencyByID(ctx, twoPageOrders[0].CurrencyID)
 	if err != nil {
 		return fmt.Errorf("get currency by id: %w", err)
 	}

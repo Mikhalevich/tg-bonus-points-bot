@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer/orderhistory"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
 )
@@ -18,6 +19,8 @@ import (
 var (
 	_ port.ButtonRepositoryWriter = (*ButtonRepository)(nil)
 	_ port.ButtonRepositoryReader = (*ButtonRepository)(nil)
+
+	_ orderhistory.ButtonRowsSetter = (*ButtonRepository)(nil)
 )
 
 type ButtonRepository struct {

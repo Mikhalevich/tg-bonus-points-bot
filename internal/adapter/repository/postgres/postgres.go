@@ -5,6 +5,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer/orderhistory"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 )
 
@@ -12,9 +13,11 @@ var (
 	_ port.CustomerCartRepository         = (*Postgres)(nil)
 	_ port.CustomerOrderPaymentRepository = (*Postgres)(nil)
 	_ port.CustomerOrderActionRepository  = (*Postgres)(nil)
-	_ port.CustomerOrderHistoryRepository = (*Postgres)(nil)
 	_ port.ManagerRepository              = (*Postgres)(nil)
 	_ port.StoreInfo                      = (*Postgres)(nil)
+
+	_ orderhistory.Repository       = (*Postgres)(nil)
+	_ orderhistory.CurrencyProvider = (*Postgres)(nil)
 )
 
 type Driver interface {
