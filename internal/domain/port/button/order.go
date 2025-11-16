@@ -19,38 +19,66 @@ func CancelOrder(chatID msginfo.ChatID, caption string, id order.ID, isTextMsg b
 	)
 }
 
-type OrderHistory struct {
+type OrderHistoryByID struct {
 	OrderID order.ID
 }
 
-func OrderHistoryPrevious(chatID msginfo.ChatID, caption string, beforeID order.ID) (Button, error) {
-	return createButton(chatID, caption, OperationOrderHistoryPrevious,
-		OrderHistory{
+func OrderHistoryByIDPrevious(chatID msginfo.ChatID, caption string, beforeID order.ID) (Button, error) {
+	return createButton(chatID, caption, OperationOrderHistoryByIDPrevious,
+		OrderHistoryByID{
 			OrderID: beforeID,
 		},
 	)
 }
 
-func OrderHistoryNext(chatID msginfo.ChatID, caption string, afterID order.ID) (Button, error) {
-	return createButton(chatID, caption, OperationOrderHistoryNext,
-		OrderHistory{
+func OrderHistoryByIDNext(chatID msginfo.ChatID, caption string, afterID order.ID) (Button, error) {
+	return createButton(chatID, caption, OperationOrderHistoryByIDNext,
+		OrderHistoryByID{
 			OrderID: afterID,
 		},
 	)
 }
 
-func OrderHistoryFirst(chatID msginfo.ChatID, caption string) Button {
+func OrderHistoryByIDFirst(chatID msginfo.ChatID, caption string) Button {
 	return Button{
 		ChatID:    chatID,
 		Caption:   caption,
-		Operation: OperationOrderHistoryFirst,
+		Operation: OperationOrderHistoryByIDFirst,
 	}
 }
 
-func OrderHistoryLast(chatID msginfo.ChatID, caption string) Button {
+func OrderHistoryByIDLast(chatID msginfo.ChatID, caption string) Button {
 	return Button{
 		ChatID:    chatID,
 		Caption:   caption,
-		Operation: OperationOrderHistoryLast,
+		Operation: OperationOrderHistoryByIDLast,
+	}
+}
+
+type OrderHistoryByPagePayload struct {
+	Page int
+}
+
+func OrderHistoryByPage(chatID msginfo.ChatID, caption string, page int) (Button, error) {
+	return createButton(chatID, caption, OperationOrderHistoryByPage,
+		OrderHistoryByPagePayload{
+			Page: page,
+		},
+	)
+}
+
+func OrderHistoryByPageFirst(chatID msginfo.ChatID, caption string) Button {
+	return Button{
+		ChatID:    chatID,
+		Caption:   caption,
+		Operation: OperationOrderHistoryByPageFirst,
+	}
+}
+
+func OrderHistoryByPageLast(chatID msginfo.ChatID, caption string) Button {
+	return Button{
+		ChatID:    chatID,
+		Caption:   caption,
+		Operation: OperationOrderHistoryByPageLast,
 	}
 }

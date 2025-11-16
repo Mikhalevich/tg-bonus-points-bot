@@ -72,23 +72,23 @@ func (o *OrderHistory) makeHistoryButtons(
 	var buttons button.ButtonRow
 
 	if afterOrderID.Int() > 0 {
-		nextOrdersBtn, err := button.OrderHistoryNext(chatID, message.HistoryNext(), afterOrderID)
+		nextOrdersBtn, err := button.OrderHistoryByIDNext(chatID, message.HistoryNext(), afterOrderID)
 		if err != nil {
 			return nil, fmt.Errorf("previous history button: %w", err)
 		}
 
-		firstOrdersBtn := button.OrderHistoryFirst(chatID, message.HistoryFirst())
+		firstOrdersBtn := button.OrderHistoryByIDFirst(chatID, message.HistoryFirst())
 
 		buttons = append(buttons, firstOrdersBtn, nextOrdersBtn)
 	}
 
 	if beforeOrderID.Int() > 0 {
-		previousOrdersBtn, err := button.OrderHistoryPrevious(chatID, message.HistoryPrevious(), beforeOrderID)
+		previousOrdersBtn, err := button.OrderHistoryByIDPrevious(chatID, message.HistoryPrevious(), beforeOrderID)
 		if err != nil {
 			return nil, fmt.Errorf("previous history button: %w", err)
 		}
 
-		lastOrdersBtn := button.OrderHistoryLast(chatID, message.HistoryLast())
+		lastOrdersBtn := button.OrderHistoryByIDLast(chatID, message.HistoryLast())
 
 		buttons = append(buttons, previousOrdersBtn, lastOrdersBtn)
 	}

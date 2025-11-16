@@ -20,22 +20,20 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/driver"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/orderhistoryid"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/orderhistoryoffset"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/timeprovider"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/verificationcodegenerator"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/buttonprovider"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer/cartprocessing"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer/orderaction"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer/orderhistory"
+	orderhistoryv2 "github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer/orderhistory/v2"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer/orderpayment"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
 )
 
-func StartBot(
-	ctx context.Context,
-	cfg config.Config,
-	logger logger.Logger,
-) error {
+func StartBot(ctx context.Context, cfg config.Config, logger logger.Logger) error {
 	botAPI, err := bot.New(cfg.Bot.Token, bot.WithSkipGetMe())
 	if err != nil {
 		return fmt.Errorf("creating bot: %w", err)
@@ -63,15 +61,17 @@ func StartBot(
 	}
 
 	var (
-		pgDB             = postgres.New(dbConn, driver)
-		pgOrderHistoryID = orderhistoryid.New(dbConn, driver)
-		sender           = messagesender.New(botAPI, cfg.Bot.PaymentToken)
-		qrGenerator      = qrcodegenerator.New()
-		cartProcessor    = cartprocessing.New(cfg.StoreID, pgDB, pgDB, cartRedis, sender,
+		pgDB               = postgres.New(dbConn, driver)
+		pgOrderHistoryID   = orderhistoryid.New(dbConn, driver)
+		pgOrderHistoryPage = orderhistoryoffset.New(dbConn, driver)
+		sender             = messagesender.New(botAPI, cfg.Bot.PaymentToken)
+		qrGenerator        = qrcodegenerator.New()
+		cartProcessor      = cartprocessing.New(cfg.StoreID, pgDB, pgDB, cartRedis, sender,
 			timeprovider.New(), buttonRepository)
-		actionProcessor  = orderaction.New(sender, pgDB, buttonRepository, timeprovider.New())
-		historyProcessor = orderhistory.New(pgDB, pgOrderHistoryID, sender, buttonRepository, cfg.OrderHistory.PageSize)
-		paymentProcessor = orderpayment.New(cfg.StoreID, sender, qrGenerator, pgDB, pgDB,
+		actionProcessor    = orderaction.New(sender, pgDB, buttonRepository, timeprovider.New())
+		historyProcessor   = orderhistory.New(pgDB, pgOrderHistoryID, sender, buttonRepository, cfg.OrderHistory.PageSize)
+		historyProcessorV2 = orderhistoryv2.New(pgOrderHistoryPage, pgDB, sender, buttonRepository, cfg.OrderHistory.PageSize)
+		paymentProcessor   = orderpayment.New(cfg.StoreID, sender, qrGenerator, pgDB, pgDB,
 			dailyPosition, verificationcodegenerator.New(), timeprovider.New())
 		buttonProvider = buttonprovider.New(buttonRepository)
 	)
@@ -83,6 +83,7 @@ func StartBot(
 		cartProcessor,
 		actionProcessor,
 		historyProcessor,
+		historyProcessorV2,
 		paymentProcessor,
 		buttonProvider,
 	); err != nil {

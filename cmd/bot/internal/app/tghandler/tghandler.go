@@ -37,6 +37,13 @@ type OrderHistoryProcessor interface {
 	Next(ctx context.Context, info msginfo.Info, afterOrderID order.ID) error
 }
 
+type OrderHistoryProcessorV2 interface {
+	Show(ctx context.Context, info msginfo.Info) error
+	First(ctx context.Context, info msginfo.Info) error
+	Last(ctx context.Context, info msginfo.Info) error
+	Page(ctx context.Context, info msginfo.Info, pageNumber int) error
+}
+
 type OrderPaymentProcessor interface {
 	PaymentInProgress(ctx context.Context, paymentID string, orderID order.ID,
 		currency string, totalAmount int) error
@@ -51,27 +58,30 @@ type ButtonProvider interface {
 type cbHandler func(ctx context.Context, info msginfo.Info, btn button.Button) error
 
 type TGHandler struct {
-	cartProcessor    CartProcessor
-	actionProcessor  OrderActionProcessor
-	historyProcessor OrderHistoryProcessor
-	paymentProcessor OrderPaymentProcessor
-	buttonProvider   ButtonProvider
-	cbHandlers       map[button.Operation]cbHandler
+	cartProcessor      CartProcessor
+	actionProcessor    OrderActionProcessor
+	historyProcessor   OrderHistoryProcessor
+	historyProcessorV2 OrderHistoryProcessorV2
+	paymentProcessor   OrderPaymentProcessor
+	buttonProvider     ButtonProvider
+	cbHandlers         map[button.Operation]cbHandler
 }
 
 func New(
 	cartProcessor CartProcessor,
 	actionProcessor OrderActionProcessor,
 	historyProcessor OrderHistoryProcessor,
+	historyProcessorV2 OrderHistoryProcessorV2,
 	paymentProcessor OrderPaymentProcessor,
 	buttonProvider ButtonProvider,
 ) *TGHandler {
 	handler := &TGHandler{
-		cartProcessor:    cartProcessor,
-		actionProcessor:  actionProcessor,
-		historyProcessor: historyProcessor,
-		paymentProcessor: paymentProcessor,
-		buttonProvider:   buttonProvider,
+		cartProcessor:      cartProcessor,
+		actionProcessor:    actionProcessor,
+		historyProcessor:   historyProcessor,
+		historyProcessorV2: historyProcessorV2,
+		paymentProcessor:   paymentProcessor,
+		buttonProvider:     buttonProvider,
 	}
 
 	handler.initCBHandlers()
@@ -87,9 +97,14 @@ func (t *TGHandler) initCBHandlers() {
 		button.OperationCartViewCategories:       t.viewCategories,
 		button.OperationCartViewCategoryProducts: t.viewCategoryProducts,
 		button.OperationCartAddProduct:           t.addProduct,
-		button.OperationOrderHistoryPrevious:     t.historyPrevious,
-		button.OperationOrderHistoryNext:         t.historyNext,
-		button.OperationOrderHistoryFirst:        t.historyFirst,
-		button.OperationOrderHistoryLast:         t.historyLast,
+
+		button.OperationOrderHistoryByIDPrevious: t.historyPrevious,
+		button.OperationOrderHistoryByIDNext:     t.historyNext,
+		button.OperationOrderHistoryByIDFirst:    t.historyFirst,
+		button.OperationOrderHistoryByIDLast:     t.historyLast,
+
+		button.OperationOrderHistoryByPageFirst: t.historyFirstV2,
+		button.OperationOrderHistoryByPageLast:  t.historyLastV2,
+		button.OperationOrderHistoryByPage:      t.historyPageV2,
 	}
 }

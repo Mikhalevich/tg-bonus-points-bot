@@ -4,10 +4,13 @@ type Operation string
 
 const (
 	OperationOrderCancel              Operation = "OrderCancel"
-	OperationOrderHistoryPrevious     Operation = "OperationOrderHistoryPrevious"
-	OperationOrderHistoryNext         Operation = "OperationOrderHistoryNext"
-	OperationOrderHistoryFirst        Operation = "OperationOrderHistoryFirst"
-	OperationOrderHistoryLast         Operation = "OperationOrderHistoryLast"
+	OperationOrderHistoryByIDPrevious Operation = "OperationOrderHistoryByIDPrevious"
+	OperationOrderHistoryByIDNext     Operation = "OperationOrderHistoryByIDNext"
+	OperationOrderHistoryByIDFirst    Operation = "OperationOrderHistoryByIDFirst"
+	OperationOrderHistoryByIDLast     Operation = "OperationOrderHistoryByIDLast"
+	OperationOrderHistoryByPage       Operation = "OperationOrderHistoryByPage"
+	OperationOrderHistoryByPageFirst  Operation = "OperationOrderHistoryByPageFirst"
+	OperationOrderHistoryByPageLast   Operation = "OperationOrderHistoryByPageLast"
 	OperationCartCancel               Operation = "CartCancel"
 	OperationCartConfirm              Operation = "CartConfirm"
 	OperationCartViewCategoryProducts Operation = "CartViewCategoryProducts"
