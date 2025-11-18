@@ -141,7 +141,7 @@ func (t *TGHandler) addProduct(ctx context.Context, info msginfo.Info, btn butto
 }
 
 func (t *TGHandler) historyPrevious(ctx context.Context, info msginfo.Info, btn button.Button) error {
-	payload, err := button.GetPayload[button.OrderHistory](btn)
+	payload, err := button.GetPayload[button.OrderHistoryByID](btn)
 	if err != nil {
 		return fmt.Errorf("invalid payload: %w", err)
 	}
@@ -158,7 +158,7 @@ func (t *TGHandler) historyPrevious(ctx context.Context, info msginfo.Info, btn 
 }
 
 func (t *TGHandler) historyNext(ctx context.Context, info msginfo.Info, btn button.Button) error {
-	payload, err := button.GetPayload[button.OrderHistory](btn)
+	payload, err := button.GetPayload[button.OrderHistoryByID](btn)
 	if err != nil {
 		return fmt.Errorf("invalid payload: %w", err)
 	}
@@ -191,6 +191,45 @@ func (t *TGHandler) historyLast(ctx context.Context, info msginfo.Info, btn butt
 		info,
 	); err != nil {
 		return fmt.Errorf("history last: %w", err)
+	}
+
+	return nil
+}
+
+func (t *TGHandler) historyFirstV2(ctx context.Context, info msginfo.Info, btn button.Button) error {
+	if err := t.historyProcessorV2.First(
+		ctx,
+		info,
+	); err != nil {
+		return fmt.Errorf("history first: %w", err)
+	}
+
+	return nil
+}
+
+func (t *TGHandler) historyLastV2(ctx context.Context, info msginfo.Info, btn button.Button) error {
+	if err := t.historyProcessorV2.Last(
+		ctx,
+		info,
+	); err != nil {
+		return fmt.Errorf("history last: %w", err)
+	}
+
+	return nil
+}
+
+func (t *TGHandler) historyPageV2(ctx context.Context, info msginfo.Info, btn button.Button) error {
+	payload, err := button.GetPayload[button.OrderHistoryByPagePayload](btn)
+	if err != nil {
+		return fmt.Errorf("invalid payload: %w", err)
+	}
+
+	if err := t.historyProcessorV2.Page(
+		ctx,
+		info,
+		payload.Page,
+	); err != nil {
+		return fmt.Errorf("history page: %w", err)
 	}
 
 	return nil

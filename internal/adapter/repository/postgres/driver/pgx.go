@@ -8,11 +8,13 @@ import (
 
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres"
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/orderhistoryid"
+	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/orderhistoryoffset"
 )
 
 var (
-	_ postgres.Driver       = (*Pgx)(nil)
-	_ orderhistoryid.Driver = (*Pgx)(nil)
+	_ postgres.Driver           = (*Pgx)(nil)
+	_ orderhistoryid.Driver     = (*Pgx)(nil)
+	_ orderhistoryoffset.Driver = (*Pgx)(nil)
 )
 
 type Pgx struct {

@@ -16,6 +16,7 @@ func Start(
 	cartProcessor tghandler.CartProcessor,
 	actionProcessor tghandler.OrderActionProcessor,
 	historyProcessor tghandler.OrderHistoryProcessor,
+	historyProcessorV2 tghandler.OrderHistoryProcessorV2,
 	paymentProcessor tghandler.OrderPaymentProcessor,
 	buttonProvider tghandler.ButtonProvider,
 ) error {
@@ -24,6 +25,7 @@ func Start(
 			cartProcessor,
 			actionProcessor,
 			historyProcessor,
+			historyProcessorV2,
 			paymentProcessor,
 			buttonProvider,
 		)

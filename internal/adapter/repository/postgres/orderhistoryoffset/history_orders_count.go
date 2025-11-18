@@ -1,4 +1,4 @@
-package orderhistoryid
+package orderhistoryoffset
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
 )
 
-func (o *OrderHistoryID) HistoryOrdersCount(
+func (oh *OrderHistoryOffset) HistoryOrdersCount(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 ) (int, error) {
@@ -20,16 +20,18 @@ func (o *OrderHistoryID) HistoryOrdersCount(
 			orders
 		WHERE
 			chat_id = :chat_id
-	`, map[string]any{
-		"chat_id": chatID,
-	})
+	`,
+		map[string]any{
+			"chat_id": chatID.Int64(),
+		},
+	)
 
 	if err != nil {
-		return 0, fmt.Errorf("sqlx named: %w", err)
+		return 0, fmt.Errorf("prepare query: %w", err)
 	}
 
 	var count int
-	if err := sqlx.GetContext(ctx, o.db, &count, o.db.Rebind(query), args...); err != nil {
+	if err := sqlx.GetContext(ctx, oh.db, &count, oh.db.Rebind(query), args...); err != nil {
 		return 0, fmt.Errorf("get context: %w", err)
 	}
 

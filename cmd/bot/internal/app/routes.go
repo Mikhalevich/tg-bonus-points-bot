@@ -11,7 +11,8 @@ func makeRoutes(tbot *tgbot.TGBot, handler *tghandler.TGHandler) {
 	tbot.AddMenuCommand("/order", "order food", handler.Order)
 	tbot.AddMenuCommand("/order_info", "information about active order", handler.GetActiveOrder)
 	tbot.AddMenuCommand("/queue", "current orders queue size", handler.OrderQueueSize)
-	tbot.AddMenuCommand("/history", "view history orders", handler.OrderHistory)
+	tbot.AddTextCommand("/history_v1", handler.OrderHistory) // obsolete
+	tbot.AddMenuCommand("/history", "view history orders", handler.OrderHistoryV2)
 
 	tbot.AddDefaultHandler(handler.DefaultHandler)
 	tbot.AddDefaultCallbackQueryHander(handler.DefaultCallbackQuery)

@@ -60,7 +60,7 @@ services:
     networks:
       - bot-net
   redis:
-    image: redis:7.0.15
+    image: redis:8.2
     ports:
       - 6379:6379
     environment:

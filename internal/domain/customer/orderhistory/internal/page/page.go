@@ -9,6 +9,22 @@ type Page struct {
 	Total  int
 }
 
+func (p Page) HasNext() bool {
+	return p.Number < p.Total
+}
+
+func (p Page) Next() int {
+	return p.Number + 1
+}
+
+func (p Page) HasPrevious() bool {
+	return p.Number > 1
+}
+
+func (p Page) Previous() int {
+	return p.Number - 1
+}
+
 func Current(
 	history []order.HistoryOrder,
 	totalOrders int,
