@@ -14,10 +14,30 @@ import (
 	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
 )
 
+type SendMessageStrategy int
+
+const (
+	SendMessage SendMessageStrategy = iota + 1
+	EditMessage
+)
+
 func (oh *OrderHistory) Page(
 	ctx context.Context,
 	info msginfo.Info,
 	pageNumber int,
+) error {
+	if err := oh.loadPageByNumber(ctx, info, pageNumber, EditMessage); err != nil {
+		return fmt.Errorf("load page by number: %w", err)
+	}
+
+	return nil
+}
+
+func (oh *OrderHistory) loadPageByNumber(
+	ctx context.Context,
+	info msginfo.Info,
+	pageNumber int,
+	sendStrategy SendMessageStrategy,
 ) error {
 	ordersCount, err := oh.repository.HistoryOrdersCount(ctx, info.ChatID)
 	if err != nil {
@@ -36,24 +56,26 @@ func (oh *OrderHistory) Page(
 		return fmt.Errorf("invalid page number: %d, pages total: %d", pageNumber, pagesCount)
 	}
 
-	if err := oh.loadPageByOffset(
+	if err := oh.loadPageByPageInfo(
 		ctx,
 		info,
 		page.Page{
 			Number: pageNumber,
 			Total:  pagesCount,
 		},
+		sendStrategy,
 	); err != nil {
-		return fmt.Errorf("load page by offset: %w", err)
+		return fmt.Errorf("load page by page info: %w", err)
 	}
 
 	return nil
 }
 
-func (oh *OrderHistory) loadPageByOffset(
+func (oh *OrderHistory) loadPageByPageInfo(
 	ctx context.Context,
 	info msginfo.Info,
 	pageInfo page.Page,
+	sendStrategy SendMessageStrategy,
 ) error {
 	historyOrders, err := oh.repository.HistoryOrdersByOffset(
 		ctx,
@@ -85,13 +107,27 @@ func (oh *OrderHistory) loadPageByOffset(
 		return fmt.Errorf("make history buttons: %w", err)
 	}
 
-	oh.sender.EditTextMessage(
-		ctx,
-		info.ChatID,
-		info.MessageID,
-		formatHistoryOrders(historyOrders, curr, pageInfo),
-		buttons...,
-	)
+	switch sendStrategy {
+	case SendMessage:
+		oh.sender.SendText(
+			ctx,
+			info.ChatID,
+			formatHistoryOrders(historyOrders, curr, pageInfo),
+			buttons...,
+		)
+
+	case EditMessage:
+		oh.sender.EditTextMessage(
+			ctx,
+			info.ChatID,
+			info.MessageID,
+			formatHistoryOrders(historyOrders, curr, pageInfo),
+			buttons...,
+		)
+
+	default:
+		return fmt.Errorf("unknown send strategy: %v", sendStrategy)
+	}
 
 	return nil
 }

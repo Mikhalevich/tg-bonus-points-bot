@@ -23,15 +23,16 @@ func (oh *OrderHistory) Last(ctx context.Context, info msginfo.Info) error {
 
 	pagesCount := calculatePageCount(ordersCount, oh.pageSize)
 
-	if err := oh.loadPageByOffset(
+	if err := oh.loadPageByPageInfo(
 		ctx,
 		info,
 		page.Page{
 			Number: pagesCount,
 			Total:  pagesCount,
 		},
+		EditMessage,
 	); err != nil {
-		return fmt.Errorf("load page by offset: %w", err)
+		return fmt.Errorf("load page by page info: %w", err)
 	}
 
 	return nil
