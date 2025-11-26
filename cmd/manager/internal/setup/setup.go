@@ -42,7 +42,7 @@ func StartService(
 		ctx,
 		cfg.HTTPPort,
 	); err != nil {
-		return fmt.Errorf("start bot: %w", err)
+		return fmt.Errorf("start manager app: %w", err)
 	}
 
 	return nil

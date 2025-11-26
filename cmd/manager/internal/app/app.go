@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -47,22 +48,30 @@ func (application *App) Start(
 	ctx context.Context,
 	port int,
 ) error {
-	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%d", port),
-		Handler:      application.mux,
-		ReadTimeout:  readTimeout,
-		WriteTimeout: writeTimeout,
-	}
+	var (
+		srv = &http.Server{
+			Addr:         fmt.Sprintf(":%d", port),
+			Handler:      application.mux,
+			ReadTimeout:  readTimeout,
+			WriteTimeout: writeTimeout,
+		}
+
+		srvErrCh = make(chan error)
+	)
+
+	defer close(srvErrCh)
 
 	go func() {
-		if err := srv.ListenAndServe(); err != nil {
-			logger.FromContext(ctx).
-				WithError(err).
-				Error("service listen and serve error")
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			srvErrCh <- err
 		}
 	}()
 
-	<-ctx.Done()
+	select {
+	case err := <-srvErrCh:
+		return fmt.Errorf("listen and serve: %w", err)
+	case <-ctx.Done():
+	}
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), shoutdownTimeout)
 	defer cancel()
