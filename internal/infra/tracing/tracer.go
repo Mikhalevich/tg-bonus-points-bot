@@ -43,7 +43,6 @@ func NewOtelTracer(
 			otlptracehttp.WithInsecure(),
 		),
 	)
-
 	if err != nil {
 		return nil, fmt.Errorf("creating exporter: %w", err)
 	}
@@ -56,7 +55,6 @@ func NewOtelTracer(
 			semconv.ServiceVersion(version),
 		),
 	)
-
 	if err != nil {
 		return nil, fmt.Errorf("merge resource: %w", err)
 	}

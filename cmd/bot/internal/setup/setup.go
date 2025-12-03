@@ -39,7 +39,7 @@ func StartBot(ctx context.Context, cfg config.Config, logger logger.Logger) erro
 		return fmt.Errorf("creating bot: %w", err)
 	}
 
-	dbConn, driver, cleanup, err := MakePGXConnection(cfg.Postgres)
+	dbConn, driver, cleanup, err := MakePGXConnection(ctx, cfg.Postgres)
 	if err != nil {
 		return fmt.Errorf("make pgx connection: %w", err)
 	}
@@ -153,7 +153,7 @@ func MakeRedisDailyPositionGenerator(
 	return dailypositiongenerator.New(rdb, cfg.TTL), nil
 }
 
-func MakePGXConnection(cfg config.Postgres) (*sql.DB, *driver.Pgx, func(), error) {
+func MakePGXConnection(ctx context.Context, cfg config.Postgres) (*sql.DB, *driver.Pgx, func(), error) {
 	if cfg.Connection == "" {
 		return nil, nil, func() {}, nil
 	}
@@ -165,7 +165,7 @@ func MakePGXConnection(cfg config.Postgres) (*sql.DB, *driver.Pgx, func(), error
 		return nil, nil, nil, fmt.Errorf("open database: %w", err)
 	}
 
-	if err := dbConn.Ping(); err != nil {
+	if err := dbConn.PingContext(ctx); err != nil {
 		return nil, nil, nil, fmt.Errorf("ping: %w", err)
 	}
 

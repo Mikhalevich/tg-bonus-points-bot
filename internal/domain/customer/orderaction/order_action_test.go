@@ -12,6 +12,7 @@ import (
 
 type OrderActionSuite struct {
 	*suite.Suite
+
 	ctrl *gomock.Controller
 
 	sender     *port.MockMessageSender

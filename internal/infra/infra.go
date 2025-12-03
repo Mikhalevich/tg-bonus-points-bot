@@ -11,6 +11,7 @@ import (
 
 func LoadConfig(cfg any) error {
 	configFile := flag.String("config", "config/config.yaml", "consumer worker config file")
+
 	flag.Parse()
 
 	if err := configor.Load(cfg, *configFile); err != nil {
