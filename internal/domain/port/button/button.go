@@ -67,7 +67,6 @@ func createButton[P any](
 	payload P,
 ) (Button, error) {
 	payloadBytes, err := gobEncodePayload(payload)
-
 	if err != nil {
 		return Button{}, fmt.Errorf("encode payload: %w", err)
 	}

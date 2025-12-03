@@ -6,6 +6,7 @@ import (
 
 type Tx struct {
 	*sqlx.Tx
+
 	IsNested bool
 }
 

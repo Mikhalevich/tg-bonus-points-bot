@@ -56,35 +56,35 @@ func instrumentOtel(logger *logrus.Logger) {
 	logger.AddHook(logrusimpl.NewOtelFieldsHook())
 }
 
-func (lw *Logrus) Debugf(format string, args ...interface{}) {
+func (lw *Logrus) Debugf(format string, args ...any) {
 	lw.l.Debugf(format, args...)
 }
 
-func (lw *Logrus) Infof(format string, args ...interface{}) {
+func (lw *Logrus) Infof(format string, args ...any) {
 	lw.l.Infof(format, args...)
 }
 
-func (lw *Logrus) Warnf(format string, args ...interface{}) {
+func (lw *Logrus) Warnf(format string, args ...any) {
 	lw.l.Warnf(format, args...)
 }
 
-func (lw *Logrus) Errorf(format string, args ...interface{}) {
+func (lw *Logrus) Errorf(format string, args ...any) {
 	lw.l.Errorf(format, args...)
 }
 
-func (lw *Logrus) Debug(args ...interface{}) {
+func (lw *Logrus) Debug(args ...any) {
 	lw.l.Debug(args...)
 }
 
-func (lw *Logrus) Info(args ...interface{}) {
+func (lw *Logrus) Info(args ...any) {
 	lw.l.Info(args...)
 }
 
-func (lw *Logrus) Warn(args ...interface{}) {
+func (lw *Logrus) Warn(args ...any) {
 	lw.l.Warn(args...)
 }
 
-func (lw *Logrus) Error(args ...interface{}) {
+func (lw *Logrus) Error(args ...any) {
 	lw.l.Error(args...)
 }
 
@@ -100,7 +100,7 @@ func (lw *Logrus) WithError(err error) Logger {
 	}
 }
 
-func (lw *Logrus) WithField(key string, value interface{}) Logger {
+func (lw *Logrus) WithField(key string, value any) Logger {
 	return &Logrus{
 		l: lw.l.WithField(key, value),
 	}
