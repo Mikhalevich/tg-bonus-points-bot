@@ -63,8 +63,7 @@ func decodeButton(b []byte) (*button.Button, error) {
 
 func parseButtonID(id button.ID) (string, string) {
 	var (
-		idStr = id.String()
-		//nolint:modernize
+		idStr          = id.String()
 		keySplitterIdx = strings.Index(idStr, "_")
 	)
 

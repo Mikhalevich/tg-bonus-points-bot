@@ -91,10 +91,11 @@ func updateOrderDataByChatAndID(
 		map[string]any{
 			"status":            data.Status,
 			"verification_code": model.NullString(data.VerificationCode),
-			"daily_position":    model.NullIntPositive(int32(data.DailyPosition)),
-			"updated_at":        data.StatusOperationTime,
-			"id":                orderID.Int(),
-			"chat_id":           chatID.Int64(),
+			//nolint:gosec
+			"daily_position": model.NullIntPositive(int32(data.DailyPosition)),
+			"updated_at":     data.StatusOperationTime,
+			"id":             orderID.Int(),
+			"chat_id":        chatID.Int64(),
 		})
 
 	if err != nil {
