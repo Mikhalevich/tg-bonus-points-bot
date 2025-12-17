@@ -3,8 +3,9 @@ ROOT := $(dir $(MKFILE_PATH))
 GOBIN ?= $(ROOT)/tools/bin
 ENV_PATH = PATH=$(GOBIN):$(PATH)
 BIN_PATH ?= $(ROOT)/bin
+
 LINTER_NAME := golangci-lint
-LINTER_VERSION := v2.7.0
+LINTER_VERSION := v2.7.2
 
 .PHONY: all build test compose-up compose-down vendor install-linter lint fmt tools tools-update generate
 
@@ -22,6 +23,12 @@ compose-up:
 
 compose-down:
 	docker-compose -f ./script/docker/docker-compose.yml down
+
+load-test-data:
+	docker run -it --rm --network host \
+		-v ./script/db/dataset/test_data.sql:/script/test_data.sql \
+		alpine/psql:17.7 \
+		"postgresql://bot:bot@localhost:5432/bot" -f /script/test_data.sql
 
 vendor:
 	go mod tidy
