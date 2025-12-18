@@ -68,6 +68,9 @@ activate-python-venv:
 
 install-admin-deps: activate-python-venv
 	source $(BIN_PATH)/python_venv/bin/activate && \
-		python -m pip install Django~=5.0.4 && \
-		python -m pip install python-decouple==3.8
+		python -m pip install \
+		Django~=5.0.4 \
+		python-decouple==3.8 \
+		psycopg==3.1.18 \
+		psycopg2-binary
 

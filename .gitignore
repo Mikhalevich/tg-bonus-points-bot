@@ -2,4 +2,5 @@
 /tools
 /config/config-bot.yaml
 /config/config-http-manager.yaml
-/cmd/adminpanel/adminpanel/.env
+/cmd/adminpanel/.env
+cmd/adminpanel/adminpanel/__pycache__
