@@ -1,3 +1,5 @@
+SHELL = /bin/bash
+
 MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 ROOT := $(dir $(MKFILE_PATH))
 GOBIN ?= $(ROOT)/tools/bin
@@ -7,7 +9,7 @@ BIN_PATH ?= $(ROOT)/bin
 LINTER_NAME := golangci-lint
 LINTER_VERSION := v2.7.2
 
-.PHONY: all build test compose-up compose-down vendor install-linter lint fmt tools tools-update generate
+.PHONY: all build test compose-up compose-down load-test-data vendor install-linter lint fmt tools tools-update generate activate-python-venv install-admin-deps run-django-admin
 
 all: build
 
@@ -58,3 +60,22 @@ tools-update:
 
 generate:
 	$(ENV_PATH) go generate ./...
+
+activate-python-venv:
+	@if [ ! -d $(BIN_PATH)/python_venv ]; then \
+		python -m venv $(BIN_PATH)/python_venv; \
+	fi
+
+install-admin-deps: activate-python-venv
+	source $(BIN_PATH)/python_venv/bin/activate && \
+		python -m pip install \
+		Django==5.2 \
+		python-decouple==3.8 \
+		psycopg==3.1.18 \
+		psycopg2-binary
+
+run-django-admin: install-admin-deps
+	source $(BIN_PATH)/python_venv/bin/activate && \
+		python cmd/adminpanel/manage.py migrate && \
+		python cmd/adminpanel/manage.py runserver \
+
