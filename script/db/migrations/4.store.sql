@@ -22,12 +22,13 @@ CREATE TYPE day_of_week AS ENUM (
 );
 
 CREATE TABLE store_schedule(
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     store_id INTEGER NOT NULL,
     day_of_week day_of_week NOT NULL,
     start_time TIMESTAMPTZ NOT NULL,
     end_time TIMESTAMPTZ NOT NULL,
 
-    CONSTRAINT store_schedule_pk PRIMARY KEY(store_id, day_of_week),
+    CONSTRAINT store_id_day_of_week_unique_idx UNIQUE(store_id, day_of_week),
     CONSTRAINT store_schedule_store_id_fk FOREIGN KEY(store_id) REFERENCES store(id)
 );
 
