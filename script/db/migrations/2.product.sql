@@ -16,7 +16,8 @@ CREATE TABLE product_price(
     price INTEGER NOT NULL,
 
     CONSTRAINT product_id_currency_id_unique_idx UNIQUE(product_id, currency_id),
-    CONSTRAINT product_price_product_id FOREIGN KEY(product_id) REFERENCES product(id)
+    CONSTRAINT product_price_product_id FOREIGN KEY(product_id) REFERENCES product(id),
+    CONSTRAINT product_price_currency_id FOREIGN KEY(currency_id) REFERENCES currency(id)
 );
 
 CREATE TABLE category(
