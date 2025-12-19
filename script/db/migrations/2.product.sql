@@ -10,11 +10,12 @@ CREATE TABLE product(
 );
 
 CREATE TABLE product_price(
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     product_id INTEGER NOT NULL,
     currency_id INTEGER NOT NULL,
     price INTEGER NOT NULL,
 
-    CONSTRAINT product_price_pk PRIMARY KEY(product_id, currency_id),
+    CONSTRAINT product_id_currency_id_unique_idx UNIQUE(product_id, currency_id),
     CONSTRAINT product_price_product_id FOREIGN KEY(product_id) REFERENCES product(id)
 );
 
@@ -25,10 +26,11 @@ CREATE TABLE category(
 );
 
 CREATE TABLE product_category(
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     product_id INTEGER NOT NULL,
     category_id INTEGER NOT NULL,
     
-    CONSTRAINT category_pk PRIMARY KEY(product_id, category_id),
+    CONSTRAINT product_id_category_id_unique_idx UNIQUE(product_id, category_id),
     CONSTRAINT product_id_fk FOREIGN KEY(product_id) REFERENCES product(id),
     CONSTRAINT category_id_fk FOREIGN KEY(category_id) REFERENCES category(id)
 );

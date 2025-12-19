@@ -42,7 +42,6 @@ class Product(models.Model):
 
 
 class ProductCategory(models.Model):
-    pk = models.CompositePrimaryKey('product_id', 'category_id')
     product = models.ForeignKey(Product, models.DO_NOTHING)
     category = models.ForeignKey(Category, models.DO_NOTHING)
 
@@ -53,7 +52,6 @@ class ProductCategory(models.Model):
 
 
 class ProductPrice(models.Model):
-    pk = models.CompositePrimaryKey('product_id', 'currency_id')
     product = models.ForeignKey(Product, models.DO_NOTHING)
     currency_id = models.IntegerField()
     price = models.IntegerField()
@@ -74,7 +72,6 @@ class Store(models.Model):
 
 
 class StoreSchedule(models.Model):
-    pk = models.CompositePrimaryKey('store_id', 'day_of_week')
     store = models.ForeignKey(Store, models.DO_NOTHING)
     day_of_week = models.TextField()  # This field type is a guess.
     start_time = models.DateTimeField()
