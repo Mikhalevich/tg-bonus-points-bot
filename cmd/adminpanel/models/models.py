@@ -16,6 +16,9 @@ class Category(models.Model):
         managed = False
         db_table = 'category'
 
+    def __str__(self):
+        return self.title
+
 
 class Currency(models.Model):
     code = models.TextField(unique=True)
@@ -29,6 +32,9 @@ class Currency(models.Model):
         managed = False
         db_table = 'currency'
 
+    def __str__(self):
+        return self.code
+
 
 class Product(models.Model):
     title = models.TextField()
@@ -40,6 +46,9 @@ class Product(models.Model):
         managed = False
         db_table = 'product'
 
+    def __str__(self):
+        return self.title
+
 
 class ProductCategory(models.Model):
     product = models.ForeignKey(Product, models.DO_NOTHING)
@@ -50,16 +59,22 @@ class ProductCategory(models.Model):
         db_table = 'product_category'
         unique_together = (('product', 'category'),)
 
+    def __str__(self):
+        return "{} : {}".format(self.category, self.product)
+
 
 class ProductPrice(models.Model):
     product = models.ForeignKey(Product, models.DO_NOTHING)
-    currency_id = models.IntegerField()
+    currency = models.ForeignKey(Currency, models.DO_NOTHING)
     price = models.IntegerField()
 
     class Meta:
         managed = False
         db_table = 'product_price'
-        unique_together = (('product', 'currency_id'),)
+        unique_together = (('product', 'currency'),)
+
+    def __str__(self):
+        return self.product.title
 
 
 class Store(models.Model):
@@ -69,6 +84,9 @@ class Store(models.Model):
     class Meta:
         managed = False
         db_table = 'store'
+
+    def __str__(self):
+        return self.description
 
 
 class StoreSchedule(models.Model):
@@ -81,3 +99,6 @@ class StoreSchedule(models.Model):
         managed = False
         db_table = 'store_schedule'
         unique_together = (('store', 'day_of_week'),)
+
+    def __str__(self):
+        return "{} : {}".format(self.store, self.day_of_week)
