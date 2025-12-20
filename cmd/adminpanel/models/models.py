@@ -90,8 +90,21 @@ class Store(models.Model):
 
 
 class StoreSchedule(models.Model):
+    class DayOfWeekEnum(models.TextChoices):
+        MONDAY = 'Monday', 'Monday'
+        TUESDAY = 'Tuesday', 'Tuesday'
+        WEDNESDAY = 'Wednesday', 'Wednesday'
+        THURSDAY = 'Thursday', 'Thursday'
+        FRIDAY = 'Friday', 'Friday'
+        SATURDAY = 'Saturday', 'Saturday'
+        SUNDAY = 'Sunday', 'Sunday'
+
     store = models.ForeignKey(Store, models.DO_NOTHING)
-    day_of_week = models.TextField()  # This field type is a guess.
+    day_of_week = models.CharField(
+        max_length=20,
+        choices=DayOfWeekEnum.choices,
+        default=DayOfWeekEnum.MONDAY
+    )
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
 
