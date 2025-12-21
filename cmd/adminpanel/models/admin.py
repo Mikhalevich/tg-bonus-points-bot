@@ -6,9 +6,19 @@ from .models import Store, Currency, Category, Product, ProductCategory, Product
 admin.site.register(Store)
 admin.site.register(StoreSchedule)
 
-admin.site.register(Currency)
+@admin.register(Currency)
+class CurrencyAdmin(admin.ModelAdmin):
+    ordering = ["code"]
 
-admin.site.register(Category)
-admin.site.register(Product)
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    search_fields = ["title"]
+    ordering = ["title"]
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    search_fields = ["title"]
+    ordering = ["title"]
+
 admin.site.register(ProductCategory)
 admin.site.register(ProductPrice)
