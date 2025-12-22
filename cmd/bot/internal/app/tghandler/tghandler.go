@@ -3,12 +3,12 @@ package tghandler
 import (
 	"context"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/cart"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/button"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/cart"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/currency"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/order"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/product"
 )
 
 type CartProcessor interface {

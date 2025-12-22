@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/cmd/bot/internal/app/tgbot"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/cmd/bot/internal/app/tgbot"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
 )
 
 func (t *TGHandler) OrderHistoryV2(ctx context.Context, msg tgbot.BotMessage, sender tgbot.MessageSender) error {

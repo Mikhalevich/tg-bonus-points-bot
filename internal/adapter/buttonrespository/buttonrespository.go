@@ -11,9 +11,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer/orderhistory"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/customer/orderhistory"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/button"
 )
 
 var (

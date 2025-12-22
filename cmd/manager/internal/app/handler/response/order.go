@@ -3,7 +3,7 @@ package response
 import (
 	"time"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/order"
 )
 
 type Order struct {

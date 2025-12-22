@@ -8,8 +8,8 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/internal/model"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/store"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/repository/postgres/internal/model"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/store"
 )
 
 func (p *Postgres) GetStoreByID(ctx context.Context, storeID store.ID) (*store.Store, error) {

@@ -3,7 +3,7 @@ package port
 import (
 	"context"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/button"
 )
 
 type ButtonRepositoryWriter interface {

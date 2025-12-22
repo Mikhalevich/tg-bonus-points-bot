@@ -6,8 +6,8 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/mock/gomock"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer/orderaction"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/customer/orderaction"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port"
 )
 
 type OrderActionSuite struct {

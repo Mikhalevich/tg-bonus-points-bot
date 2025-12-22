@@ -6,7 +6,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/order"
 )
 
 func (p *Postgres) GetOrdersCountByStatus(ctx context.Context, statuses ...order.Status) (int, error) {

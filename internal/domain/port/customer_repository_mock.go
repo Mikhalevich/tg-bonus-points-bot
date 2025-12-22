@@ -14,10 +14,10 @@ import (
 	reflect "reflect"
 	time "time"
 
-	currency "github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
-	msginfo "github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
-	order "github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
-	product "github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
+	currency "github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/currency"
+	msginfo "github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
+	order "github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/order"
+	product "github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/product"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -359,120 +359,6 @@ func (mr *MockCustomerOrderActionRepositoryMockRecorder) UpdateOrderStatusByChat
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx, orderID, chatID, operationTime, newStatus}, prevStatuses...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOrderStatusByChatAndID", reflect.TypeOf((*MockCustomerOrderActionRepository)(nil).UpdateOrderStatusByChatAndID), varargs...)
-}
-
-// MockCustomerOrderHistoryRepository is a mock of CustomerOrderHistoryRepository interface.
-type MockCustomerOrderHistoryRepository struct {
-	ctrl     *gomock.Controller
-	recorder *MockCustomerOrderHistoryRepositoryMockRecorder
-	isgomock struct{}
-}
-
-// MockCustomerOrderHistoryRepositoryMockRecorder is the mock recorder for MockCustomerOrderHistoryRepository.
-type MockCustomerOrderHistoryRepositoryMockRecorder struct {
-	mock *MockCustomerOrderHistoryRepository
-}
-
-// NewMockCustomerOrderHistoryRepository creates a new mock instance.
-func NewMockCustomerOrderHistoryRepository(ctrl *gomock.Controller) *MockCustomerOrderHistoryRepository {
-	mock := &MockCustomerOrderHistoryRepository{ctrl: ctrl}
-	mock.recorder = &MockCustomerOrderHistoryRepositoryMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockCustomerOrderHistoryRepository) EXPECT() *MockCustomerOrderHistoryRepositoryMockRecorder {
-	return m.recorder
-}
-
-// GetCurrencyByID mocks base method.
-func (m *MockCustomerOrderHistoryRepository) GetCurrencyByID(ctx context.Context, id currency.ID) (*currency.Currency, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCurrencyByID", ctx, id)
-	ret0, _ := ret[0].(*currency.Currency)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetCurrencyByID indicates an expected call of GetCurrencyByID.
-func (mr *MockCustomerOrderHistoryRepositoryMockRecorder) GetCurrencyByID(ctx, id any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCurrencyByID", reflect.TypeOf((*MockCustomerOrderHistoryRepository)(nil).GetCurrencyByID), ctx, id)
-}
-
-// HistoryOrdersAfterID mocks base method.
-func (m *MockCustomerOrderHistoryRepository) HistoryOrdersAfterID(ctx context.Context, chatID msginfo.ChatID, id order.ID, size int) ([]order.HistoryOrder, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "HistoryOrdersAfterID", ctx, chatID, id, size)
-	ret0, _ := ret[0].([]order.HistoryOrder)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// HistoryOrdersAfterID indicates an expected call of HistoryOrdersAfterID.
-func (mr *MockCustomerOrderHistoryRepositoryMockRecorder) HistoryOrdersAfterID(ctx, chatID, id, size any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HistoryOrdersAfterID", reflect.TypeOf((*MockCustomerOrderHistoryRepository)(nil).HistoryOrdersAfterID), ctx, chatID, id, size)
-}
-
-// HistoryOrdersBeforeID mocks base method.
-func (m *MockCustomerOrderHistoryRepository) HistoryOrdersBeforeID(ctx context.Context, chatID msginfo.ChatID, id order.ID, size int) ([]order.HistoryOrder, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "HistoryOrdersBeforeID", ctx, chatID, id, size)
-	ret0, _ := ret[0].([]order.HistoryOrder)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// HistoryOrdersBeforeID indicates an expected call of HistoryOrdersBeforeID.
-func (mr *MockCustomerOrderHistoryRepositoryMockRecorder) HistoryOrdersBeforeID(ctx, chatID, id, size any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HistoryOrdersBeforeID", reflect.TypeOf((*MockCustomerOrderHistoryRepository)(nil).HistoryOrdersBeforeID), ctx, chatID, id, size)
-}
-
-// HistoryOrdersCount mocks base method.
-func (m *MockCustomerOrderHistoryRepository) HistoryOrdersCount(ctx context.Context, chatID msginfo.ChatID) (int, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "HistoryOrdersCount", ctx, chatID)
-	ret0, _ := ret[0].(int)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// HistoryOrdersCount indicates an expected call of HistoryOrdersCount.
-func (mr *MockCustomerOrderHistoryRepositoryMockRecorder) HistoryOrdersCount(ctx, chatID any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HistoryOrdersCount", reflect.TypeOf((*MockCustomerOrderHistoryRepository)(nil).HistoryOrdersCount), ctx, chatID)
-}
-
-// HistoryOrdersFirst mocks base method.
-func (m *MockCustomerOrderHistoryRepository) HistoryOrdersFirst(ctx context.Context, chatID msginfo.ChatID, size int) ([]order.HistoryOrder, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "HistoryOrdersFirst", ctx, chatID, size)
-	ret0, _ := ret[0].([]order.HistoryOrder)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// HistoryOrdersFirst indicates an expected call of HistoryOrdersFirst.
-func (mr *MockCustomerOrderHistoryRepositoryMockRecorder) HistoryOrdersFirst(ctx, chatID, size any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HistoryOrdersFirst", reflect.TypeOf((*MockCustomerOrderHistoryRepository)(nil).HistoryOrdersFirst), ctx, chatID, size)
-}
-
-// HistoryOrdersLast mocks base method.
-func (m *MockCustomerOrderHistoryRepository) HistoryOrdersLast(ctx context.Context, chatID msginfo.ChatID, size int) ([]order.HistoryOrder, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "HistoryOrdersLast", ctx, chatID, size)
-	ret0, _ := ret[0].([]order.HistoryOrder)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// HistoryOrdersLast indicates an expected call of HistoryOrdersLast.
-func (mr *MockCustomerOrderHistoryRepositoryMockRecorder) HistoryOrdersLast(ctx, chatID, size any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HistoryOrdersLast", reflect.TypeOf((*MockCustomerOrderHistoryRepository)(nil).HistoryOrdersLast), ctx, chatID, size)
 }
 
 // MockCustomerCartRepository is a mock of CustomerCartRepository interface.

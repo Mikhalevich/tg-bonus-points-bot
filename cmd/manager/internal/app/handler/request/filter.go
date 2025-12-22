@@ -1,7 +1,7 @@
 package request
 
 import (
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/flag"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/flag"
 )
 
 type Filter string

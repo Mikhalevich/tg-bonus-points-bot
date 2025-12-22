@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/perror"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/button"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/perror"
 )
 
 func (b *ButtonProvider) GetButton(ctx context.Context, id button.ID) (*button.Button, error) {

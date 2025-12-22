@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/flag"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/internal/id"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/currency"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/flag"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/internal/id"
 )
 
 type ProductID struct {

@@ -13,10 +13,10 @@ import (
 	context "context"
 	reflect "reflect"
 
-	button "github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/button"
-	msginfo "github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
-	order "github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
-	product "github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
+	button "github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/button"
+	msginfo "github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
+	order "github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/order"
+	product "github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/product"
 	gomock "go.uber.org/mock/gomock"
 )
 

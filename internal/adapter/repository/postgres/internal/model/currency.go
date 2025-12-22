@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/currency"
 )
 
 type Currency struct {

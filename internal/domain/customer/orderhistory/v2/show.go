@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/msginfo"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
 )
 
 func (oh *OrderHistory) Show(ctx context.Context, info msginfo.Info) error {

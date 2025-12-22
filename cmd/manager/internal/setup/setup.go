@@ -7,14 +7,14 @@ import (
 	"github.com/go-telegram/bot"
 	"github.com/uptrace/opentelemetry-go-extra/otelsql"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/cmd/manager/internal/app"
-	"github.com/Mikhalevich/tg-bonus-points-bot/cmd/manager/internal/config"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/messagesender"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/driver"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/timeprovider"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/manager"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/cmd/manager/internal/app"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/cmd/manager/internal/config"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/messagesender"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/repository/postgres"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/repository/postgres/driver"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/timeprovider"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/manager"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/logger"
 )
 
 func StartService(

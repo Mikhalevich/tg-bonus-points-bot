@@ -6,8 +6,8 @@ import (
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/tracing"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/logger"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/tracing"
 )
 
 type Payment struct {

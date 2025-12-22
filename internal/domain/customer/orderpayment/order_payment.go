@@ -1,8 +1,8 @@
 package orderpayment
 
 import (
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/store"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/store"
 )
 
 type OrderPayment struct {

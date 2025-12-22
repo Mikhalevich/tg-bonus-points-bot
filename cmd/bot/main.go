@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/cmd/bot/internal/config"
-	"github.com/Mikhalevich/tg-bonus-points-bot/cmd/bot/internal/setup"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/tracing"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/cmd/bot/internal/config"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/cmd/bot/internal/setup"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/logger"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/tracing"
 )
 
 func main() {
