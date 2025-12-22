@@ -6,7 +6,7 @@ import (
 
 	"github.com/jinzhu/configor"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/logger"
 )
 
 func LoadConfig(cfg any) error {

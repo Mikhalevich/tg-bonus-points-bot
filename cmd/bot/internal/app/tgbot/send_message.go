@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-telegram/bot"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/logger"
 )
 
 func (t *TGBot) SendMessage(ctx context.Context, chatID int64, msg string) {

@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/cmd/bot/internal/app/tgbot"
-	"github.com/Mikhalevich/tg-bonus-points-bot/cmd/bot/internal/app/tghandler"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/cmd/bot/internal/app/tgbot"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/cmd/bot/internal/app/tghandler"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/logger"
 )
 
 func Start(

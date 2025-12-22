@@ -11,8 +11,8 @@ import (
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
 	_ "github.com/danielgtaylor/huma/v2/formats/cbor"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/cmd/manager/internal/app/handler"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/cmd/manager/internal/app/handler"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/logger"
 )
 
 const (

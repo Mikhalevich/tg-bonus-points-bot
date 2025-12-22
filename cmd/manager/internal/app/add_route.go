@@ -6,8 +6,8 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/logger"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/infra/tracing"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/logger"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/tracing"
 )
 
 type handlerFunc[I, O any] func(context.Context, *I) (*O, error)

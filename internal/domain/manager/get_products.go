@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/product"
 )
 
 func (m *Manager) GetProducts(ctx context.Context, filter product.Filter) ([]product.CategoryProducts, error) {

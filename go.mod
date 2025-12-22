@@ -1,4 +1,4 @@
-module github.com/Mikhalevich/tg-bonus-points-bot
+module github.com/Mikhalevich/tg-coffee-shop-bot
 
 go 1.24.0
 

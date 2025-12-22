@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/order"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/order"
 )
 
 func OrderNotExists() string {

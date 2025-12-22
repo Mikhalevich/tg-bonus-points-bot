@@ -1,7 +1,7 @@
 package cart
 
 import (
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/product"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/product"
 )
 
 type ID string

@@ -8,8 +8,8 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/adapter/repository/postgres/internal/model"
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/currency"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/repository/postgres/internal/model"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/currency"
 )
 
 func (p *Postgres) GetCurrencyByID(ctx context.Context, id currency.ID) (*currency.Currency, error) {

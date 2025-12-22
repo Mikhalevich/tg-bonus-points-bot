@@ -5,7 +5,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/customer/orderhistory"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/customer/orderhistory"
 )
 
 var (

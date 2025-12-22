@@ -6,7 +6,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port/cart"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/cart"
 )
 
 func (c *Cart) GetProducts(ctx context.Context, id cart.ID) ([]cart.CartProduct, error) {

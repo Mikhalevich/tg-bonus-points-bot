@@ -5,7 +5,7 @@ import (
 
 	"github.com/skip2/go-qrcode"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port"
 )
 
 var _ port.QRCodeGenerator = (*QRCodeGenerator)(nil)

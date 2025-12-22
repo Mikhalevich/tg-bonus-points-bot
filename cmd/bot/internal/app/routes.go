@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.com/Mikhalevich/tg-bonus-points-bot/cmd/bot/internal/app/tgbot"
-	"github.com/Mikhalevich/tg-bonus-points-bot/cmd/bot/internal/app/tghandler"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/cmd/bot/internal/app/tgbot"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/cmd/bot/internal/app/tghandler"
 )
 
 func makeRoutes(tbot *tgbot.TGBot, handler *tghandler.TGHandler) {

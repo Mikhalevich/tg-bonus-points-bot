@@ -3,7 +3,7 @@ package timeprovider
 import (
 	"time"
 
-	"github.com/Mikhalevich/tg-bonus-points-bot/internal/domain/port"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port"
 )
 
 var _ port.TimeProvider = (*TimeProvider)(nil)
