@@ -74,7 +74,7 @@ class ProductPrice(models.Model):
         unique_together = (('product', 'currency'),)
 
     def __str__(self):
-        return self.product.title
+        return "{} : {} : {}".format(self.product.title, self.currency.code, self.price)
 
 
 class Store(models.Model):
