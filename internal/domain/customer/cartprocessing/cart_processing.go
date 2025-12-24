@@ -1,9 +1,17 @@
 package cartprocessing
 
 import (
+	"context"
+
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/store"
 )
+
+type ButtonRepositoryWriter interface {
+	SetButton(ctx context.Context, b button.Button) (button.InlineKeyboardButton, error)
+	SetButtonRows(ctx context.Context, rows ...button.ButtonRow) ([]button.InlineKeyboardButtonRow, error)
+}
 
 type CartProcessing struct {
 	storeID          store.ID
@@ -12,7 +20,7 @@ type CartProcessing struct {
 	cart             port.Cart
 	sender           port.MessageSender
 	timeProvider     port.TimeProvider
-	buttonRepository port.ButtonRepositoryWriter
+	buttonRepository ButtonRepositoryWriter
 }
 
 func New(
@@ -22,7 +30,7 @@ func New(
 	cart port.Cart,
 	sender port.MessageSender,
 	timeProvider port.TimeProvider,
-	buttonRepository port.ButtonRepositoryWriter,
+	buttonRepository ButtonRepositoryWriter,
 ) *CartProcessing {
 	return &CartProcessing{
 		storeID:          store.IDFromInt(storeID),
