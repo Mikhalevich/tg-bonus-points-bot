@@ -1,14 +1,21 @@
 package buttonprovider
 
 import (
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port"
+	"context"
+
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/button"
 )
 
-type ButtonProvider struct {
-	repository port.ButtonRepositoryReader
+type ButtonRepositoryReader interface {
+	GetButton(ctx context.Context, id button.ID) (*button.Button, error)
+	IsNotFoundError(err error) bool
 }
 
-func New(repository port.ButtonRepositoryReader) *ButtonProvider {
+type ButtonProvider struct {
+	repository ButtonRepositoryReader
+}
+
+func New(repository ButtonRepositoryReader) *ButtonProvider {
 	return &ButtonProvider{
 		repository: repository,
 	}
