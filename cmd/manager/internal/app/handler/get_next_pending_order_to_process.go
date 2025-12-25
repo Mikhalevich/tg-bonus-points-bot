@@ -18,7 +18,7 @@ type GetNextOrderOutput struct {
 }
 
 func (h *Handler) GetNextOrder(ctx context.Context, input *GetNextOrderInput) (*GetNextOrderOutput, error) {
-	inProgressOrder, err := h.manager.GetNextPendingOrderToProcess(ctx)
+	inProgressOrder, err := h.orderProcessor.GetNextPendingOrderToProcess(ctx)
 	if err != nil {
 		if perror.IsType(err, perror.TypeNotFound) {
 			return nil, huma.Error404NotFound("no active orders")

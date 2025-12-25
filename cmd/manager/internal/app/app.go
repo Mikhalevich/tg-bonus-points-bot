@@ -27,7 +27,7 @@ type App struct {
 	logger  logger.Logger
 }
 
-func New(manager handler.Manager, logger logger.Logger) *App {
+func New(orderProcessor handler.OrderProcessor, logger logger.Logger) *App {
 	var (
 		mux     = http.NewServeMux()
 		humaAPI = humago.New(mux, huma.DefaultConfig("Bonus points", "1.0.0"))
@@ -39,7 +39,7 @@ func New(manager handler.Manager, logger logger.Logger) *App {
 		logger:  logger,
 	}
 
-	httpManager.routes(handler.New(manager))
+	httpManager.routes(handler.New(orderProcessor))
 
 	return httpManager
 }
