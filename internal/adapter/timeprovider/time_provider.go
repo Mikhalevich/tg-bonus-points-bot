@@ -3,10 +3,14 @@ package timeprovider
 import (
 	"time"
 
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/manager/orderprocessing"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port"
 )
 
-var _ port.TimeProvider = (*TimeProvider)(nil)
+var (
+	_ port.TimeProvider            = (*TimeProvider)(nil)
+	_ orderprocessing.TimeProvider = (*TimeProvider)(nil)
+)
 
 type TimeProvider struct {
 }

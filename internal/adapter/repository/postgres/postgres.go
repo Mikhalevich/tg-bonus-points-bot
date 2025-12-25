@@ -6,6 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/customer/orderhistory"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/manager/orderprocessing"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port"
 )
 
@@ -17,6 +18,7 @@ var (
 	_ port.StoreInfo                      = (*Postgres)(nil)
 
 	_ orderhistory.CurrencyProvider = (*Postgres)(nil)
+	_ orderprocessing.Repository    = (*Postgres)(nil)
 )
 
 type Driver interface {

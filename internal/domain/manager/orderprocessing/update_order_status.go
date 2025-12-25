@@ -1,4 +1,4 @@
-package manager
+package orderprocessing
 
 import (
 	"context"
@@ -8,30 +8,30 @@ import (
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/perror"
 )
 
-func (m *Manager) UpdateOrderStatus(ctx context.Context, orderID order.ID, status order.Status) error {
+func (o *OrderProcessing) UpdateOrderStatus(ctx context.Context, orderID order.ID, status order.Status) error {
 	previousStatuses, err := calculateLegalPreviousStatuses(status)
 	if err != nil {
 		return fmt.Errorf("calculate legal previous statuses: %w", err)
 	}
 
-	updatedOrder, err := m.repository.UpdateOrderStatus(
+	updatedOrder, err := o.repository.UpdateOrderStatus(
 		ctx,
 		orderID,
-		m.timeProvider.Now(),
+		o.timeProvider.Now(),
 		status,
 		previousStatuses...,
 	)
 
 	if err != nil {
-		if m.repository.IsNotUpdatedError(err) {
+		if o.repository.IsNotUpdatedError(err) {
 			return perror.NotFound("order with relevant status not found")
 		}
 
 		return fmt.Errorf("update order status: %w", err)
 	}
 
-	m.customerSender.SendTextMarkdown(ctx, updatedOrder.ChatID,
-		m.makeChangedOrderStatusMarkdownMsg(status))
+	o.customerSender.SendTextMarkdown(ctx, updatedOrder.ChatID,
+		o.makeChangedOrderStatusMarkdownMsg(status))
 
 	return nil
 }

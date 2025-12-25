@@ -13,7 +13,7 @@ import (
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/repository/postgres"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/repository/postgres/driver"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/timeprovider"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/manager"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/manager/orderprocessing"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/logger"
 )
 
@@ -34,11 +34,11 @@ func StartService(
 	defer cleanup()
 
 	var (
-		sender           = messagesender.New(botAPI, cfg.Bot.PaymentToken)
-		managerProcessor = manager.New(sender, pgDB, timeprovider.New())
+		sender         = messagesender.New(botAPI, cfg.Bot.PaymentToken)
+		orderProcessor = orderprocessing.New(sender, pgDB, timeprovider.New())
 	)
 
-	if err := app.New(managerProcessor, logger).Start(
+	if err := app.New(orderProcessor, logger).Start(
 		ctx,
 		cfg.HTTPPort,
 	); err != nil {

@@ -34,17 +34,4 @@ func (application *App) routes(handler *handler.Handler) {
 		},
 		handler.UpdateOrderStatus,
 	)
-
-	addRoute(application,
-		huma.Operation{
-			OperationID:   "get-products",
-			Method:        http.MethodGet,
-			Path:          "/product/",
-			Summary:       "Get products",
-			Description:   "Get available products",
-			Tags:          []string{"Product"},
-			DefaultStatus: http.StatusOK,
-		},
-		handler.GetProducts,
-	)
 }

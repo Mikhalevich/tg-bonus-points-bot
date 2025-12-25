@@ -4,21 +4,19 @@ import (
 	"context"
 
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/order"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/product"
 )
 
-type Manager interface {
+type OrderProcessor interface {
 	GetNextPendingOrderToProcess(ctx context.Context) (*order.Order, error)
 	UpdateOrderStatus(ctx context.Context, id order.ID, status order.Status) error
-	GetProducts(ctx context.Context, filter product.Filter) ([]product.CategoryProducts, error)
 }
 
 type Handler struct {
-	manager Manager
+	orderProcessor OrderProcessor
 }
 
-func New(manager Manager) *Handler {
+func New(orderProcessor OrderProcessor) *Handler {
 	return &Handler{
-		manager: manager,
+		orderProcessor: orderProcessor,
 	}
 }
