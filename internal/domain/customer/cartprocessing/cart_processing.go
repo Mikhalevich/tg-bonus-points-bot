@@ -2,6 +2,7 @@ package cartprocessing
 
 import (
 	"context"
+	"time"
 
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/button"
@@ -13,13 +14,17 @@ type ButtonRepositoryWriter interface {
 	SetButtonRows(ctx context.Context, rows ...button.ButtonRow) ([]button.InlineKeyboardButtonRow, error)
 }
 
+type TimeProvider interface {
+	Now() time.Time
+}
+
 type CartProcessing struct {
 	storeID          store.ID
 	repository       port.CustomerCartRepository
 	storeInfo        port.StoreInfo
 	cart             port.Cart
 	sender           port.MessageSender
-	timeProvider     port.TimeProvider
+	timeProvider     TimeProvider
 	buttonRepository ButtonRepositoryWriter
 }
 
@@ -29,7 +34,7 @@ func New(
 	storeInfo port.StoreInfo,
 	cart port.Cart,
 	sender port.MessageSender,
-	timeProvider port.TimeProvider,
+	timeProvider TimeProvider,
 	buttonRepository ButtonRepositoryWriter,
 ) *CartProcessing {
 	return &CartProcessing{

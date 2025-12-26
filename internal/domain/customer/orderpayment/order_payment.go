@@ -1,9 +1,15 @@
 package orderpayment
 
 import (
+	"time"
+
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/store"
 )
+
+type TimeProvider interface {
+	Now() time.Time
+}
 
 type OrderPayment struct {
 	storeID       store.ID
@@ -13,7 +19,7 @@ type OrderPayment struct {
 	storeInfo     port.StoreInfo
 	dailyPosition port.DailyPositionGenerator
 	codeGenerator port.VerificationCodeGenerator
-	timeProvider  port.TimeProvider
+	timeProvider  TimeProvider
 }
 
 func New(
@@ -24,7 +30,7 @@ func New(
 	storeInfo port.StoreInfo,
 	dailyPosition port.DailyPositionGenerator,
 	codeGenerator port.VerificationCodeGenerator,
-	timeProvider port.TimeProvider,
+	timeProvider TimeProvider,
 ) *OrderPayment {
 	return &OrderPayment{
 		storeID:       store.IDFromInt(storeID),
