@@ -18,10 +18,14 @@ type TimeProvider interface {
 	Now() time.Time
 }
 
+type StoreInfo interface {
+	GetStoreByID(ctx context.Context, id store.ID) (*store.Store, error)
+}
+
 type CartProcessing struct {
 	storeID          store.ID
 	repository       port.CustomerCartRepository
-	storeInfo        port.StoreInfo
+	storeInfo        StoreInfo
 	cart             port.Cart
 	sender           port.MessageSender
 	timeProvider     TimeProvider
@@ -31,7 +35,7 @@ type CartProcessing struct {
 func New(
 	storeID int,
 	repository port.CustomerCartRepository,
-	storeInfo port.StoreInfo,
+	storeInfo StoreInfo,
 	cart port.Cart,
 	sender port.MessageSender,
 	timeProvider TimeProvider,
