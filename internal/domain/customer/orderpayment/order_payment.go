@@ -11,6 +11,10 @@ type TimeProvider interface {
 	Now() time.Time
 }
 
+type VerificationCodeGenerator interface {
+	Generate() string
+}
+
 type OrderPayment struct {
 	storeID       store.ID
 	sender        port.MessageSender
@@ -18,7 +22,7 @@ type OrderPayment struct {
 	repository    port.CustomerOrderPaymentRepository
 	storeInfo     port.StoreInfo
 	dailyPosition port.DailyPositionGenerator
-	codeGenerator port.VerificationCodeGenerator
+	codeGenerator VerificationCodeGenerator
 	timeProvider  TimeProvider
 }
 
@@ -29,7 +33,7 @@ func New(
 	repository port.CustomerOrderPaymentRepository,
 	storeInfo port.StoreInfo,
 	dailyPosition port.DailyPositionGenerator,
-	codeGenerator port.VerificationCodeGenerator,
+	codeGenerator VerificationCodeGenerator,
 	timeProvider TimeProvider,
 ) *OrderPayment {
 	return &OrderPayment{
