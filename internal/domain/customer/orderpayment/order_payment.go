@@ -1,11 +1,16 @@
 package orderpayment
 
 import (
+	"context"
 	"time"
 
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/store"
 )
+
+type StoreInfo interface {
+	GetStoreByID(ctx context.Context, id store.ID) (*store.Store, error)
+}
 
 type TimeProvider interface {
 	Now() time.Time
@@ -20,7 +25,7 @@ type OrderPayment struct {
 	sender        port.MessageSender
 	qrCode        port.QRCodeGenerator
 	repository    port.CustomerOrderPaymentRepository
-	storeInfo     port.StoreInfo
+	storeInfo     StoreInfo
 	dailyPosition port.DailyPositionGenerator
 	codeGenerator VerificationCodeGenerator
 	timeProvider  TimeProvider
@@ -31,7 +36,7 @@ func New(
 	sender port.MessageSender,
 	qrCode port.QRCodeGenerator,
 	repository port.CustomerOrderPaymentRepository,
-	storeInfo port.StoreInfo,
+	storeInfo StoreInfo,
 	dailyPosition port.DailyPositionGenerator,
 	codeGenerator VerificationCodeGenerator,
 	timeProvider TimeProvider,
