@@ -52,7 +52,7 @@ fmt: install-linter
 tools: install-linter
 	@if [ ! -f $(GOBIN)/mockgen ]; then\
 		echo "Installing mockgen";\
-		GOBIN=$(GOBIN) go install go.uber.org/mock/mockgen@v0.5.0;\
+		GOBIN=$(GOBIN) go install go.uber.org/mock/mockgen@v0.6.0;\
 	fi
 
 tools-update:

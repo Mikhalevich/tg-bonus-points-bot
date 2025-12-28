@@ -9,11 +9,24 @@ import (
 
 type transactionCtxKey struct{}
 
-type Transaction struct {
-	db *sqlx.DB
+type DB interface {
+	sqlx.ExtContext
+
+	Begin(ctx context.Context) (DBTx, error)
 }
 
-func New(db *sqlx.DB) *Transaction {
+type DBTx interface {
+	sqlx.ExtContext
+
+	Rollback() error
+	Commit() error
+}
+
+type Transaction struct {
+	db DB
+}
+
+func New(db DB) *Transaction {
 	return &Transaction{
 		db: db,
 	}
@@ -30,9 +43,9 @@ func (t *Transaction) Transaction(ctx context.Context, trxFn TransactionFn) erro
 		return nil
 	}
 
-	trx, err := t.db.BeginTxx(ctx, nil)
+	trx, err := t.db.Begin(ctx)
 	if err != nil {
-		return fmt.Errorf("begin txx: %w", err)
+		return fmt.Errorf("begin: %w", err)
 	}
 
 	//nolint:errcheck
@@ -57,14 +70,14 @@ func (t *Transaction) ExtContext(ctx context.Context) sqlx.ExtContext {
 	return t.db
 }
 
-func trxFromContext(ctx context.Context) *sqlx.Tx {
+func trxFromContext(ctx context.Context) DBTx {
 	ctxValue := ctx.Value(transactionCtxKey{})
 
 	if ctxValue == nil {
 		return nil
 	}
 
-	activeTrx, ok := ctxValue.(*sqlx.Tx)
+	activeTrx, ok := ctxValue.(DBTx)
 	if !ok {
 		return nil
 	}
