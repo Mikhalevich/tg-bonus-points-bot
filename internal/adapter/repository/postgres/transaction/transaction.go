@@ -7,11 +7,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type transactionCtxKey int
-
-const (
-	activeTransactionKey transactionCtxKey = iota + 1
-)
+type transactionCtxKey struct{}
 
 type Transaction struct {
 	db *sqlx.DB
@@ -42,7 +38,7 @@ func (t *Transaction) Transaction(ctx context.Context, trxFn TransactionFn) erro
 	//nolint:errcheck
 	defer trx.Rollback()
 
-	if err := trxFn(context.WithValue(ctx, activeTransactionKey, trx)); err != nil {
+	if err := trxFn(context.WithValue(ctx, transactionCtxKey{}, trx)); err != nil {
 		return fmt.Errorf("trx fn: %w", err)
 	}
 
@@ -62,7 +58,7 @@ func (t *Transaction) ExtContext(ctx context.Context) sqlx.ExtContext {
 }
 
 func trxFromContext(ctx context.Context) *sqlx.Tx {
-	ctxValue := ctx.Value(activeTransactionKey)
+	ctxValue := ctx.Value(transactionCtxKey{})
 
 	if ctxValue == nil {
 		return nil
