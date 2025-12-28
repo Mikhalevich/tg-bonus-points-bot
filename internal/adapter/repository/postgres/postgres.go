@@ -35,7 +35,10 @@ type Postgres struct {
 	driver Driver
 }
 
-func New(db *sql.DB, driver Driver) *Postgres {
+func New(
+	db *sql.DB,
+	driver Driver,
+) *Postgres {
 	return &Postgres{
 		db:     sqlx.NewDb(db, driver.Name()),
 		driver: driver,
