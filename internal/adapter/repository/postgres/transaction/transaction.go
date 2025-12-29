@@ -5,6 +5,12 @@ import (
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
+
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/repository/postgres"
+)
+
+var (
+	_ postgres.Transactor = (*Transaction)(nil)
 )
 
 type transactionCtxKey struct{}
