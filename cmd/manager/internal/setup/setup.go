@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/go-telegram/bot"
+	"github.com/jmoiron/sqlx"
 	"github.com/uptrace/opentelemetry-go-extra/otelsql"
 
 	"github.com/Mikhalevich/tg-coffee-shop-bot/cmd/manager/internal/app"
@@ -12,6 +13,7 @@ import (
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/messagesender"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/repository/postgres"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/repository/postgres/driver"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/repository/postgres/transaction"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/timeprovider"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/manager/orderprocessing"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/logger"
@@ -64,7 +66,11 @@ func MakePostgres(cfg config.Postgres) (*postgres.Postgres, func(), error) {
 		return nil, nil, fmt.Errorf("ping: %w", err)
 	}
 
-	p := postgres.New(dbConn, driver)
+	var (
+		sqlxDBConn          = sqlx.NewDb(dbConn, driver.Name())
+		transactionProvider = transaction.New(transaction.NewSqlxDB(sqlxDBConn))
+		p                   = postgres.New(sqlxDBConn, driver, transactionProvider)
+	)
 
 	return p, func() {
 		dbConn.Close()

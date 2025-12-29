@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"database/sql"
+	"context"
 
 	"github.com/jmoiron/sqlx"
 
@@ -30,17 +30,25 @@ type Driver interface {
 	IsConstraintError(err error, constraint string) bool
 }
 
+type Transactor interface {
+	Transaction(ctx context.Context, trxFn func(ctx context.Context) error) error
+	ExtContext(ctx context.Context) sqlx.ExtContext
+}
+
 type Postgres struct {
-	db     sqlx.ExtContext
-	driver Driver
+	db         sqlx.ExtContext
+	driver     Driver
+	transactor Transactor
 }
 
 func New(
-	db *sql.DB,
+	db sqlx.ExtContext,
 	driver Driver,
+	transactor Transactor,
 ) *Postgres {
 	return &Postgres{
-		db:     sqlx.NewDb(db, driver.Name()),
-		driver: driver,
+		db:         db,
+		driver:     driver,
+		transactor: transactor,
 	}
 }
