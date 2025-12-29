@@ -32,9 +32,10 @@ func New(db DB) *Transaction {
 	}
 }
 
-type TransactionFn func(ctx context.Context) error
-
-func (t *Transaction) Transaction(ctx context.Context, trxFn TransactionFn) error {
+func (t *Transaction) Transaction(
+	ctx context.Context,
+	trxFn func(ctx context.Context) error,
+) error {
 	if activeTrx := trxFromContext(ctx); activeTrx != nil {
 		if err := trxFn(ctx); err != nil {
 			return fmt.Errorf("trx fn with active transaction: %w", err)

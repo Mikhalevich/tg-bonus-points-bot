@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/go-telegram/bot"
+	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
 	"github.com/uptrace/opentelemetry-go-extra/otelsql"
@@ -21,6 +22,7 @@ import (
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/repository/postgres/driver"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/repository/postgres/orderhistoryid"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/repository/postgres/orderhistoryoffset"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/repository/postgres/transaction"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/timeprovider"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/verificationcodegenerator"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/buttonprovider"
@@ -61,12 +63,14 @@ func StartBot(ctx context.Context, cfg config.Config, logger logger.Logger) erro
 	}
 
 	var (
-		pgDB               = postgres.New(dbConn, driver)
-		pgOrderHistoryID   = orderhistoryid.New(dbConn, driver)
-		pgOrderHistoryPage = orderhistoryoffset.New(dbConn, driver)
-		sender             = messagesender.New(botAPI, cfg.Bot.PaymentToken)
-		qrGenerator        = qrcodegenerator.New()
-		cartProcessor      = cartprocessing.New(cfg.StoreID, pgDB, pgDB, cartRedis, sender,
+		sqlxDBConn          = sqlx.NewDb(dbConn, driver.Name())
+		transactionProvider = transaction.New(transaction.NewSqlxDB(sqlxDBConn))
+		pgDB                = postgres.New(sqlxDBConn, driver, transactionProvider)
+		pgOrderHistoryID    = orderhistoryid.New(dbConn, driver)
+		pgOrderHistoryPage  = orderhistoryoffset.New(dbConn, driver)
+		sender              = messagesender.New(botAPI, cfg.Bot.PaymentToken)
+		qrGenerator         = qrcodegenerator.New()
+		cartProcessor       = cartprocessing.New(cfg.StoreID, pgDB, pgDB, cartRedis, sender,
 			timeprovider.New(), buttonRepository)
 		actionProcessor    = orderaction.New(sender, pgDB, buttonRepository, timeprovider.New())
 		historyProcessor   = orderhistory.New(pgDB, pgOrderHistoryID, sender, buttonRepository, cfg.OrderHistory.PageSize)

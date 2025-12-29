@@ -8,17 +8,17 @@ import (
 )
 
 type SqlxDB struct {
-	db *sqlx.DB
+	*sqlx.DB
 }
 
 func NewSqlxDB(db *sqlx.DB) SqlxDB {
 	return SqlxDB{
-		db: db,
+		DB: db,
 	}
 }
 
 func (s SqlxDB) Begin(ctx context.Context) (DBTx, error) {
-	trx, err := s.db.BeginTxx(ctx, nil)
+	trx, err := s.BeginTxx(ctx, nil)
 	if err != nil {
 		return nil, fmt.Errorf("begin txx: %w", err)
 	}
