@@ -7,7 +7,6 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/repository/postgres/internal/model"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/repository/postgres/internal/transaction"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/order"
 )
@@ -15,7 +14,8 @@ import (
 func (p *Postgres) CreateOrder(ctx context.Context, coi port.CreateOrderInput) (*order.Order, error) {
 	var orderResult order.Order
 
-	if err := transaction.Transaction(ctx, p.db, true, func(ctx context.Context, trx sqlx.ExtContext) error {
+	if err := p.transactor.Transaction(ctx, func(ctx context.Context) error {
+		trx := p.transactor.ExtContext(ctx)
 		orderID, err := p.insertOrder(ctx, trx, model.Order{
 			ChatID:           coi.ChatID.Int64(),
 			Status:           coi.Status.String(),

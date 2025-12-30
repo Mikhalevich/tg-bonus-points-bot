@@ -78,13 +78,8 @@ func (t *Transaction) ExtContext(ctx context.Context) sqlx.ExtContext {
 }
 
 func trxFromContext(ctx context.Context) DBTx {
-	ctxValue := ctx.Value(transactionCtxKey{})
+	activeTrx, ok := ctx.Value(transactionCtxKey{}).(DBTx)
 
-	if ctxValue == nil {
-		return nil
-	}
-
-	activeTrx, ok := ctxValue.(DBTx)
 	if !ok {
 		return nil
 	}

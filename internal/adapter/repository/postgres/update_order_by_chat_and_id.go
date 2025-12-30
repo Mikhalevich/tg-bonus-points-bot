@@ -9,7 +9,6 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/repository/postgres/internal/model"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/repository/postgres/internal/transaction"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/order"
@@ -29,33 +28,33 @@ func (p *Postgres) UpdateOrderByChatAndID(
 		err           error
 	)
 
-	if err := transaction.Transaction(ctx, p.db, true,
-		func(ctx context.Context, trx sqlx.ExtContext) error {
-			dbOrder, err = updateOrderDataByChatAndID(ctx, trx, orderID, chatID, data, prevStatuses...)
-			if err != nil {
-				return fmt.Errorf("update order data: %w", err)
-			}
+	if err := p.transactor.Transaction(ctx, func(ctx context.Context) error {
+		trx := p.transactor.ExtContext(ctx)
+		dbOrder, err = updateOrderDataByChatAndID(ctx, trx, orderID, chatID, data, prevStatuses...)
+		if err != nil {
+			return fmt.Errorf("update order data: %w", err)
+		}
 
-			if err := insertOrderTimeline(ctx, trx, model.OrderTimeline{
-				ID:        orderID.Int(),
-				Status:    data.Status.String(),
-				UpdatedAt: data.StatusOperationTime,
-			}); err != nil {
-				return fmt.Errorf("insert order timeline: %w", err)
-			}
+		if err := insertOrderTimeline(ctx, trx, model.OrderTimeline{
+			ID:        orderID.Int(),
+			Status:    data.Status.String(),
+			UpdatedAt: data.StatusOperationTime,
+		}); err != nil {
+			return fmt.Errorf("insert order timeline: %w", err)
+		}
 
-			orderProducts, err = selectOrderProducts(ctx, p.db, dbOrder.ID)
-			if err != nil {
-				return fmt.Errorf("select order products: %w", err)
-			}
+		orderProducts, err = selectOrderProducts(ctx, p.db, dbOrder.ID)
+		if err != nil {
+			return fmt.Errorf("select order products: %w", err)
+		}
 
-			orderTimeline, err = selectOrderTimeline(ctx, trx, orderID.Int())
-			if err != nil {
-				return fmt.Errorf("select order timeline: %w", err)
-			}
+		orderTimeline, err = selectOrderTimeline(ctx, trx, orderID.Int())
+		if err != nil {
+			return fmt.Errorf("select order timeline: %w", err)
+		}
 
-			return nil
-		},
+		return nil
+	},
 	); err != nil {
 		return nil, fmt.Errorf("transaction: %w", err)
 	}
