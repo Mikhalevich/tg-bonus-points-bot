@@ -38,7 +38,7 @@ func (p *Postgres) GetCategories(ctx context.Context) ([]product.Category, error
 		categories []model.Category
 	)
 
-	if err := sqlx.SelectContext(ctx, p.db, &categories, query); err != nil {
+	if err := sqlx.SelectContext(ctx, p.transactor.ExtContext(ctx), &categories, query); err != nil {
 		return nil, fmt.Errorf("select categories: %w", err)
 	}
 

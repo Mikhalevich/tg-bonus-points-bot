@@ -36,8 +36,12 @@ func (p *Postgres) GetProductsByIDs(
 		return nil, fmt.Errorf("sqlx in: %w", err)
 	}
 
-	var dbProducts []model.Product
-	if err := sqlx.SelectContext(ctx, p.db, &dbProducts, p.db.Rebind(query), args...); err != nil {
+	var (
+		trx        = p.transactor.ExtContext(ctx)
+		dbProducts []model.Product
+	)
+
+	if err := sqlx.SelectContext(ctx, trx, &dbProducts, trx.Rebind(query), args...); err != nil {
 		return nil, fmt.Errorf("select context: %w", err)
 	}
 

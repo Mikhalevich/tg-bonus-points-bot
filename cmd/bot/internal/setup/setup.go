@@ -65,7 +65,7 @@ func StartBot(ctx context.Context, cfg config.Config, logger logger.Logger) erro
 	var (
 		sqlxDBConn          = sqlx.NewDb(dbConn, driver.Name())
 		transactionProvider = transaction.New(transaction.NewSqlxDB(sqlxDBConn))
-		pgDB                = postgres.New(sqlxDBConn, driver, transactionProvider)
+		pgDB                = postgres.New(driver, transactionProvider)
 		pgOrderHistoryID    = orderhistoryid.New(dbConn, driver)
 		pgOrderHistoryPage  = orderhistoryoffset.New(dbConn, driver)
 		sender              = messagesender.New(botAPI, cfg.Bot.PaymentToken)

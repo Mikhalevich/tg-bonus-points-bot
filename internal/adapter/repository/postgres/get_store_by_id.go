@@ -13,12 +13,13 @@ import (
 )
 
 func (p *Postgres) GetStoreByID(ctx context.Context, storeID store.ID) (*store.Store, error) {
-	modelStore, err := selectStoreByID(ctx, p.db, storeID)
+	trx := p.transactor.ExtContext(ctx)
+	modelStore, err := selectStoreByID(ctx, trx, storeID)
 	if err != nil {
 		return nil, fmt.Errorf("select store by id: %w", err)
 	}
 
-	modelSchedule, err := selectStoreSchedule(ctx, p.db, storeID)
+	modelSchedule, err := selectStoreSchedule(ctx, trx, storeID)
 	if err != nil {
 		return nil, fmt.Errorf("select store schedule: %w", err)
 	}

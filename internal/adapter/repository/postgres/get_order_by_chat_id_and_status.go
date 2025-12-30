@@ -18,17 +18,18 @@ func (p *Postgres) GetOrderByChatIDAndStatus(
 	id msginfo.ChatID,
 	statuses ...order.Status,
 ) (*order.Order, error) {
-	dbOrder, err := selectOrderByChatIDAndStatus(ctx, p.db, id, statuses...)
+	trx := p.transactor.ExtContext(ctx)
+	dbOrder, err := selectOrderByChatIDAndStatus(ctx, trx, id, statuses...)
 	if err != nil {
 		return nil, fmt.Errorf("select order by chat id and status: %w", err)
 	}
 
-	orderProducts, err := selectOrderProducts(ctx, p.db, dbOrder.ID)
+	orderProducts, err := selectOrderProducts(ctx, trx, dbOrder.ID)
 	if err != nil {
 		return nil, fmt.Errorf("select order products: %w", err)
 	}
 
-	orderTimeline, err := selectOrderTimeline(ctx, p.db, dbOrder.ID)
+	orderTimeline, err := selectOrderTimeline(ctx, trx, dbOrder.ID)
 	if err != nil {
 		return nil, fmt.Errorf("select order timeline: %w", err)
 	}

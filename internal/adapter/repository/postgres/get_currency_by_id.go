@@ -13,7 +13,7 @@ import (
 )
 
 func (p *Postgres) GetCurrencyByID(ctx context.Context, id currency.ID) (*currency.Currency, error) {
-	curr, err := selectCurrencyByID(ctx, p.db, id)
+	curr, err := selectCurrencyByID(ctx, p.transactor.ExtContext(ctx), id)
 	if err != nil {
 		return nil, fmt.Errorf("select currency by id: %w", err)
 	}

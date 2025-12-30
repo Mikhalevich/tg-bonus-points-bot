@@ -44,8 +44,12 @@ func (p *Postgres) GetProductsByCategoryID(
 		return nil, fmt.Errorf("prepare named: %w", err)
 	}
 
-	var products []model.Product
-	if err := sqlx.SelectContext(ctx, p.db, &products, p.db.Rebind(query), args...); err != nil {
+	var (
+		trx      = p.transactor.ExtContext(ctx)
+		products []model.Product
+	)
+
+	if err := sqlx.SelectContext(ctx, trx, &products, trx.Rebind(query), args...); err != nil {
 		return nil, fmt.Errorf("select products: %w", err)
 	}
 
