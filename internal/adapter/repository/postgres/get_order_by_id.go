@@ -13,17 +13,18 @@ import (
 )
 
 func (p *Postgres) GetOrderByID(ctx context.Context, id order.ID) (*order.Order, error) {
-	dbOrder, err := selectOrderByID(ctx, p.db, id)
+	trx := p.transactor.ExtContext(ctx)
+	dbOrder, err := selectOrderByID(ctx, trx, id)
 	if err != nil {
 		return nil, fmt.Errorf("select order by id: %w", err)
 	}
 
-	orderProducts, err := selectOrderProducts(ctx, p.db, dbOrder.ID)
+	orderProducts, err := selectOrderProducts(ctx, trx, dbOrder.ID)
 	if err != nil {
 		return nil, fmt.Errorf("select order products: %w", err)
 	}
 
-	orderTimeline, err := selectOrderTimeline(ctx, p.db, dbOrder.ID)
+	orderTimeline, err := selectOrderTimeline(ctx, trx, dbOrder.ID)
 	if err != nil {
 		return nil, fmt.Errorf("select order timeline: %w", err)
 	}

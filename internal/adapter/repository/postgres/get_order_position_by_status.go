@@ -41,8 +41,12 @@ func (p *Postgres) GetOrderPositionByStatus(
 		return 0, fmt.Errorf("sqlx in statement: %w", err)
 	}
 
-	var pos int
-	if err := sqlx.GetContext(ctx, p.db, &pos, p.db.Rebind(query), args...); err != nil {
+	var (
+		trx = p.transactor.ExtContext(ctx)
+		pos int
+	)
+
+	if err := sqlx.GetContext(ctx, trx, &pos, trx.Rebind(query), args...); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return 0, errNotFound
 		}

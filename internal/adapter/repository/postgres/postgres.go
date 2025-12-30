@@ -26,7 +26,6 @@ var (
 )
 
 type Driver interface {
-	Name() string
 	IsConstraintError(err error, constraint string) bool
 }
 
@@ -36,18 +35,15 @@ type Transactor interface {
 }
 
 type Postgres struct {
-	db         sqlx.ExtContext
 	driver     Driver
 	transactor Transactor
 }
 
 func New(
-	db sqlx.ExtContext,
 	driver Driver,
 	transactor Transactor,
 ) *Postgres {
 	return &Postgres{
-		db:         db,
 		driver:     driver,
 		transactor: transactor,
 	}

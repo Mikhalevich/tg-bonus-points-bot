@@ -42,7 +42,7 @@ func (p *Postgres) UpdateOrderStatus(
 			return fmt.Errorf("insert order timeline: %w", err)
 		}
 
-		orderProducts, err = selectOrderProducts(ctx, p.db, dbOrder.ID)
+		orderProducts, err = selectOrderProducts(ctx, trx, dbOrder.ID)
 		if err != nil {
 			return fmt.Errorf("select order products: %w", err)
 		}

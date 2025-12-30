@@ -23,8 +23,12 @@ func (p *Postgres) GetOrdersCountByStatus(ctx context.Context, statuses ...order
 		return 0, fmt.Errorf("sqlx in statement: %w", err)
 	}
 
-	var count int
-	if err := sqlx.GetContext(ctx, p.db, &count, p.db.Rebind(query), args...); err != nil {
+	var (
+		trx   = p.transactor.ExtContext(ctx)
+		count int
+	)
+
+	if err := sqlx.GetContext(ctx, trx, &count, trx.Rebind(query), args...); err != nil {
 		return 0, fmt.Errorf("get context: %w", err)
 	}
 

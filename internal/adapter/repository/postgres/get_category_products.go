@@ -14,7 +14,7 @@ import (
 
 func (p *Postgres) GetCategoryProducts(ctx context.Context, filter product.Filter) ([]product.CategoryProducts, error) {
 	var products []model.ProductCategory
-	if err := sqlx.SelectContext(ctx, p.db, &products, buildProductsQuery(filter)); err != nil {
+	if err := sqlx.SelectContext(ctx, p.transactor.ExtContext(ctx), &products, buildProductsQuery(filter)); err != nil {
 		return nil, fmt.Errorf("select products: %w", err)
 	}
 

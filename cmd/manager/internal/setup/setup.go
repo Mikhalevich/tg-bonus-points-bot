@@ -69,7 +69,7 @@ func MakePostgres(cfg config.Postgres) (*postgres.Postgres, func(), error) {
 	var (
 		sqlxDBConn          = sqlx.NewDb(dbConn, driver.Name())
 		transactionProvider = transaction.New(transaction.NewSqlxDB(sqlxDBConn))
-		p                   = postgres.New(sqlxDBConn, driver, transactionProvider)
+		p                   = postgres.New(driver, transactionProvider)
 	)
 
 	return p, func() {
