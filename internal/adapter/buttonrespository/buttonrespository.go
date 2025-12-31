@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor"
@@ -33,10 +32,6 @@ func New(client *redis.Client, ttl time.Duration) *ButtonRepository {
 
 func (r *ButtonRepository) IsNotFoundError(err error) bool {
 	return errors.Is(err, redis.Nil)
-}
-
-func generateID() string {
-	return uuid.NewString()
 }
 
 func encodeButton(b button.Button) ([]byte, error) {
@@ -68,8 +63,4 @@ func parseButtonID(id button.ID) (string, string) {
 	}
 
 	return idStr[:keySplitterIdx], idStr[keySplitterIdx+1:]
-}
-
-func makeHmapbuttonID(key string, num string) button.ID {
-	return button.IDFromString(fmt.Sprintf("%s_%s", key, num))
 }

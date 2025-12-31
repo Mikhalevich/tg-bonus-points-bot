@@ -3,7 +3,8 @@ package buttonrespository
 import (
 	"context"
 	"fmt"
-	"strconv"
+
+	"github.com/redis/go-redis/v9"
 
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor/button"
 )
@@ -12,53 +13,27 @@ func (r *ButtonRepository) SetButtonRows(
 	ctx context.Context,
 	rows ...button.ButtonRow,
 ) error {
-	key := generateID()
+	cmds, err := r.client.Pipelined(ctx, func(pipe redis.Pipeliner) error {
+		for _, row := range rows {
+			for _, btn := range row {
+				if err := r.storeButton(ctx, pipe, btn); err != nil {
+					return fmt.Errorf("store button: %w", err)
+				}
+			}
+		}
 
-	_, hMap, err := processButtonRows(key, rows)
+		return nil
+	})
+
 	if err != nil {
-		return fmt.Errorf("process button rows: %w", err)
+		return fmt.Errorf("pipelined: %w", err)
 	}
 
-	if err := r.client.HSet(ctx, key, hMap).Err(); err != nil {
-		return fmt.Errorf("hset: %w", err)
+	for _, cmd := range cmds {
+		if err := cmd.Err(); err != nil {
+			return fmt.Errorf("pipeline cmd: %w", err)
+		}
 	}
 
 	return nil
-}
-
-func processButtonRows(
-	key string,
-	rows []button.ButtonRow,
-) ([]button.InlineKeyboardButtonRow, map[string]any, error) {
-	var (
-		inlineButtons = make([]button.InlineKeyboardButtonRow, 0, len(rows))
-		hMap          = make(map[string]any)
-		buttonNum     = int64(1)
-	)
-
-	for _, buttonsRow := range rows {
-		inlineButtonsRow := make([]button.InlineKeyboardButton, 0, len(buttonsRow))
-
-		for _, btn := range buttonsRow {
-			formattedNum := strconv.FormatInt(buttonNum, 10)
-
-			inlineButtonsRow = append(inlineButtonsRow, button.InlineKeyboardButton{
-				ID:      makeHmapbuttonID(key, formattedNum),
-				Caption: btn.Caption,
-			})
-
-			encodedButton, err := encodeButton(btn)
-			if err != nil {
-				return nil, nil, fmt.Errorf("encode button: %w", err)
-			}
-
-			hMap[formattedNum] = encodedButton
-
-			buttonNum++
-		}
-
-		inlineButtons = append(inlineButtons, inlineButtonsRow)
-	}
-
-	return inlineButtons, hMap, nil
 }
