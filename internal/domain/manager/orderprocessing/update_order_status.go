@@ -30,7 +30,7 @@ func (o *OrderProcessing) UpdateOrderStatus(ctx context.Context, orderID order.I
 		return fmt.Errorf("update order status: %w", err)
 	}
 
-	o.customerSender.SendTextMarkdown(ctx, updatedOrder.ChatID,
+	o.sendMarkdown(ctx, updatedOrder.ChatID,
 		o.makeChangedOrderStatusMarkdownMsg(status))
 
 	return nil

@@ -11,10 +11,3 @@ type InlineKeyboardButtonRow []InlineKeyboardButton
 func InlineRow(buttons ...InlineKeyboardButton) InlineKeyboardButtonRow {
 	return buttons
 }
-
-func Pay(caption string) InlineKeyboardButton {
-	return InlineKeyboardButton{
-		Caption: caption,
-		Pay:     true,
-	}
-}

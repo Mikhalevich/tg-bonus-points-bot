@@ -5,6 +5,8 @@ import (
 	"encoding/gob"
 	"fmt"
 
+	"github.com/google/uuid"
+
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
 )
 
@@ -19,6 +21,7 @@ func IDFromString(s string) ID {
 }
 
 type Button struct {
+	ID        ID
 	ChatID    msginfo.ChatID
 	Caption   string
 	Operation Operation
@@ -30,6 +33,13 @@ type ButtonRow []Button
 
 func Row(buttons ...Button) ButtonRow {
 	return buttons
+}
+
+func Pay(caption string) Button {
+	return Button{
+		Caption: caption,
+		Pay:     true,
+	}
 }
 
 func GetPayload[P any](b Button) (P, error) {
@@ -72,9 +82,14 @@ func createButton[P any](
 	}
 
 	return Button{
+		ID:        IDFromString(generateID()),
 		ChatID:    chatID,
 		Caption:   caption,
 		Operation: operation,
 		Payload:   payloadBytes,
 	}, nil
+}
+
+func generateID() string {
+	return uuid.NewString()
 }

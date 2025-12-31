@@ -14,7 +14,7 @@ func (o *OrderAction) QueueSize(ctx context.Context, info msginfo.Info) error {
 		return fmt.Errorf("get orders count by status: %w", err)
 	}
 
-	o.sender.ReplyTextMarkdown(ctx, info.ChatID, info.MessageID, fmt.Sprintf("*%d*", count))
+	o.replyMarkdown(ctx, info.ChatID, info.MessageID, fmt.Sprintf("*%d*", count))
 
 	return nil
 }

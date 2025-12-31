@@ -25,7 +25,7 @@ func (c *CartProcessing) AddProduct(
 		Count:      1,
 	}); err != nil {
 		if c.cart.IsNotFoundError(err) {
-			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
+			c.editPlainText(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
 
 			return nil
 		}

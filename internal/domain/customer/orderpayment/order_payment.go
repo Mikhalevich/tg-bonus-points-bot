@@ -4,9 +4,28 @@ import (
 	"context"
 	"time"
 
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor/button"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/store"
 )
+
+type MessageSender interface {
+	SendPNG(
+		ctx context.Context,
+		chatID msginfo.ChatID,
+		caption string,
+		png []byte,
+		rows ...button.ButtonRow,
+	) error
+	AnswerOrderPayment(
+		ctx context.Context,
+		paymentID string,
+		ok bool,
+		errorMsg string,
+	) error
+	EscapeMarkdown(s string) string
+}
 
 type StoreInfo interface {
 	GetStoreByID(ctx context.Context, id store.ID) (*store.Store, error)
@@ -22,7 +41,7 @@ type VerificationCodeGenerator interface {
 
 type OrderPayment struct {
 	storeID       store.ID
-	sender        port.MessageSender
+	sender        MessageSender
 	qrCode        port.QRCodeGenerator
 	repository    port.CustomerOrderPaymentRepository
 	storeInfo     StoreInfo
@@ -33,7 +52,7 @@ type OrderPayment struct {
 
 func New(
 	storeID int,
-	sender port.MessageSender,
+	sender MessageSender,
 	qrCode port.QRCodeGenerator,
 	repository port.CustomerOrderPaymentRepository,
 	storeInfo StoreInfo,

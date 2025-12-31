@@ -25,12 +25,12 @@ import (
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/repository/postgres/transaction"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/timeprovider"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/verificationcodegenerator"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/buttonprovider"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/customer/cartprocessing"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/customer/orderaction"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/customer/orderhistory"
 	orderhistoryv2 "github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/customer/orderhistory/v2"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/customer/orderpayment"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/logger"
 )
@@ -69,15 +69,15 @@ func StartBot(ctx context.Context, cfg config.Config, logger logger.Logger) erro
 		pgOrderHistoryID    = orderhistoryid.New(dbConn, driver)
 		pgOrderHistoryPage  = orderhistoryoffset.New(dbConn, driver)
 		sender              = messagesender.New(botAPI, cfg.Bot.PaymentToken)
+		msgProcessor        = messageprocessor.New(sender, buttonRepository)
 		qrGenerator         = qrcodegenerator.New()
-		cartProcessor       = cartprocessing.New(cfg.StoreID, pgDB, pgDB, cartRedis, sender,
-			timeprovider.New(), buttonRepository)
-		actionProcessor    = orderaction.New(sender, pgDB, buttonRepository, timeprovider.New())
-		historyProcessor   = orderhistory.New(pgDB, pgOrderHistoryID, sender, buttonRepository, cfg.OrderHistory.PageSize)
-		historyProcessorV2 = orderhistoryv2.New(pgOrderHistoryPage, pgDB, sender, buttonRepository, cfg.OrderHistory.PageSize)
-		paymentProcessor   = orderpayment.New(cfg.StoreID, sender, qrGenerator, pgDB, pgDB,
+		cartProcessor       = cartprocessing.New(cfg.StoreID, pgDB, pgDB, cartRedis, msgProcessor,
+			timeprovider.New())
+		actionProcessor    = orderaction.New(msgProcessor, pgDB, timeprovider.New())
+		historyProcessor   = orderhistory.New(pgDB, pgOrderHistoryID, msgProcessor, cfg.OrderHistory.PageSize)
+		historyProcessorV2 = orderhistoryv2.New(pgOrderHistoryPage, pgDB, msgProcessor, cfg.OrderHistory.PageSize)
+		paymentProcessor   = orderpayment.New(cfg.StoreID, msgProcessor, qrGenerator, pgDB, pgDB,
 			dailyPosition, verificationcodegenerator.New(), timeprovider.New())
-		buttonProvider = buttonprovider.New(buttonRepository)
 	)
 
 	if err := app.Start(
@@ -89,7 +89,7 @@ func StartBot(ctx context.Context, cfg config.Config, logger logger.Logger) erro
 		historyProcessor,
 		historyProcessorV2,
 		paymentProcessor,
-		buttonProvider,
+		msgProcessor,
 	); err != nil {
 		return fmt.Errorf("start bot: %w", err)
 	}

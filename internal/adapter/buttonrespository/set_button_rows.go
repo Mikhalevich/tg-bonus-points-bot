@@ -5,25 +5,25 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/button"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor/button"
 )
 
 func (r *ButtonRepository) SetButtonRows(
 	ctx context.Context,
 	rows ...button.ButtonRow,
-) ([]button.InlineKeyboardButtonRow, error) {
+) error {
 	key := generateID()
 
-	inlineButtons, hMap, err := processButtonRows(key, rows)
+	_, hMap, err := processButtonRows(key, rows)
 	if err != nil {
-		return nil, fmt.Errorf("process button rows: %w", err)
+		return fmt.Errorf("process button rows: %w", err)
 	}
 
 	if err := r.client.HSet(ctx, key, hMap).Err(); err != nil {
-		return nil, fmt.Errorf("hset: %w", err)
+		return fmt.Errorf("hset: %w", err)
 	}
 
-	return inlineButtons, nil
+	return nil
 }
 
 func processButtonRows(

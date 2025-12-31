@@ -16,7 +16,7 @@ func (c *CartProcessing) Create(ctx context.Context, info msginfo.Info) error {
 	}
 
 	if !storeInfo.IsActive {
-		c.sender.SendText(ctx, info.ChatID, storeInfo.ClosedStoreMessage)
+		c.sendPlainText(ctx, info.ChatID, storeInfo.ClosedStoreMessage)
 
 		return nil
 	}
@@ -37,7 +37,6 @@ func (c *CartProcessing) Create(ctx context.Context, info msginfo.Info) error {
 	}
 
 	buttons, err := c.makeCartCategoriesButtons(
-		ctx,
 		info.ChatID,
 		cartID,
 		categories,
@@ -48,7 +47,7 @@ func (c *CartProcessing) Create(ctx context.Context, info msginfo.Info) error {
 		return fmt.Errorf("make order buttons: %w", err)
 	}
 
-	c.sender.ReplyText(ctx, info.ChatID, info.MessageID, message.OrderCategoryPage(), buttons...)
+	c.replyPlainText(ctx, info.ChatID, info.MessageID, message.OrderCategoryPage(), buttons...)
 
 	return nil
 }

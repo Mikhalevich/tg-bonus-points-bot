@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/internal/message"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/button"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor/button"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/cart"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
@@ -23,7 +23,7 @@ func (c *CartProcessing) ViewCategories(
 	orderedProducts, _, err := c.orderedProductsFromCart(ctx, cartID, currencyID)
 	if err != nil {
 		if perror.IsType(err, perror.TypeNotFound) {
-			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
+			c.editPlainText(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
 
 			return nil
 		}
@@ -42,7 +42,6 @@ func (c *CartProcessing) ViewCategories(
 	}
 
 	buttons, err := c.makeCartCategoriesButtons(
-		ctx,
 		info.ChatID,
 		cartID,
 		categories,
@@ -53,19 +52,18 @@ func (c *CartProcessing) ViewCategories(
 		return fmt.Errorf("make order buttons: %w", err)
 	}
 
-	c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderCategoryPage(), buttons...)
+	c.editPlainText(ctx, info.ChatID, info.MessageID, message.OrderCategoryPage(), buttons...)
 
 	return nil
 }
 
 func (c *CartProcessing) makeCartCategoriesButtons(
-	ctx context.Context,
 	chatID msginfo.ChatID,
 	cartID cart.ID,
 	categories []product.Category,
 	orderedProducts []order.OrderedProduct,
 	curr *currency.Currency,
-) ([]button.InlineKeyboardButtonRow, error) {
+) ([]button.ButtonRow, error) {
 	buttons := make([]button.ButtonRow, 0, len(categories)+1)
 
 	for _, v := range categories {
@@ -99,12 +97,7 @@ func (c *CartProcessing) makeCartCategoriesButtons(
 		confirmCartBtn,
 	})
 
-	inlineKeyboardButtonRows, err := c.buttonRepository.SetButtonRows(ctx, buttons...)
-	if err != nil {
-		return nil, fmt.Errorf("set button rows: %w", err)
-	}
-
-	return inlineKeyboardButtonRows, nil
+	return buttons, nil
 }
 
 func makeViewCategoryButtonTitle(

@@ -8,7 +8,7 @@ import (
 
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/customer/orderhistory/internal/page"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/internal/message"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/button"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor/button"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/order"
@@ -45,7 +45,7 @@ func (oh *OrderHistory) loadPageByNumber(
 	}
 
 	if ordersCount == 0 {
-		oh.sender.SendText(ctx, info.ChatID, message.OrderNoOrdersFound())
+		oh.sendPlainText(ctx, info.ChatID, message.OrderNoOrdersFound())
 
 		return nil
 	}
@@ -88,7 +88,7 @@ func (oh *OrderHistory) loadPageByPageInfo(
 	}
 
 	if len(historyOrders) == 0 {
-		oh.sender.SendText(ctx, info.ChatID, message.OrderNoOrdersFound())
+		oh.sendPlainText(ctx, info.ChatID, message.OrderNoOrdersFound())
 
 		return nil
 	}
@@ -99,7 +99,6 @@ func (oh *OrderHistory) loadPageByPageInfo(
 	}
 
 	buttons, err := oh.makeHistoryButtons(
-		ctx,
 		info.ChatID,
 		pageInfo,
 	)
@@ -109,7 +108,7 @@ func (oh *OrderHistory) loadPageByPageInfo(
 
 	switch sendStrategy {
 	case SendMessage:
-		oh.sender.SendText(
+		oh.sendPlainText(
 			ctx,
 			info.ChatID,
 			formatHistoryOrders(historyOrders, curr, pageInfo),
@@ -117,7 +116,7 @@ func (oh *OrderHistory) loadPageByPageInfo(
 		)
 
 	case EditMessage:
-		oh.sender.EditTextMessage(
+		oh.editPlainText(
 			ctx,
 			info.ChatID,
 			info.MessageID,
@@ -176,10 +175,9 @@ func formatHistoryOrders(
 }
 
 func (oh *OrderHistory) makeHistoryButtons(
-	ctx context.Context,
 	chatID msginfo.ChatID,
 	currentPage page.Page,
-) ([]button.InlineKeyboardButtonRow, error) {
+) ([]button.ButtonRow, error) {
 	var buttons button.ButtonRow
 
 	if currentPage.HasPrevious() {
@@ -204,14 +202,5 @@ func (oh *OrderHistory) makeHistoryButtons(
 		buttons = append(buttons, previousBtn, lastBtn)
 	}
 
-	if len(buttons) == 0 {
-		return nil, nil
-	}
-
-	inlineButtons, err := oh.buttonRowsSetter.SetButtonRows(ctx, buttons)
-	if err != nil {
-		return nil, fmt.Errorf("store buttons: %w", err)
-	}
-
-	return inlineButtons, nil
+	return []button.ButtonRow{buttons}, nil
 }

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/internal/message"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/button"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor/button"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/order"
@@ -28,7 +28,7 @@ func (o *OrderAction) GetActiveOrder(ctx context.Context, info msginfo.Info) err
 
 	if err != nil {
 		if o.repository.IsNotFoundError(err) {
-			o.sender.ReplyText(ctx, info.ChatID, info.MessageID, "no active orders")
+			o.replyPlainText(ctx, info.ChatID, info.MessageID, "no active orders")
 
 			return nil
 		}
@@ -100,7 +100,7 @@ func (o *OrderAction) replyCancelOrderMessage(
 	formattedOrder := formatOrder(activeOrder, curr, productsInfo, queuePosition, o.sender.EscapeMarkdown)
 
 	if !activeOrder.CanCancel() {
-		o.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder)
+		o.replyMarkdown(ctx, chatID, messageID, formattedOrder)
 
 		return nil
 	}
@@ -110,12 +110,7 @@ func (o *OrderAction) replyCancelOrderMessage(
 		return fmt.Errorf("cancel order button: %w", err)
 	}
 
-	inlineCancelBtn, err := o.buttonRepository.SetButton(ctx, cancelBtn)
-	if err != nil {
-		return fmt.Errorf("make cancel order button: %w", err)
-	}
-
-	o.sender.ReplyTextMarkdown(ctx, chatID, messageID, formattedOrder, button.InlineRow(inlineCancelBtn))
+	o.replyMarkdown(ctx, chatID, messageID, formattedOrder, button.Row(cancelBtn))
 
 	return nil
 }

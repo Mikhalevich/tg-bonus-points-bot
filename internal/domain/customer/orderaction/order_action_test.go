@@ -15,7 +15,7 @@ type OrderActionSuite struct {
 
 	ctrl *gomock.Controller
 
-	sender     *port.MockMessageSender
+	sender     *orderaction.MockMessageSender
 	repository *port.MockCustomerOrderActionRepository
 
 	orderAction *orderaction.OrderAction
@@ -31,10 +31,10 @@ func TestProcessorSuit(t *testing.T) {
 func (s *OrderActionSuite) SetupSuite() {
 	s.ctrl = gomock.NewController(s.T())
 
-	s.sender = port.NewMockMessageSender(s.ctrl)
+	s.sender = orderaction.NewMockMessageSender(s.ctrl)
 	s.repository = port.NewMockCustomerOrderActionRepository(s.ctrl)
 
-	s.orderAction = orderaction.New(s.sender, s.repository, nil, nil)
+	s.orderAction = orderaction.New(s.sender, s.repository, nil)
 }
 
 func (s *OrderActionSuite) TearDownSuite() {

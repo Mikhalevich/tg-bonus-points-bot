@@ -23,7 +23,7 @@ func (o *OrderProcessing) GetNextPendingOrderToProcess(ctx context.Context) (*or
 		return nil, fmt.Errorf("update next order status: %w", err)
 	}
 
-	o.customerSender.SendTextMarkdown(ctx, order.ChatID,
+	o.sendMarkdown(ctx, order.ChatID,
 		o.makeChangedOrderStatusMarkdownMsg(order.Status))
 
 	return order, nil
