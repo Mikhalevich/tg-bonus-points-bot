@@ -3,10 +3,12 @@ package v2
 import (
 	"context"
 
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/button"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor/button"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/order"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/logger"
 )
 
 type Repository interface {
@@ -19,24 +21,26 @@ type CurrencyProvider interface {
 }
 
 type MessageSender interface {
-	SendText(ctx context.Context, chatID msginfo.ChatID, text string,
-		buttons ...button.InlineKeyboardButtonRow)
-	SendTextMarkdown(ctx context.Context, chatID msginfo.ChatID, text string,
-		buttons ...button.InlineKeyboardButtonRow)
-	EditTextMessage(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID,
-		text string, rows ...button.InlineKeyboardButtonRow,
-	)
-}
-
-type ButtonRowsSetter interface {
-	SetButtonRows(ctx context.Context, rows ...button.ButtonRow) ([]button.InlineKeyboardButtonRow, error)
+	SendMessage(
+		ctx context.Context,
+		chatID msginfo.ChatID,
+		text string,
+		textType messageprocessor.MessageTextType,
+		rows ...button.ButtonRow,
+	) error
+	EditMessage(
+		ctx context.Context,
+		chatID msginfo.ChatID,
+		messageID msginfo.MessageID,
+		text string,
+		rows ...button.ButtonRow,
+	) error
 }
 
 type OrderHistory struct {
 	repository       Repository
 	currencyProvider CurrencyProvider
 	sender           MessageSender
-	buttonRowsSetter ButtonRowsSetter
 	pageSize         int
 }
 
@@ -44,14 +48,35 @@ func New(
 	repository Repository,
 	currencyProvider CurrencyProvider,
 	sender MessageSender,
-	buttonRowsSetter ButtonRowsSetter,
 	pageSize int,
 ) *OrderHistory {
 	return &OrderHistory{
 		repository:       repository,
 		currencyProvider: currencyProvider,
 		sender:           sender,
-		buttonRowsSetter: buttonRowsSetter,
 		pageSize:         pageSize,
+	}
+}
+
+func (o *OrderHistory) sendPlainText(
+	ctx context.Context,
+	chatID msginfo.ChatID,
+	text string,
+	buttons ...button.ButtonRow,
+) {
+	if err := o.sender.SendMessage(ctx, chatID, text, messageprocessor.MessageTextTypePlain, buttons...); err != nil {
+		logger.FromContext(ctx).WithError(err).Error("send message plain")
+	}
+}
+
+func (o *OrderHistory) editPlainText(
+	ctx context.Context,
+	chatID msginfo.ChatID,
+	messageID msginfo.MessageID,
+	text string,
+	buttons ...button.ButtonRow,
+) {
+	if err := o.sender.EditMessage(ctx, chatID, messageID, text, buttons...); err != nil {
+		logger.FromContext(ctx).WithError(err).Error("edit message")
 	}
 }

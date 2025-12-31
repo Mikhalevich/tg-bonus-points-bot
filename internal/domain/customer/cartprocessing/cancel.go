@@ -12,7 +12,7 @@ import (
 func (c *CartProcessing) Cancel(ctx context.Context, info msginfo.Info, cartID cart.ID) error {
 	if err := c.cart.Clear(ctx, info.ChatID, cartID); err != nil {
 		if c.cart.IsNotFoundError(err) {
-			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
+			c.editPlainText(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
 
 			return nil
 		}

@@ -5,12 +5,12 @@ import (
 
 	"github.com/go-telegram/bot"
 
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/button"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor/button"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/logger"
 )
 
-func (m *messageSender) EditTextMessage(
+func (m *messageSender) EditText(
 	ctx context.Context,
 	chatID msginfo.ChatID,
 	messageID msginfo.MessageID,

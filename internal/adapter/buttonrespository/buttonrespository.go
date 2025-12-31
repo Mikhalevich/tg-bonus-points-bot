@@ -11,20 +11,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/buttonprovider"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/customer/cartprocessing"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/customer/orderaction"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/customer/orderhistory"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/button"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor/button"
 )
 
 var (
-	_ cartprocessing.ButtonRepositoryWriter = (*ButtonRepository)(nil)
-	_ orderaction.ButtonRepositoryWriter    = (*ButtonRepository)(nil)
-
-	_ buttonprovider.ButtonRepositoryReader = (*ButtonRepository)(nil)
-
-	_ orderhistory.ButtonRowsSetter = (*ButtonRepository)(nil)
+	_ messageprocessor.ButtonRepository = (*ButtonRepository)(nil)
 )
 
 type ButtonRepository struct {

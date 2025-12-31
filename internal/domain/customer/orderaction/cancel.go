@@ -19,7 +19,7 @@ func (o *OrderAction) Cancel(
 	ord, err := o.repository.GetOrderByID(ctx, orderID)
 	if err != nil {
 		if o.repository.IsNotFoundError(err) {
-			o.sender.SendText(ctx, chatID, message.OrderNotExists())
+			o.sendPlainText(ctx, chatID, message.OrderNotExists())
 
 			return nil
 		}
@@ -28,7 +28,7 @@ func (o *OrderAction) Cancel(
 	}
 
 	if !ord.CanCancel() {
-		o.sender.SendText(ctx, chatID, message.OrderStatus(ord.Status))
+		o.sendPlainText(ctx, chatID, message.OrderStatus(ord.Status))
 
 		return nil
 	}
@@ -36,7 +36,7 @@ func (o *OrderAction) Cancel(
 	if _, err := o.repository.UpdateOrderStatusByChatAndID(ctx, orderID, chatID, o.timeProvider.Now(),
 		order.StatusCanceled, order.StatusWaitingPayment, order.StatusConfirmed); err != nil {
 		if o.repository.IsNotUpdatedError(err) {
-			o.sender.SendText(ctx, chatID, message.OrderWithStatusNotExists(ord.Status))
+			o.sendPlainText(ctx, chatID, message.OrderWithStatusNotExists(ord.Status))
 
 			return nil
 		}
@@ -56,11 +56,11 @@ func (o *OrderAction) editOridinOrderMessage(
 	isTextMsg bool,
 ) {
 	if isTextMsg {
-		o.sender.EditTextMessage(ctx, chatID, messageID, message.OrderCanceled())
+		o.editPlainText(ctx, chatID, messageID, message.OrderCanceled())
 
 		return
 	}
 
 	o.sender.DeleteMessage(ctx, chatID, messageID)
-	o.sender.SendText(ctx, chatID, message.OrderCanceled())
+	o.sendPlainText(ctx, chatID, message.OrderCanceled())
 }

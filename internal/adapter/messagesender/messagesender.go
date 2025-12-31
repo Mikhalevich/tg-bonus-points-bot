@@ -8,18 +8,14 @@ import (
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/customer/orderhistory"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/manager/orderprocessing"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/button"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor/button"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/logger"
 )
 
 var (
-	_ port.MessageSender                    = (*messageSender)(nil)
-	_ orderhistory.MessageSender            = (*messageSender)(nil)
-	_ orderprocessing.CustomerMessageSender = (*messageSender)(nil)
+	_ messageprocessor.Sender = (*messageSender)(nil)
 )
 
 type messageSender struct {

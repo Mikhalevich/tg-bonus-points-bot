@@ -74,7 +74,7 @@ func (p *OrderPayment) sendOrderQRImage(
 		return fmt.Errorf("get currency by id: %w", err)
 	}
 
-	if err := p.sender.SendPNGMarkdown(
+	if err := p.sender.SendPNG(
 		ctx,
 		chatID,
 		formatOrder(ord, curr, productsInfo, queuePosition, p.sender.EscapeMarkdown),

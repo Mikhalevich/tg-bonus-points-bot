@@ -8,7 +8,7 @@ import (
 
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/customer/orderhistory/internal/page"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/internal/message"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/button"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor/button"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/order"
@@ -21,7 +21,7 @@ func (o *OrderHistory) Show(ctx context.Context, chatID msginfo.ChatID) error {
 	}
 
 	if len(twoPageOrders) == 0 {
-		o.sender.SendTextMarkdown(ctx, chatID, message.OrderNoOrdersFound())
+		o.sendPlainText(ctx, chatID, message.OrderNoOrdersFound())
 
 		return nil
 	}
@@ -44,7 +44,6 @@ func (o *OrderHistory) Show(ctx context.Context, chatID msginfo.ChatID) error {
 	)
 
 	buttons, err := o.makeHistoryButtons(
-		ctx,
 		chatID,
 		afterOrderIDBtn,
 		beforeOrderIDBtn,
@@ -53,7 +52,7 @@ func (o *OrderHistory) Show(ctx context.Context, chatID msginfo.ChatID) error {
 		return fmt.Errorf("make history buttons: %w", err)
 	}
 
-	o.sender.SendText(
+	o.sendPlainText(
 		ctx,
 		chatID,
 		formatHistoryOrders(onePageOrders, curr, pageInfo),
@@ -64,11 +63,10 @@ func (o *OrderHistory) Show(ctx context.Context, chatID msginfo.ChatID) error {
 }
 
 func (o *OrderHistory) makeHistoryButtons(
-	ctx context.Context,
 	chatID msginfo.ChatID,
 	afterOrderID order.ID,
 	beforeOrderID order.ID,
-) ([]button.InlineKeyboardButtonRow, error) {
+) ([]button.ButtonRow, error) {
 	var buttons button.ButtonRow
 
 	if afterOrderID.Int() > 0 {
@@ -93,16 +91,7 @@ func (o *OrderHistory) makeHistoryButtons(
 		buttons = append(buttons, previousOrdersBtn, lastOrdersBtn)
 	}
 
-	if len(buttons) == 0 {
-		return nil, nil
-	}
-
-	inlineButtons, err := o.buttonSetter.SetButtonRows(ctx, buttons)
-	if err != nil {
-		return nil, fmt.Errorf("store buttons: %w", err)
-	}
-
-	return inlineButtons, nil
+	return []button.ButtonRow{buttons}, nil
 }
 
 func formatHistoryOrders(

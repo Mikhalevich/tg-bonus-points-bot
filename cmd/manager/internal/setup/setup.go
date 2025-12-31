@@ -16,6 +16,7 @@ import (
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/repository/postgres/transaction"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/adapter/timeprovider"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/manager/orderprocessing"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/logger"
 )
 
@@ -37,7 +38,8 @@ func StartService(
 
 	var (
 		sender         = messagesender.New(botAPI, cfg.Bot.PaymentToken)
-		orderProcessor = orderprocessing.New(sender, pgDB, timeprovider.New())
+		msgProcessor   = messageprocessor.New(sender, nil)
+		orderProcessor = orderprocessing.New(msgProcessor, pgDB, timeprovider.New())
 	)
 
 	if err := app.New(orderProcessor, logger).Start(

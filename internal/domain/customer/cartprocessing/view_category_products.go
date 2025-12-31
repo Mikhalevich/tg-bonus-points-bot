@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/internal/message"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/button"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor/button"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/cart"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
@@ -22,7 +22,7 @@ func (c *CartProcessing) ViewCategoryProducts(
 	cartProducts, err := c.cart.GetProducts(ctx, cartID)
 	if err != nil {
 		if c.cart.IsNotFoundError(err) {
-			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
+			c.editPlainText(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
 
 			return nil
 		}
@@ -41,7 +41,6 @@ func (c *CartProcessing) ViewCategoryProducts(
 	}
 
 	buttons, err := c.makeCartProductsButtons(
-		ctx,
 		info.ChatID,
 		cartID,
 		categoryID,
@@ -53,20 +52,19 @@ func (c *CartProcessing) ViewCategoryProducts(
 		return fmt.Errorf("make products buttons: %w", err)
 	}
 
-	c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderProductPage(), buttons...)
+	c.editPlainText(ctx, info.ChatID, info.MessageID, message.OrderProductPage(), buttons...)
 
 	return nil
 }
 
 func (c *CartProcessing) makeCartProductsButtons(
-	ctx context.Context,
 	chatID msginfo.ChatID,
 	cartID cart.ID,
 	categoryID product.CategoryID,
 	categoryProducts []product.Product,
 	cartProducts []cart.CartProduct,
 	curr *currency.Currency,
-) ([]button.InlineKeyboardButtonRow, error) {
+) ([]button.ButtonRow, error) {
 	buttons := make([]button.ButtonRow, 0, len(categoryProducts)+1)
 
 	for _, v := range categoryProducts {
@@ -87,12 +85,7 @@ func (c *CartProcessing) makeCartProductsButtons(
 
 	buttons = append(buttons, button.Row(viewCategoriesBtn))
 
-	inlineButtons, err := c.buttonRepository.SetButtonRows(ctx, buttons...)
-	if err != nil {
-		return nil, fmt.Errorf("set button rows: %w", err)
-	}
-
-	return inlineButtons, nil
+	return buttons, nil
 }
 
 func makeProductButtonTitle(prod product.Product, cartProducts []cart.CartProduct, curr *currency.Currency) string {

@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/internal/message"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor/button"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/button"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/cart"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/currency"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
@@ -28,7 +28,7 @@ func (c *CartProcessing) Confirm(
 	}
 
 	if !storeInfo.IsActive {
-		c.sender.SendText(ctx, info.ChatID, storeInfo.ClosedStoreMessage)
+		c.sendPlainText(ctx, info.ChatID, storeInfo.ClosedStoreMessage)
 
 		return nil
 	}
@@ -36,7 +36,7 @@ func (c *CartProcessing) Confirm(
 	orderedProducts, productsInfo, err := c.orderedProductsFromCart(ctx, cartID, currencyID)
 	if err != nil {
 		if perror.IsType(err, perror.TypeNotFound) {
-			c.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
+			c.editPlainText(ctx, info.ChatID, info.MessageID, message.CartOrderUnavailable())
 
 			return nil
 		}
@@ -45,7 +45,7 @@ func (c *CartProcessing) Confirm(
 	}
 
 	if len(orderedProducts) == 0 {
-		c.sender.SendText(ctx, info.ChatID, message.NoProductsForOrder())
+		c.sendPlainText(ctx, info.ChatID, message.NoProductsForOrder())
 
 		return nil
 	}
@@ -53,7 +53,7 @@ func (c *CartProcessing) Confirm(
 	createdOrder, err := c.repository.CreateOrder(ctx, c.makeCreateOrderInput(info.ChatID, orderedProducts, currencyID))
 	if err != nil {
 		if c.repository.IsAlreadyExistsError(err) {
-			c.sender.SendText(ctx, info.ChatID, message.AlreadyHasActiveOrder())
+			c.sendPlainText(ctx, info.ChatID, message.AlreadyHasActiveOrder())
 
 			return nil
 		}
@@ -86,13 +86,13 @@ func (c *CartProcessing) sendOrderInvoice(
 		return fmt.Errorf("get currency by id: %w", err)
 	}
 
-	buttons, err := c.makeInvoiceButtons(ctx, chatID, createdOrder, curr)
+	buttons, err := c.makeInvoiceButtons(chatID, createdOrder, curr)
 
 	if err != nil {
 		return fmt.Errorf("cancel order button: %w", err)
 	}
 
-	if err := c.sender.SendOrderInvoice(ctx, chatID, message.OrderInvoice(),
+	if err := c.sender.SendInvoice(ctx, chatID, message.OrderInvoice(),
 		makeOrderDescription(createdOrder.Products, productsInfo),
 		createdOrder,
 		productsInfo,
@@ -127,11 +127,10 @@ func (c *CartProcessing) makeCreateOrderInput(
 }
 
 func (c *CartProcessing) makeInvoiceButtons(
-	ctx context.Context,
 	chatID msginfo.ChatID,
 	ord *order.Order,
 	curr *currency.Currency,
-) ([]button.InlineKeyboardButtonRow, error) {
+) ([]button.ButtonRow, error) {
 	payBtn := button.Pay(fmt.Sprintf("%s, %s", message.Pay(), curr.FormatPrice(ord.TotalPrice)))
 
 	cancelBtn, err := button.CancelOrder(chatID, message.Cancel(), ord.ID, false)
@@ -139,14 +138,9 @@ func (c *CartProcessing) makeInvoiceButtons(
 		return nil, fmt.Errorf("cancel order button: %w", err)
 	}
 
-	inlineCancelBtn, err := c.buttonRepository.SetButton(ctx, cancelBtn)
-	if err != nil {
-		return nil, fmt.Errorf("cancel order button: %w", err)
-	}
-
-	return []button.InlineKeyboardButtonRow{
-		button.InlineRow(payBtn),
-		button.InlineRow(inlineCancelBtn),
+	return []button.ButtonRow{
+		button.Row(payBtn),
+		button.Row(cancelBtn),
 	}, nil
 }
 

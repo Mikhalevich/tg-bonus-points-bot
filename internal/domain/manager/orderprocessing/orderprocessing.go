@@ -4,18 +4,21 @@ import (
 	"context"
 	"time"
 
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/button"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor/button"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/order"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/logger"
 )
 
 type CustomerMessageSender interface {
-	SendTextMarkdown(
+	SendMessage(
 		ctx context.Context,
 		chatID msginfo.ChatID,
 		text string,
-		buttons ...button.InlineKeyboardButtonRow,
-	)
+		textType messageprocessor.MessageTextType,
+		rows ...button.ButtonRow,
+	) error
 	EscapeMarkdown(s string) string
 }
 
@@ -55,5 +58,22 @@ func New(
 		customerSender: customerSender,
 		repository:     repository,
 		timeProvider:   timeProvider,
+	}
+}
+
+func (o *OrderProcessing) sendMarkdown(
+	ctx context.Context,
+	chatID msginfo.ChatID,
+	text string,
+	buttons ...button.ButtonRow,
+) {
+	if err := o.customerSender.SendMessage(
+		ctx,
+		chatID,
+		text,
+		messageprocessor.MessageTextTypeMarkdown,
+		buttons...,
+	); err != nil {
+		logger.FromContext(ctx).WithError(err).Error("send message plain")
 	}
 }

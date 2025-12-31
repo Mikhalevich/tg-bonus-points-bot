@@ -16,7 +16,7 @@ func (oh *OrderHistory) Last(ctx context.Context, info msginfo.Info) error {
 	}
 
 	if ordersCount == 0 {
-		oh.sender.SendText(ctx, info.ChatID, message.OrderNoOrdersFound())
+		oh.sendPlainText(ctx, info.ChatID, message.OrderNoOrdersFound())
 
 		return nil
 	}

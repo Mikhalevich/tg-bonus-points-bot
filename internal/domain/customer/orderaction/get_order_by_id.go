@@ -13,7 +13,7 @@ func (o *OrderAction) GetOrderByID(ctx context.Context, chatID msginfo.ChatID, o
 	ord, err := o.repository.GetOrderByID(ctx, orderID)
 	if err != nil {
 		if o.repository.IsNotFoundError(err) {
-			o.sender.SendText(ctx, chatID, message.InvalidOrder())
+			o.sendPlainText(ctx, chatID, message.InvalidOrder())
 
 			return nil
 		}
@@ -22,7 +22,7 @@ func (o *OrderAction) GetOrderByID(ctx context.Context, chatID msginfo.ChatID, o
 	}
 
 	if !ord.IsSameChat(chatID) {
-		o.sender.SendText(ctx, chatID, message.InvalidOrder())
+		o.sendPlainText(ctx, chatID, message.InvalidOrder())
 
 		return nil
 	}
@@ -37,7 +37,7 @@ func (o *OrderAction) GetOrderByID(ctx context.Context, chatID msginfo.ChatID, o
 		return fmt.Errorf("get currency by id: %w", err)
 	}
 
-	o.sender.SendText(ctx, chatID, formatOrder(ord, curr, productsInfo, 0, o.sender.EscapeMarkdown))
+	o.sendPlainText(ctx, chatID, formatOrder(ord, curr, productsInfo, 0, o.sender.EscapeMarkdown))
 
 	return nil
 }

@@ -21,7 +21,7 @@ func (o *OrderHistory) Previous(
 	}
 
 	if len(twoPageOrders) == 0 {
-		o.sender.EditTextMessage(ctx, info.ChatID, info.MessageID, message.OrderNoOrdersFound())
+		o.editPlainText(ctx, info.ChatID, info.MessageID, message.OrderNoOrdersFound())
 
 		return nil
 	}
@@ -44,7 +44,6 @@ func (o *OrderHistory) Previous(
 	)
 
 	buttons, err := o.makeHistoryButtons(
-		ctx,
 		info.ChatID,
 		afterOrderIDBtn,
 		beforeOrderIDBtn,
@@ -53,7 +52,7 @@ func (o *OrderHistory) Previous(
 		return fmt.Errorf("make history buttons: %w", err)
 	}
 
-	o.sender.EditTextMessage(
+	o.editPlainText(
 		ctx,
 		info.ChatID,
 		info.MessageID,
