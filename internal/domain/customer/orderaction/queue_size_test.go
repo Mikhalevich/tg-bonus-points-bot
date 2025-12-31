@@ -43,7 +43,7 @@ func (s *OrderActionSuite) TestQueueSizeSuccess() {
 			GetOrdersCountByStatus(ctx, order.StatusConfirmed, order.StatusInProgress).
 			Return(1, nil),
 
-		s.sender.EXPECT().ReplyMessage(ctx, info.ChatID, info.MessageID, messageprocessor.MessageTextTypeMarkdown, "*1*"),
+		s.sender.EXPECT().ReplyMessage(ctx, info.ChatID, info.MessageID, "*1*", messageprocessor.MessageTextTypeMarkdown),
 	)
 
 	err := s.orderAction.QueueSize(ctx, info)
