@@ -90,6 +90,19 @@ func createButton[P any](
 	}, nil
 }
 
+func createButtonWithoutPayload(
+	chatID msginfo.ChatID,
+	caption string,
+	operation Operation,
+) Button {
+	return Button{
+		ID:        IDFromString(generateID()),
+		ChatID:    chatID,
+		Caption:   caption,
+		Operation: operation,
+	}
+}
+
 func generateID() string {
 	return uuid.NewString()
 }

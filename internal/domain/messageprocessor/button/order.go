@@ -40,19 +40,11 @@ func OrderHistoryByIDNext(chatID msginfo.ChatID, caption string, afterID order.I
 }
 
 func OrderHistoryByIDFirst(chatID msginfo.ChatID, caption string) Button {
-	return Button{
-		ChatID:    chatID,
-		Caption:   caption,
-		Operation: OperationOrderHistoryByIDFirst,
-	}
+	return createButtonWithoutPayload(chatID, caption, OperationOrderHistoryByIDFirst)
 }
 
 func OrderHistoryByIDLast(chatID msginfo.ChatID, caption string) Button {
-	return Button{
-		ChatID:    chatID,
-		Caption:   caption,
-		Operation: OperationOrderHistoryByIDLast,
-	}
+	return createButtonWithoutPayload(chatID, caption, OperationOrderHistoryByIDLast)
 }
 
 type OrderHistoryByPagePayload struct {
@@ -68,17 +60,9 @@ func OrderHistoryByPage(chatID msginfo.ChatID, caption string, page int) (Button
 }
 
 func OrderHistoryByPageFirst(chatID msginfo.ChatID, caption string) Button {
-	return Button{
-		ChatID:    chatID,
-		Caption:   caption,
-		Operation: OperationOrderHistoryByPageFirst,
-	}
+	return createButtonWithoutPayload(chatID, caption, OperationOrderHistoryByPageFirst)
 }
 
 func OrderHistoryByPageLast(chatID msginfo.ChatID, caption string) Button {
-	return Button{
-		ChatID:    chatID,
-		Caption:   caption,
-		Operation: OperationOrderHistoryByPageLast,
-	}
+	return createButtonWithoutPayload(chatID, caption, OperationOrderHistoryByPageLast)
 }
