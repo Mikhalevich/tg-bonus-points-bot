@@ -13,7 +13,7 @@ require (
 	github.com/redis/go-redis/v9 v9.11.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 	github.com/uptrace/opentelemetry-go-extra/otellogrus v0.3.2
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2
 	go.opentelemetry.io/otel v1.33.0
