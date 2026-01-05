@@ -20,7 +20,9 @@ func (c *CartProcessing) Cancel(ctx context.Context, info msginfo.Info, cartID c
 		return fmt.Errorf("clear cart: %w", err)
 	}
 
-	c.sender.DeleteMessage(ctx, info.ChatID, info.MessageID)
+	if err := c.sender.DeleteMessage(ctx, info.ChatID, info.MessageID); err != nil {
+		return fmt.Errorf("delete message: %w", err)
+	}
 
 	return nil
 }

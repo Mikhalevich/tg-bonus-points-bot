@@ -2,13 +2,13 @@ package messagesender
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor/button"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/logger"
 )
 
 func (m *messageSender) SendText(
@@ -16,17 +16,16 @@ func (m *messageSender) SendText(
 	chatID msginfo.ChatID,
 	text string,
 	rows ...button.InlineKeyboardButtonRow,
-) {
+) error {
 	if _, err := m.bot.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID:      chatID.Int64(),
 		Text:        text,
 		ReplyMarkup: makeButtonsMarkup(rows...),
 	}); err != nil {
-		logger.FromContext(ctx).
-			WithError(err).
-			WithField("text", text).
-			Error("failed to send text")
+		return fmt.Errorf("send text plain: %w", err)
 	}
+
+	return nil
 }
 
 func (m *messageSender) SendTextMarkdown(
@@ -34,16 +33,15 @@ func (m *messageSender) SendTextMarkdown(
 	chatID msginfo.ChatID,
 	text string,
 	rows ...button.InlineKeyboardButtonRow,
-) {
+) error {
 	if _, err := m.bot.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID:      chatID.Int64(),
 		ParseMode:   models.ParseModeMarkdown,
 		Text:        text,
 		ReplyMarkup: makeButtonsMarkup(rows...),
 	}); err != nil {
-		logger.FromContext(ctx).
-			WithError(err).
-			WithField("text_markdown", text).
-			Error("failed to send text markdown")
+		return fmt.Errorf("send text markdown: %w", err)
 	}
+
+	return nil
 }

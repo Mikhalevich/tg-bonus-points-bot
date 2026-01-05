@@ -45,7 +45,7 @@ type MessageSender interface {
 		ctx context.Context,
 		chatID msginfo.ChatID,
 		messageID msginfo.MessageID,
-	)
+	) error
 	SendInvoice(
 		ctx context.Context,
 		chatID msginfo.ChatID,

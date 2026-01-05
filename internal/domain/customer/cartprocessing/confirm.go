@@ -14,6 +14,7 @@ import (
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/order"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/perror"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/product"
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/logger"
 )
 
 func (c *CartProcessing) Confirm(
@@ -69,9 +70,19 @@ func (c *CartProcessing) Confirm(
 		return fmt.Errorf("send order invoice: %w", err)
 	}
 
-	c.sender.DeleteMessage(ctx, info.ChatID, info.MessageID)
+	c.deleteMessage(ctx, info.ChatID, info.MessageID)
 
 	return nil
+}
+
+func (c *CartProcessing) deleteMessage(
+	ctx context.Context,
+	chatID msginfo.ChatID,
+	messageID msginfo.MessageID,
+) {
+	if err := c.sender.DeleteMessage(ctx, chatID, messageID); err != nil {
+		logger.FromContext(ctx).WithError(err).Error("delete message")
+	}
 }
 
 func (c *CartProcessing) sendOrderInvoice(

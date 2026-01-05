@@ -2,12 +2,12 @@ package messagesender
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-telegram/bot"
 
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor/button"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/logger"
 )
 
 func (m *messageSender) EditText(
@@ -16,16 +16,15 @@ func (m *messageSender) EditText(
 	messageID msginfo.MessageID,
 	text string,
 	rows ...button.InlineKeyboardButtonRow,
-) {
+) error {
 	if _, err := m.bot.EditMessageText(ctx, &bot.EditMessageTextParams{
 		ChatID:      chatID.Int64(),
 		MessageID:   messageID.Int(),
 		Text:        text,
 		ReplyMarkup: makeButtonsMarkup(rows...),
 	}); err != nil {
-		logger.FromContext(ctx).
-			WithError(err).
-			WithField("text_plain", text).
-			Error("failed to edit text")
+		return fmt.Errorf("eidt message text: %w", err)
 	}
+
+	return nil
 }
