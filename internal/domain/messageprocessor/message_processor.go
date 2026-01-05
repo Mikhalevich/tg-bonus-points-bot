@@ -78,6 +78,9 @@ type Sender interface {
 		ok bool,
 		errorMsg string,
 	) error
+}
+
+type MarkdownEscaper interface {
 	EscapeMarkdown(s string) string
 }
 
@@ -91,15 +94,18 @@ type ButtonRepository interface {
 
 type MessageProcessor struct {
 	sender           Sender
+	escaper          MarkdownEscaper
 	buttonRepository ButtonRepository
 }
 
 func New(
 	sender Sender,
+	escaper MarkdownEscaper,
 	buttonRepository ButtonRepository,
 ) *MessageProcessor {
 	return &MessageProcessor{
 		sender:           sender,
+		escaper:          escaper,
 		buttonRepository: buttonRepository,
 	}
 }

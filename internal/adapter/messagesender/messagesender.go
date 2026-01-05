@@ -15,7 +15,8 @@ import (
 )
 
 var (
-	_ messageprocessor.Sender = (*messageSender)(nil)
+	_ messageprocessor.Sender          = (*messageSender)(nil)
+	_ messageprocessor.MarkdownEscaper = (*messageSender)(nil)
 )
 
 type messageSender struct {

@@ -69,7 +69,7 @@ func StartBot(ctx context.Context, cfg config.Config, logger logger.Logger) erro
 		pgOrderHistoryID    = orderhistoryid.New(dbConn, driver)
 		pgOrderHistoryPage  = orderhistoryoffset.New(dbConn, driver)
 		sender              = messagesender.New(botAPI, cfg.Bot.PaymentToken)
-		msgProcessor        = messageprocessor.New(sender, buttonRepository)
+		msgProcessor        = messageprocessor.New(sender, sender, buttonRepository)
 		qrGenerator         = qrcodegenerator.New()
 		cartProcessor       = cartprocessing.New(cfg.StoreID, pgDB, pgDB, cartRedis, msgProcessor,
 			timeprovider.New())
