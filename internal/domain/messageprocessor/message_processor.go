@@ -22,27 +22,27 @@ type Sender interface {
 		chatID msginfo.ChatID,
 		text string,
 		rows ...button.InlineKeyboardButtonRow,
-	)
+	) error
 	SendTextMarkdown(
 		ctx context.Context,
 		chatID msginfo.ChatID,
 		text string,
 		rows ...button.InlineKeyboardButtonRow,
-	)
+	) error
 	ReplyText(
 		ctx context.Context,
 		chatID msginfo.ChatID,
 		replyToMsgID msginfo.MessageID,
 		text string,
 		rows ...button.InlineKeyboardButtonRow,
-	)
+	) error
 	ReplyTextMarkdown(
 		ctx context.Context,
 		chatID msginfo.ChatID,
 		replyToMsgID msginfo.MessageID,
 		text string,
 		rows ...button.InlineKeyboardButtonRow,
-	)
+	) error
 	SendPNGMarkdown(
 		ctx context.Context,
 		chatID msginfo.ChatID,
@@ -56,12 +56,12 @@ type Sender interface {
 		messageID msginfo.MessageID,
 		text string,
 		rows ...button.InlineKeyboardButtonRow,
-	)
+	) error
 	DeleteMessage(
 		ctx context.Context,
 		chatID msginfo.ChatID,
 		messageID msginfo.MessageID,
-	)
+	) error
 	SendOrderInvoice(
 		ctx context.Context,
 		chatID msginfo.ChatID,

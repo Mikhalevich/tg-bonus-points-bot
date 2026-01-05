@@ -61,6 +61,6 @@ func (o *OrderAction) editOridinOrderMessage(
 		return
 	}
 
-	o.sender.DeleteMessage(ctx, chatID, messageID)
+	o.deleteMessage(ctx, chatID, messageID)
 	o.sendPlainText(ctx, chatID, message.OrderCanceled())
 }

@@ -20,7 +20,9 @@ func (m *MessageProcessor) EditMessage(
 		return fmt.Errorf("set button rows: %w", err)
 	}
 
-	m.sender.EditText(ctx, chatID, messageID, text, inlineButtons...)
+	if err := m.sender.EditText(ctx, chatID, messageID, text, inlineButtons...); err != nil {
+		return fmt.Errorf("edit text: %w", err)
+	}
 
 	return nil
 }

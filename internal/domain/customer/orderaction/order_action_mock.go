@@ -45,9 +45,11 @@ func (m *MockMessageSender) EXPECT() *MockMessageSenderMockRecorder {
 }
 
 // DeleteMessage mocks base method.
-func (m *MockMessageSender) DeleteMessage(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID) {
+func (m *MockMessageSender) DeleteMessage(ctx context.Context, chatID msginfo.ChatID, messageID msginfo.MessageID) error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "DeleteMessage", ctx, chatID, messageID)
+	ret := m.ctrl.Call(m, "DeleteMessage", ctx, chatID, messageID)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // DeleteMessage indicates an expected call of DeleteMessage.

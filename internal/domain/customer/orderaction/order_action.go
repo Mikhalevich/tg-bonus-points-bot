@@ -38,7 +38,7 @@ type MessageSender interface {
 		ctx context.Context,
 		chatID msginfo.ChatID,
 		messageID msginfo.MessageID,
-	)
+	) error
 	EscapeMarkdown(s string) string
 }
 
@@ -61,6 +61,16 @@ func New(
 		sender:       sender,
 		repository:   repository,
 		timeProvider: timeProvider,
+	}
+}
+
+func (o *OrderAction) deleteMessage(
+	ctx context.Context,
+	chatID msginfo.ChatID,
+	messageID msginfo.MessageID,
+) {
+	if err := o.sender.DeleteMessage(ctx, chatID, messageID); err != nil {
+		logger.FromContext(ctx).WithError(err).Error("delete message")
 	}
 }
 
