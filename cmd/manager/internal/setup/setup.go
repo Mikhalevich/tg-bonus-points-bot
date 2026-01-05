@@ -38,7 +38,7 @@ func StartService(
 
 	var (
 		sender         = messagesender.New(botAPI, cfg.Bot.PaymentToken)
-		msgProcessor   = messageprocessor.New(sender, nil)
+		msgProcessor   = messageprocessor.New(sender, sender, nil)
 		orderProcessor = orderprocessing.New(msgProcessor, pgDB, timeprovider.New())
 	)
 
