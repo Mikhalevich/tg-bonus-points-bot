@@ -8,18 +8,23 @@ import (
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor/button"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/msginfo"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/order"
-	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/infra/logger"
 )
 
-type CustomerMessageSender interface {
-	SendMessage(
+type Transactor interface {
+	Transaction(
+		ctx context.Context,
+		trxFn func(ctx context.Context) error,
+	) error
+}
+
+type CustomerOutboxMessageSender interface {
+	OutboxSendMessage(
 		ctx context.Context,
 		chatID msginfo.ChatID,
 		text string,
 		textType messageprocessor.MessageTextType,
 		rows ...button.ButtonRow,
 	) error
-	EscapeMarkdown(s string) string
 }
 
 type Repository interface {
@@ -39,41 +44,34 @@ type Repository interface {
 	IsNotUpdatedError(err error) bool
 }
 
+type MarkdownEscaper interface {
+	EscapeMarkdown(s string) string
+}
+
 type TimeProvider interface {
 	Now() time.Time
 }
 
 type OrderProcessing struct {
-	customerSender CustomerMessageSender
+	transactor     Transactor
+	customerSender CustomerOutboxMessageSender
 	repository     Repository
+	escaper        MarkdownEscaper
 	timeProvider   TimeProvider
 }
 
 func New(
-	customerSender CustomerMessageSender,
+	transactor Transactor,
+	customerSender CustomerOutboxMessageSender,
 	repository Repository,
+	escaper MarkdownEscaper,
 	timeProvider TimeProvider,
 ) *OrderProcessing {
 	return &OrderProcessing{
+		transactor:     transactor,
 		customerSender: customerSender,
 		repository:     repository,
+		escaper:        escaper,
 		timeProvider:   timeProvider,
-	}
-}
-
-func (o *OrderProcessing) sendMarkdown(
-	ctx context.Context,
-	chatID msginfo.ChatID,
-	text string,
-	buttons ...button.ButtonRow,
-) {
-	if err := o.customerSender.SendMessage(
-		ctx,
-		chatID,
-		text,
-		messageprocessor.MessageTextTypeMarkdown,
-		buttons...,
-	); err != nil {
-		logger.FromContext(ctx).WithError(err).Error("send message plain")
 	}
 }

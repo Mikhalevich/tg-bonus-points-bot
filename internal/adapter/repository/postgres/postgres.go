@@ -48,3 +48,7 @@ func New(
 		transactor: transactor,
 	}
 }
+
+func (p *Postgres) Transactor() Transactor {
+	return p.transactor
+}

@@ -4,31 +4,48 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/order"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/perror"
 )
 
 func (o *OrderProcessing) GetNextPendingOrderToProcess(ctx context.Context) (*order.Order, error) {
-	order, err := o.repository.UpdateOrderStatusForMinID(
-		ctx,
-		o.timeProvider.Now(),
-		order.StatusInProgress,
-		order.StatusConfirmed,
+	var (
+		orderToProcess *order.Order
+		err            error
 	)
-	if err != nil {
-		if o.repository.IsNotFoundError(err) {
-			return nil, perror.NotFound("no pending orders")
+	if err := o.transactor.Transaction(ctx, func(ctx context.Context) error {
+		orderToProcess, err = o.repository.UpdateOrderStatusForMinID(
+			ctx,
+			o.timeProvider.Now(),
+			order.StatusInProgress,
+			order.StatusConfirmed,
+		)
+		if err != nil {
+			if o.repository.IsNotFoundError(err) {
+				return perror.NotFound("no pending orders")
+			}
+
+			return fmt.Errorf("update next order status: %w", err)
 		}
 
-		return nil, fmt.Errorf("update next order status: %w", err)
+		if err := o.customerSender.OutboxSendMessage(
+			ctx,
+			orderToProcess.ChatID,
+			o.makeChangedOrderStatusMarkdownMsg(orderToProcess.Status),
+			messageprocessor.MessageTextTypeMarkdown,
+		); err != nil {
+			return fmt.Errorf("send outbox message: %w", err)
+		}
+
+		return nil
+	}); err != nil {
+		return nil, fmt.Errorf("transaction: %w", err)
 	}
 
-	o.sendMarkdown(ctx, order.ChatID,
-		o.makeChangedOrderStatusMarkdownMsg(order.Status))
-
-	return order, nil
+	return orderToProcess, nil
 }
 
 func (o *OrderProcessing) makeChangedOrderStatusMarkdownMsg(s order.Status) string {
-	return fmt.Sprintf("your order status changed to *%s*", o.customerSender.EscapeMarkdown(s.HumanReadable()))
+	return fmt.Sprintf("your order status changed to *%s*", o.escaper.EscapeMarkdown(s.HumanReadable()))
 }
