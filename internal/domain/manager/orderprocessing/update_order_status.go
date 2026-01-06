@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/messageprocessor"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/order"
 	"github.com/Mikhalevich/tg-coffee-shop-bot/internal/domain/port/perror"
 )
@@ -14,24 +15,36 @@ func (o *OrderProcessing) UpdateOrderStatus(ctx context.Context, orderID order.I
 		return fmt.Errorf("calculate legal previous statuses: %w", err)
 	}
 
-	updatedOrder, err := o.repository.UpdateOrderStatus(
-		ctx,
-		orderID,
-		o.timeProvider.Now(),
-		status,
-		previousStatuses...,
-	)
+	if err := o.transactor.Transaction(ctx, func(ctx context.Context) error {
+		updatedOrder, err := o.repository.UpdateOrderStatus(
+			ctx,
+			orderID,
+			o.timeProvider.Now(),
+			status,
+			previousStatuses...,
+		)
 
-	if err != nil {
-		if o.repository.IsNotUpdatedError(err) {
-			return perror.NotFound("order with relevant status not found")
+		if err != nil {
+			if o.repository.IsNotUpdatedError(err) {
+				return perror.NotFound("order with relevant status not found")
+			}
+
+			return fmt.Errorf("update order status: %w", err)
 		}
 
-		return fmt.Errorf("update order status: %w", err)
-	}
+		if err := o.customerSender.OutboxSendMessage(
+			ctx,
+			updatedOrder.ChatID,
+			o.makeChangedOrderStatusMarkdownMsg(status),
+			messageprocessor.MessageTextTypeMarkdown,
+		); err != nil {
+			return fmt.Errorf("send outbox message: %w", err)
+		}
 
-	o.sendMarkdown(ctx, updatedOrder.ChatID,
-		o.makeChangedOrderStatusMarkdownMsg(status))
+		return nil
+	}); err != nil {
+		return fmt.Errorf("transaction: %w", err)
+	}
 
 	return nil
 }

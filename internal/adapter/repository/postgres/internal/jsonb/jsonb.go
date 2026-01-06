@@ -1,6 +1,7 @@
 package jsonb
 
 import (
+	"database/sql/driver"
 	"encoding/json"
 	"fmt"
 )
@@ -14,6 +15,14 @@ func NewFromMarshaler(s any) (JSONB, error) {
 	}
 
 	return JSONB(b), nil
+}
+
+func (j JSONB) Value() (driver.Value, error) {
+	if j == "" {
+		return "{}", nil
+	}
+
+	return j, nil
 }
 
 func ConvertTo[T any](j JSONB, v *T) error {
