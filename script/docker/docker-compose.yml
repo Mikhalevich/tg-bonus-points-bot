@@ -26,6 +26,15 @@ services:
       - 8080:8080
     networks:
       - bot-net
+  msgconsumer:
+    build:
+      context: ../../
+      dockerfile: script/docker/msgconsumer.Dockerfile
+    depends_on:
+      jaeger:
+        condition: service_started
+    networks:
+      - bot-net
   jaeger:
     image: jaegertracing/all-in-one:1.57
     ports:

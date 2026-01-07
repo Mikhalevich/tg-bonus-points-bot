@@ -1,0 +1,12 @@
+log_level: "info"
+tracing:
+  endpoint: "jaeger:4318"
+  service_name: "msgconsumer"
+bot:
+  token: "bot token"
+  payment_token: "payment token"
+kafka:
+  brokers:
+    - localhost:9092
+  topic: "outbox_messages"
+  consumer_group: "group_outbox_messages"
