@@ -2,7 +2,7 @@ package kafkaconsumer
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"github.com/segmentio/kafka-go"
 
@@ -37,21 +37,26 @@ func (k *KafkaConsumer) Consume(
 	for {
 		msg, err := k.reader.ReadMessage(ctx)
 		if err != nil {
-			return fmt.Errorf("read message: %w", err)
+			if errors.Is(err, context.Canceled) {
+				return nil
+			}
+
+			logger.FromContext(ctx).
+				WithError(err).
+				Error("error while read message")
 		}
 
-		logger.FromContext(ctx).
-			WithFields(logger.Fields{
-				"kafka_topic":     msg.Topic,
-				"kafka_partition": msg.Partition,
-				"kafka_offset":    msg.Offset,
-				"kafka_key":       string(msg.Key),
-				"kafka_msg":       string(msg.Value),
-			}).
-			Info("received msg")
-
 		if err := processFn(ctx, msg.Value); err != nil {
-			return fmt.Errorf("process msg: %w", err)
+			logger.FromContext(ctx).
+				WithFields(logger.Fields{
+					"kafka_topic":     msg.Topic,
+					"kafka_partition": msg.Partition,
+					"kafka_offset":    msg.Offset,
+					"kafka_key":       string(msg.Key),
+					"kafka_msg":       string(msg.Value),
+				}).
+				WithError(err).
+				Error("error while process message")
 		}
 	}
 }
