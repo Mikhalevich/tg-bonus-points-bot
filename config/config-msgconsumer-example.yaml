@@ -5,8 +5,13 @@ tracing:
 bot:
   token: "bot token"
   payment_token: "payment token"
+button_redis:
+  addr: "redis:6379"
+  pwd: "redis123"
+  db: 1
+  ttl: 1h
 kafka:
   brokers:
     - localhost:9092
-  topic: "outbox_messages"
+  topic: "debezium.public.outbox_messages"
   consumer_group: "group_outbox_messages"

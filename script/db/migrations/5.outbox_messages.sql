@@ -17,6 +17,12 @@ CREATE TABLE outbox_messages(
     buttons JSONB NOT NULL
 );
 
+ALTER TABLE outbox_messages REPLICA IDENTITY NOTHING;
+
+INSERT INTO outbox_messages(chat_id, msg_text, msg_type, payload, buttons) VALUES(0, 'test text', 'plain', ''::bytea, '{}');
+
+CREATE PUBLICATION outbox_messages_publication FOR TABLE outbox_messages;
+
 -- +migrate Down
 -- SQL section 'Down' is executed when this migration is rolled back
 
