@@ -79,7 +79,3 @@ run-django-admin: install-admin-deps
 	source $(BIN_PATH)/python_venv/bin/activate && \
 		python cmd/adminpanel/manage.py migrate && \
 		python cmd/adminpanel/manage.py runserver \
-
-register-debezium-config:
-	curl -s -S -XPOST -H Accept:application/json -H Content-Type:application/json http://localhost:8083/connectors/ -d @./script/docker/debezium-config.json
-
