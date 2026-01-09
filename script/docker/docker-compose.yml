@@ -153,6 +153,12 @@ services:
       CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
       CLASSPATH: "/usr/share/java/monitoring-interceptors/monitoring-interceptors-7.5.2.jar"
       CONNECT_PLUGIN_PATH: '/usr/share/java,/usr/share/confluent-hub-components/,/connectors/'
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8083/connectors || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 1m
     volumes:
       - database:/opt/docker/db/data
       - $PWD/stack-configs:/opt/docker/stack-configs
@@ -164,6 +170,18 @@ services:
         confluent-hub install --no-prompt debezium/debezium-connector-postgresql:2.2.1
         echo "Launching Kafka Connect worker"
         /etc/confluent/docker/run
+    networks:
+      - bot-net
+
+  debezium-config:
+    build:
+      context: ../../
+      dockerfile: script/docker/debezium-config.Dockerfile
+      args:
+        CONNECT_HOST: connect:8083
+    depends_on:
+      connect:
+        condition: service_healthy
     networks:
       - bot-net
 
