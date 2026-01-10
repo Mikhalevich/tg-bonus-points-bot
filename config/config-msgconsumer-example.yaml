@@ -15,3 +15,4 @@ kafka:
     - localhost:9092
   topic: "debezium.public.outbox_messages"
   consumer_group: "group_outbox_messages"
+  workers_count: 4

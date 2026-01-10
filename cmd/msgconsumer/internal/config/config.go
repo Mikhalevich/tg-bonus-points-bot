@@ -33,4 +33,5 @@ type Kafka struct {
 	Brokers       []string `yaml:"brokers" required:"true"`
 	Topic         string   `yaml:"topic" required:"true"`
 	ConsumerGroup string   `yaml:"consumer_group" required:"true"`
+	WorkersCount  int      `yaml:"workers_count" required:"true"`
 }
