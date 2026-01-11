@@ -71,11 +71,7 @@ func (k *KafkaConsumer) runWorkers(
 	var wgr sync.WaitGroup
 
 	for range k.workerCount {
-		wgr.Add(1)
-
-		go func() {
-			defer wgr.Done()
-
+		wgr.Go(func() {
 			for msg := range dataChan {
 				if err := processFn(ctx, msg.Value); err != nil {
 					logger.FromContext(ctx).
@@ -103,7 +99,7 @@ func (k *KafkaConsumer) runWorkers(
 						Error("commit message")
 				}
 			}
-		}()
+		})
 	}
 
 	return &wgr
