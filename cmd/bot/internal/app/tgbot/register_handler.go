@@ -2,6 +2,8 @@ package tgbot
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
@@ -19,18 +21,40 @@ type Payment struct {
 	TotalAmount    int
 }
 
+type User struct {
+	FirstName string
+	LastName  string
+	Username  string
+}
+
+func (u User) FullName() string {
+	if u.FirstName == "" {
+		return u.LastName
+	}
+
+	if u.LastName == "" {
+		return u.FirstName
+	}
+
+	return fmt.Sprintf("%s %s", u.FirstName, u.LastName)
+}
+
 type BotMessage struct {
 	MessageID int
 	ChatID    int64
+	IsGroup   bool
+	User      User
 	// for text message
 	Text string
 	// for callback query
 	Data    string
 	Payment Payment
+	Args    string
 }
 
 type MessageSender interface {
 	SendMessage(ctx context.Context, chatID int64, msg string)
+	DeleteMessage(ctx context.Context, chatID int64, messageID int)
 }
 
 type Handler func(ctx context.Context, msg BotMessage, sender MessageSender) error
@@ -51,12 +75,39 @@ func (t *TGBot) addCommand(command string, description string, handler Handler) 
 		})
 	}
 
-	t.bot.RegisterHandler(
-		bot.HandlerTypeMessageText,
-		command,
-		bot.MatchTypeExact,
+	t.bot.RegisterHandlerMatchFunc(
+		commandMatchFn(command),
 		t.wrapHandler(command, handler),
 	)
+}
+
+func commandMatchFn(command string) bot.MatchFunc {
+	return func(update *models.Update) bool {
+		if update.Message == nil {
+			return false
+		}
+
+		var (
+			data     = update.Message.Text
+			entities = update.Message.Entities
+		)
+
+		for _, entity := range entities {
+			if entity.Type == models.MessageEntityTypeBotCommand {
+				if entity.Offset != 0 {
+					continue
+				}
+
+				entityData := data[entity.Offset+1 : entity.Offset+entity.Length]
+
+				if strings.HasPrefix(entityData, command) {
+					return true
+				}
+			}
+		}
+
+		return false
+	}
 }
 
 func (t *TGBot) AddDefaultHandler(h Handler) {
@@ -90,8 +141,10 @@ func (t *TGBot) wrapHandler(pattern string, handler Handler) bot.HandlerFunc {
 		defer span.End()
 
 		var (
-			msg    = makeMsgFromUpdate(update)
-			log    = t.logger.WithContext(ctx).WithField("endpoint", pattern)
+			msg = makeMsgFromUpdate(update)
+			log = t.logger.WithContext(ctx).
+				WithField("endpoint", pattern).
+				WithField("bot_message", msg)
 			ctxLog = logger.WithLogger(ctx, log)
 		)
 
@@ -113,11 +166,8 @@ func (t *TGBot) wrapHandler(pattern string, handler Handler) bot.HandlerFunc {
 
 func makeMsgFromUpdate(update *models.Update) BotMessage {
 	if update.Message != nil {
-		msg := BotMessage{
-			MessageID: update.Message.ID,
-			ChatID:    update.Message.Chat.ID,
-			Text:      update.Message.Text,
-		}
+		msg := fillBaseMessage(update.Message, update.Message.From)
+		msg.Args = commandArgs(update.Message)
 
 		if update.Message.SuccessfulPayment != nil {
 			msg.Payment = Payment{
@@ -133,11 +183,10 @@ func makeMsgFromUpdate(update *models.Update) BotMessage {
 
 	if update.CallbackQuery != nil {
 		if update.CallbackQuery.Message.Message != nil {
-			return BotMessage{
-				MessageID: update.CallbackQuery.Message.Message.ID,
-				ChatID:    update.CallbackQuery.Message.Message.Chat.ID,
-				Data:      update.CallbackQuery.Data,
-			}
+			msg := fillBaseMessage(update.CallbackQuery.Message.Message, &update.CallbackQuery.From)
+			msg.Data = update.CallbackQuery.Data
+
+			return msg
 		}
 
 		if update.CallbackQuery.Message.InaccessibleMessage != nil {
@@ -162,4 +211,35 @@ func makeMsgFromUpdate(update *models.Update) BotMessage {
 	}
 
 	return BotMessage{}
+}
+
+func fillBaseMessage(msg *models.Message, user *models.User) BotMessage {
+	botMsg := BotMessage{
+		MessageID: msg.ID,
+		ChatID:    msg.Chat.ID,
+		IsGroup:   msg.Chat.Type != models.ChatTypePrivate,
+		Text:      msg.Text,
+	}
+
+	if user != nil {
+		botMsg.User = User{
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Username:  user.Username,
+		}
+	}
+
+	return botMsg
+}
+
+func commandArgs(msg *models.Message) string {
+	for _, e := range msg.Entities {
+		if e.Type == models.MessageEntityTypeBotCommand {
+			if e.Offset == 0 {
+				return strings.TrimLeft(msg.Text[e.Offset+e.Length:], " ")
+			}
+		}
+	}
+
+	return ""
 }

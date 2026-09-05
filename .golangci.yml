@@ -12,6 +12,8 @@ output:
       print-issued-lines: true
 linters:
   default: all
+  enable:
+    - gomodguard_v2
   disable:
     - depguard
     - err113
@@ -24,6 +26,8 @@ linters:
     - wsl
     - wsl_v5
     - noinlineerr
+    - goconst
+    - gomodguard
 
   settings:
     misspell:

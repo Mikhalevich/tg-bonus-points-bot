@@ -30,7 +30,7 @@ func Start(
 		)
 	)
 
-	tbot, err := tgbot.New(token, logger.FromContext(ctx))
+	tbot, err := tgbot.New(token, "", logger.FromContext(ctx))
 	if err != nil {
 		return fmt.Errorf("creating bot: %w", err)
 	}
